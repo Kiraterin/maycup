@@ -1,0 +1,7 @@
+.cache
+.clang-format
+.vscode
+cwd/
+bin/
+build/
+commit_msg.txt
