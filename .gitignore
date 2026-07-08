@@ -1,6 +1,7 @@
 .cache
 .clang-format
 .vscode
+compile_commands.json
 cwd/
 bin/
 build/
