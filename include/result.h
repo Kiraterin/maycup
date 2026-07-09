@@ -1,6 +1,6 @@
 /**
  * @file result.h
- * @brief Result type definition
+ * @brief Result type declaration
  * @date 2026-07-08
  * @copyright GPLv3 License
  * @section LICENSE
@@ -25,6 +25,11 @@
 #define RESULT_H
 
 #include "common.h"
+#include "lib_marker.h"
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 typedef enum {
     M2H_RESULT_OK = 0,
@@ -36,11 +41,33 @@ typedef enum {
     M2H_RESULT_ILLEGAL_ARGUMENT
 } M2H_Result;
 
+/**
+ * @brief Print error message
+ * @param res In, the type of result
+ */
+void M2H_error_printmsg(M2H_IN M2H_Result res);
+
+/**
+ * @brief Relay error to caller
+ */
 #define M2H_RELAY(expr)                                                        \
     do {                                                                       \
-        M2H_Result res = expr;                                                 \
+        M2H_Result res = (expr);                                               \
         if (res != M2H_RESULT_OK) {                                            \
             return res;                                                        \
+        }                                                                      \
+    } while (false)
+
+/**
+ * @brief Abort and print error message if the result of expr is not @c
+ *        M2H_RESULT_OK
+ */
+#define M2H_UNWRAP(expr)                                                       \
+    do {                                                                       \
+        M2H_Result res = (expr);                                               \
+        if (res != M2H_RESULT_OK) {                                            \
+            M2H_error_printmsg(res);                                           \
+            abort();                                                           \
         }                                                                      \
     } while (false)
 

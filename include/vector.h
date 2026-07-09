@@ -24,11 +24,8 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#define M2H_VEC_T char
-#define M2H_VEC_DISPT Char
-
 #include <common.h>
-#define M2H_DEFAULT_VEC_SIZE 8
+#define M2H_DEFAULT_VEC_SIZE 4
 #define M2H_MAX_VEC_CAP (SIZE_MAX / 2)
 
 #if defined(M2H_VEC_T) && defined(M2H_VEC_DISPT)
@@ -93,17 +90,22 @@ CONCAT(FUNC_PREF, reserve)(M2H_INOUT VECT *self, M2H_IN size_t cap) {
 }
 
 [[maybe_unused]] static M2H_Result
-CONCAT(FUNC_PREF, pushback)(M2H_INOUT VECT *self, T *elem) {
+CONCAT(FUNC_PREF, pushback)(M2H_INOUT VECT *self, T elem) {
     if (self->cap == self->len) {
         M2H_RELAY(CONCAT(FUNC_PREF, reserve)(self, self->cap * 2));
     }
-    self->ptr[self->len] = *elem;
+    self->ptr[self->len] = elem;
     self->len++;
     return M2H_RESULT_OK;
 }
 
+#undef FUNC_PREF
+#undef VECT
 #undef DT
 #undef T
+
+#undef CONCAT
+#undef CONCAT_INNER
 
 #endif // M2H_VEC_T && M2H_VEC_DISPT
 

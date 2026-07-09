@@ -29,9 +29,11 @@
 #include <stdio.h>
 
 typedef enum {
-    M2H_TOKENTYPE_EOF = 0,
+    M2H_TOKENTYPE_NONE = 0,
+    M2H_TOKENTYPE_EOF,
     M2H_TOKENTYPE_LITERAL,
     M2H_TOKENTYPE_TEXT,
+    M2H_TOKENTYPE_NEWLINE
 } M2H_TokenType;
 
 typedef struct {
@@ -85,6 +87,6 @@ M2H_Result M2H_next_token(M2H_OUT M2H_Token *token, M2H_IN M2H_Lexer *lexer);
  */
 void M2H_print_token(M2H_IN M2H_Token *token);
 
-#endif
+#endif // DEBUG
 
 #endif // LEXER_H

@@ -26,7 +26,7 @@ LIB =
 C_GREEN = \033[92m
 C_RESET = \033[0m
 
-all: $(TARGET_PATH) test
+all: $(TARGET_PATH)
 
 $(TARGET_PATH): $(OBJ)
 	@mkdir -p $(dir $@)

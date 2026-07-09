@@ -22,6 +22,7 @@
  */
 
 #include "lexer.h"
+#include <ctype.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,7 +30,8 @@
 #define M2H_VEC_T char
 #define M2H_VEC_DISPT Char
 #include "vector.h"
-#undef  M2H_VEC_T
+#undef M2H_VEC_DISPT
+#undef M2H_VEC_T
 
 M2H_Result M2H_token_dtor(M2H_OUT M2H_Token *self) {
     if (self->type == M2H_TOKENTYPE_TEXT) {
@@ -44,11 +46,16 @@ M2H_Result M2H_token_dtor(M2H_OUT M2H_Token *self) {
 }
 
 M2H_Result M2H_lexer_ctor(M2H_OUT M2H_Lexer *self, M2H_IN const char *path) {
-    self->input_file_path = (char *)malloc(strlen(path) * sizeof(char));
+    // input_file_path
+    size_t len = strlen(path);
+    self->input_file_path = (char *)malloc((len + 1) * sizeof(char));
     if (self->input_file_path == NULL) {
         return M2H_RESULT_NOMEM;
     }
+    memcpy(self->input_file_path, path, len);
+    self->input_file_path[len] = '\0';
 
+    // fp
     self->fp = fopen(self->input_file_path, "r");
     if (self->fp == NULL) {
         return M2H_RESULT_ERRNO;
@@ -77,6 +84,22 @@ static bool is_literal(int ch) {
     case '\\':
     case '#':
     case '>':
+    case '_':
+    case '`':
+    case '[':
+    case ']':
+    case '(':
+    case ')':
+    case '{':
+    case '}':
+    case '.':
+    case '!':
+    case '~':
+    case '-':
+    case '+':
+    case '$':
+    case ':':
+    case '/':
         return true;
     default:
         return false;
@@ -84,23 +107,62 @@ static bool is_literal(int ch) {
 }
 
 M2H_Result M2H_next_token(M2H_OUT M2H_Token *token, M2H_IN M2H_Lexer *lexer) {
-    int cur;
+    M2H_VectorChar buf;
 
-    while (true) {
-        cur = fgetc(lexer->fp);
-        if (is_literal(cur)) {
-            token->type = M2H_TOKENTYPE_LITERAL;
-            token->literal = cur;
-            break;
-        } else if (cur == EOF) {
-            if (feof(lexer->fp)) {
-                token->type = M2H_TOKENTYPE_EOF;
-                break;
-            } else {
+    // Use the first char to determine token type
+    int cur = fgetc(lexer->fp);
+    if (cur == EOF) {
+        if (feof(lexer->fp)) {
+            token->type = M2H_TOKENTYPE_EOF;
+            return M2H_RESULT_OK;
+        } else {
+            return M2H_RESULT_ERRNO;
+        }
+    } else if (is_literal(cur)) {
+        token->type = M2H_TOKENTYPE_LITERAL;
+        token->literal = cur;
+        return M2H_RESULT_OK;
+    }
+
+    // If the type is text or blank, needs to process
+    if (cur == '\n') {
+        token->type = M2H_TOKENTYPE_NEWLINE;
+    } else {
+        token->type = M2H_TOKENTYPE_TEXT;
+        M2H_RELAY(M2H_vector_char_ctor(&buf, M2H_DEFAULT_VEC_SIZE));
+    }
+
+    switch (token->type) {
+    case M2H_TOKENTYPE_NEWLINE: {
+        do {
+            cur = fgetc(lexer->fp);
+        } while (isspace(cur) && cur != '\n');
+        if (cur == EOF) {
+            if (!feof(lexer->fp)) {
                 return M2H_RESULT_ERRNO;
             }
         } else {
+            fseek(lexer->fp, -1, SEEK_CUR);
         }
+        break;
+    }
+    case M2H_TOKENTYPE_TEXT: {
+        do {
+            M2H_RELAY(M2H_vector_char_pushback(&buf, cur));
+            cur = fgetc(lexer->fp);
+        } while (cur != '\n' && cur != EOF && !is_literal(cur));
+        if (cur == EOF) {
+            if (!feof(lexer->fp)) {
+                return M2H_RESULT_ERRNO;
+            }
+        } else {
+            fseek(lexer->fp, -1, SEEK_CUR);
+        }
+        M2H_RELAY(M2H_vector_char_pushback(&buf, '\0'));
+        token->text = buf.ptr;
+    }
+    default:
+        break;
     }
 
     return M2H_RESULT_OK;
@@ -108,7 +170,7 @@ M2H_Result M2H_next_token(M2H_OUT M2H_Token *token, M2H_IN M2H_Lexer *lexer) {
 
 #ifdef DEBUG
 
-void M2H_token_tostr(M2H_IN M2H_Token *token) {
+void M2H_print_token(M2H_IN M2H_Token *token) {
     switch (token->type) {
     case M2H_TOKENTYPE_TEXT: {
         printf("(TEXT, %s)\n", token->text);
@@ -122,6 +184,14 @@ void M2H_token_tostr(M2H_IN M2H_Token *token) {
         printf("(EOF)\n");
         break;
     }
+    case M2H_TOKENTYPE_NEWLINE: {
+        printf("(NEWLINE)\n");
+        break;
+    }
+    case M2H_TOKENTYPE_NONE: {
+        printf("(NONE)\n");
+        break;
+    }
     default: {
         printf("(UNKNOWN TOKEN)\n");
         break;
@@ -129,4 +199,4 @@ void M2H_token_tostr(M2H_IN M2H_Token *token) {
     }
 }
 
-#endif
+#endif // DEBUG
