@@ -26,32 +26,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-M2H_Result M2H_token_ctor(M2H_OUT M2H_Token *self, M2H_IN M2H_TokenType type,
-                          M2H_IN const char literal, M2H_IN const char *text) {
-
-    self->type = type;
-
-    switch (type) {
-    case M2H_TOKENTYPE_TEXT: {
-        self->text = (char *)malloc(strlen(text));
-        if (self->text == NULL) {
-            return M2H_RESULT_NOMEM;
-        }
-        break;
-    }
-    case M2H_TOKENTYPE_LITERAL: {
-        self->literal = literal;
-        break;
-    }
-    case M2H_TOKENTYPE_EOF: {
-        break;
-    }
-    default: {
-        return M2H_RESULT_UNKNOWN_TOKENTYPE;
-    }
-    }
-    return M2H_RESULT_OK;
-}
+#define M2H_VEC_T char
+#define M2H_VEC_DISPT Char
+#include "vector.h"
+#undef  M2H_VEC_T
 
 M2H_Result M2H_token_dtor(M2H_OUT M2H_Token *self) {
     if (self->type == M2H_TOKENTYPE_TEXT) {
@@ -66,7 +44,7 @@ M2H_Result M2H_token_dtor(M2H_OUT M2H_Token *self) {
 }
 
 M2H_Result M2H_lexer_ctor(M2H_OUT M2H_Lexer *self, M2H_IN const char *path) {
-    self->input_file_path = (char *)malloc(strlen(path));
+    self->input_file_path = (char *)malloc(strlen(path) * sizeof(char));
     if (self->input_file_path == NULL) {
         return M2H_RESULT_NOMEM;
     }
@@ -93,18 +71,37 @@ M2H_Result M2H_lexer_dtor(M2H_OUT M2H_Lexer *self) {
     return M2H_RESULT_OK;
 }
 
+static bool is_literal(int ch) {
+    switch (ch) {
+    case '*':
+    case '\\':
+    case '#':
+    case '>':
+        return true;
+    default:
+        return false;
+    }
+}
+
 M2H_Result M2H_next_token(M2H_OUT M2H_Token *token, M2H_IN M2H_Lexer *lexer) {
-    int cur = fgetc(lexer->fp);
-    
-    if (cur == EOF) {
-        if (feof(lexer->fp)) {
-            token->type = M2H_TOKENTYPE_EOF;
+    int cur;
+
+    while (true) {
+        cur = fgetc(lexer->fp);
+        if (is_literal(cur)) {
+            token->type = M2H_TOKENTYPE_LITERAL;
+            token->literal = cur;
+            break;
+        } else if (cur == EOF) {
+            if (feof(lexer->fp)) {
+                token->type = M2H_TOKENTYPE_EOF;
+                break;
+            } else {
+                return M2H_RESULT_ERRNO;
+            }
         } else {
-            return M2H_RESULT_ERRNO;
         }
     }
-
-    
 
     return M2H_RESULT_OK;
 }
@@ -118,15 +115,15 @@ void M2H_token_tostr(M2H_IN M2H_Token *token) {
         break;
     }
     case M2H_TOKENTYPE_LITERAL: {
-        printf("(LITERAL, %c)", token->literal);
+        printf("(LITERAL, %c)\n", token->literal);
         break;
     }
     case M2H_TOKENTYPE_EOF: {
-        printf("(EOF)");
+        printf("(EOF)\n");
         break;
     }
     default: {
-        printf("(UNKNOWN TOKEN)");
+        printf("(UNKNOWN TOKEN)\n");
         break;
     }
     }

@@ -9,10 +9,14 @@ A tiny Markdown-to-HTML tool written in C.
 - Achieve zero memory leaks under ASan
 
 ## TODO
+
 ### Core
+
 - Basic lexer-parser structure
 - Basic test cases
+
 ### Build System
+
 - Refactor the Makefile
-    - Support source file compilation in recursive folders
-    - Clean redundant code
+  - Support source file compilation in recursive folders
+  - Clean redundant code

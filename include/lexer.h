@@ -38,20 +38,15 @@ typedef struct {
     M2H_TokenType type;
     union {
         char *text;
-        char literal;
+        int literal;
     };
 } M2H_Token;
 
 /**
- * @brief Construct a token
- * @param self Out, the token to construct
- * @param type In, the type of token
- * @param literal In, necessary only when the type is @c M2H_TOKENTYPE_LITERAL
- * @param text In, necessary only when the type is @c M2H_TOKENTYPE_TEXT
+ * @brief Destruct a token
+ * @param self Out, the token to destruct
  * @return M2H_Result
  */
-M2H_Result M2H_token_ctor(M2H_OUT M2H_Token *self, M2H_IN M2H_TokenType type,
-                          M2H_IN const char literal, M2H_IN const char *text);
 M2H_Result M2H_token_dtor(M2H_OUT M2H_Token *self);
 
 typedef struct {
@@ -75,8 +70,8 @@ M2H_Result M2H_lexer_ctor(M2H_OUT M2H_Lexer *self, M2H_IN const char *path);
 M2H_Result M2H_lexer_dtor(M2H_OUT M2H_Lexer *self);
 
 /**
- * @brief Return the next token of the given lexer context
- * @param token Out, mustn't be already constructed
+ * @brief Construct and return the next token of the given lexer context
+ * @param token Out, dest token
  * @param lexer In, the context
  * @return M2H_Result
  */
