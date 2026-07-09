@@ -1,7 +1,7 @@
 /**
- * @file main.c
- * @brief CLI entry point
- * @date 2026-07-08
+ * @file result.c
+ * @brief Result type definition
+ * @date 2026-07-09
  * @copyright GPLv3 License
  * @section LICENSE
  * md2html
@@ -20,25 +20,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https: //www.gnu.org/licenses/>.
  */
-#include "lexer.h"
-#include <stdio.h>
 
-int main(int argc, char *argv[]) {
-    M2H_Lexer lexer;
-    M2H_Token token;
+#include "result.h"
 
-    if (argc == 2) {
-        M2H_UNWRAP(M2H_lexer_ctor(&lexer, argv[1]));
-    } else {
-        M2H_UNWRAP(M2H_lexer_ctor(&lexer, "test/cases/a.in"));
+void M2H_error_printmsg(M2H_IN M2H_Result res) {
+    switch (res) {
+    case M2H_RESULT_OK:
+        return;
+    case M2H_RESULT_ERRNO:
+        fprintf(stderr, "Error: %s (%d)\n", strerror(errno), errno);
+        break;
+    default:
+        fprintf(stderr, "Error: code %d\n", res);
     }
-
-    do {
-        M2H_UNWRAP(M2H_next_token(&token, &lexer));
-        M2H_print_token(&token);
-        M2H_UNWRAP(M2H_token_dtor(&token));
-    } while (token.type != M2H_TOKENTYPE_EOF);
-
-    M2H_UNWRAP(M2H_lexer_dtor(&lexer));
-    return 0;
 }

@@ -1,6 +1,6 @@
 /**
- * @file main.c
- * @brief CLI entry point
+ * @file common.h
+ * @brief Common header
  * @date 2026-07-08
  * @copyright GPLv3 License
  * @section LICENSE
@@ -20,25 +20,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https: //www.gnu.org/licenses/>.
  */
-#include "lexer.h"
-#include <stdio.h>
 
-int main(int argc, char *argv[]) {
-    M2H_Lexer lexer;
-    M2H_Token token;
+#ifndef COMMON_H
+#define COMMON_H
 
-    if (argc == 2) {
-        M2H_UNWRAP(M2H_lexer_ctor(&lexer, argv[1]));
-    } else {
-        M2H_UNWRAP(M2H_lexer_ctor(&lexer, "test/cases/a.in"));
-    }
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
+#include "lib_marker.h"
 
-    do {
-        M2H_UNWRAP(M2H_next_token(&token, &lexer));
-        M2H_print_token(&token);
-        M2H_UNWRAP(M2H_token_dtor(&token));
-    } while (token.type != M2H_TOKENTYPE_EOF);
-
-    M2H_UNWRAP(M2H_lexer_dtor(&lexer));
-    return 0;
-}
+#endif // COMMON_H

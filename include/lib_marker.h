@@ -1,6 +1,6 @@
 /**
- * @file main.c
- * @brief CLI entry point
+ * @file lib_marker.h
+ * @brief Misc macros
  * @date 2026-07-08
  * @copyright GPLv3 License
  * @section LICENSE
@@ -20,25 +20,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https: //www.gnu.org/licenses/>.
  */
-#include "lexer.h"
-#include <stdio.h>
 
-int main(int argc, char *argv[]) {
-    M2H_Lexer lexer;
-    M2H_Token token;
+#ifndef LIB_MARKER_H
+#define LIB_MARKER_H
 
-    if (argc == 2) {
-        M2H_UNWRAP(M2H_lexer_ctor(&lexer, argv[1]));
-    } else {
-        M2H_UNWRAP(M2H_lexer_ctor(&lexer, "test/cases/a.in"));
-    }
+// Parameter ("Read" excludes checking value)
+#define M2H_IN    // Read only
+#define M2H_OUT   // Write only
+#define M2H_INOUT // Read & Write
 
-    do {
-        M2H_UNWRAP(M2H_next_token(&token, &lexer));
-        M2H_print_token(&token);
-        M2H_UNWRAP(M2H_token_dtor(&token));
-    } while (token.type != M2H_TOKENTYPE_EOF);
+// Function
+#define M2H_NOERR void
 
-    M2H_UNWRAP(M2H_lexer_dtor(&lexer));
-    return 0;
-}
+#endif // LIB_MARKER_H
