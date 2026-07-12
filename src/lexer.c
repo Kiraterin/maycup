@@ -35,9 +35,6 @@
 
 M2H_Result M2H_token_dtor(M2H_OUT M2H_Token *self) {
     if (self->type == M2H_TOKENTYPE_TEXT) {
-        if (self->text == NULL) {
-            return M2H_RESULT_NULL_DESTROY;
-        }
         free(self->text);
         self->text = NULL;
     }
@@ -61,12 +58,15 @@ M2H_Result M2H_lexer_ctor(M2H_OUT M2H_Lexer *self, M2H_IN const char *path) {
         return M2H_RESULT_ERRNO;
     }
 
+    // checkpoint
+    self->checkpoint = 0;
+
     return M2H_RESULT_OK;
 }
 
 M2H_Result M2H_lexer_dtor(M2H_OUT M2H_Lexer *self) {
     if (self->input_file_path == NULL) {
-        return M2H_RESULT_NULL_DESTROY;
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
     }
     free(self->input_file_path);
     self->input_file_path = NULL;
@@ -160,11 +160,27 @@ M2H_Result M2H_next_token(M2H_OUT M2H_Token *token, M2H_IN M2H_Lexer *lexer) {
         }
         M2H_RELAY(M2H_vector_char_pushback(&buf, '\0'));
         token->text = buf.ptr;
+        buf.ptr = NULL;
     }
     default:
         break;
     }
 
+    return M2H_RESULT_OK;
+}
+
+M2H_Result M2H_lexer_checkpoint(M2H_OUT M2H_Lexer *self) {
+    self->checkpoint = ftell(self->fp);
+    if (self->checkpoint == -1L) {
+        return M2H_RESULT_ERRNO;
+    }
+    return M2H_RESULT_OK;
+}
+
+M2H_Result M2H_lexer_restore(M2H_INOUT M2H_Lexer *self) {
+    if (fseek(self->fp, self->checkpoint, SEEK_SET)) {
+        return M2H_RESULT_ERRNO;
+    }
     return M2H_RESULT_OK;
 }
 

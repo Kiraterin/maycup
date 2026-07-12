@@ -54,6 +54,7 @@ M2H_Result M2H_token_dtor(M2H_OUT M2H_Token *self);
 typedef struct {
     char *input_file_path;
     FILE *fp;
+    long checkpoint;
 } M2H_Lexer;
 
 /**
@@ -78,6 +79,20 @@ M2H_Result M2H_lexer_dtor(M2H_OUT M2H_Lexer *self);
  * @return M2H_Result
  */
 M2H_Result M2H_next_token(M2H_OUT M2H_Token *token, M2H_IN M2H_Lexer *lexer);
+
+/**
+ * @brief Set a checkpoint in the file
+ * @param self Out, the lexer
+ * @return M2H_Result 
+ */
+M2H_Result M2H_lexer_checkpoint(M2H_OUT M2H_Lexer *self);
+
+/**
+ * @brief Return to the checkpoint
+ * @param self In & out, the lexer
+ * @return M2H_Result 
+ */
+M2H_Result M2H_lexer_restore(M2H_INOUT M2H_Lexer *self);
 
 #ifdef DEBUG
 

@@ -25,8 +25,11 @@
 #define VECTOR_H
 
 #include <common.h>
-#define M2H_DEFAULT_VEC_SIZE 4
+#define M2H_DEFAULT_VEC_SIZE 2
 #define M2H_MAX_VEC_CAP (SIZE_MAX / 2)
+
+// #define M2H_VEC_T char
+// #define M2H_VEC_DISPT Char
 
 #if defined(M2H_VEC_T) && defined(M2H_VEC_DISPT)
 
@@ -90,12 +93,31 @@ CONCAT(FUNC_PREF, reserve)(M2H_INOUT VECT *self, M2H_IN size_t cap) {
 }
 
 [[maybe_unused]] static M2H_Result
-CONCAT(FUNC_PREF, pushback)(M2H_INOUT VECT *self, T elem) {
+CONCAT(FUNC_PREF, pushback)(M2H_INOUT VECT *self, M2H_IN T elem) {
     if (self->cap == self->len) {
         M2H_RELAY(CONCAT(FUNC_PREF, reserve)(self, self->cap * 2));
     }
     self->ptr[self->len] = elem;
     self->len++;
+    return M2H_RESULT_OK;
+}
+
+[[maybe_unused]] static M2H_Result CONCAT(FUNC_PREF, top)(M2H_IN VECT *self,
+                                                          M2H_OUT T *value) {
+    if (self->len == 0) {
+        return M2H_RESULT_EMPTY_VECTOR;
+    }
+    *value = self->ptr[self->len - 1];
+    return M2H_RESULT_OK;
+}
+
+[[maybe_unused]] static M2H_Result CONCAT(FUNC_PREF,
+                                          popback)(M2H_OUT VECT *self) {
+    if (self->len == 0) {
+        return M2H_RESULT_EMPTY_VECTOR;
+    }
+    self->ptr--;
+    self->len--;
     return M2H_RESULT_OK;
 }
 

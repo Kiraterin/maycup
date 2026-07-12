@@ -38,7 +38,10 @@ typedef enum {
     M2H_RESULT_NULL_DESTROY,
     M2H_RESULT_CANNOT_CLOSE_FILE,
     M2H_RESULT_UNKNOWN_TOKENTYPE,
-    M2H_RESULT_ILLEGAL_ARGUMENT
+    M2H_RESULT_ILLEGAL_ARGUMENT,
+    M2H_RESULT_EMPTY_VECTOR,
+
+    M2H_RESULT_PARSER_DISMATCH
 } M2H_Result;
 
 /**
@@ -70,5 +73,17 @@ void M2H_error_printmsg(M2H_IN M2H_Result res);
             abort();                                                           \
         }                                                                      \
     } while (false)
+
+#define M2H_RELAY_HANDLE(expr, err, ok)                                        \
+    if (true) {                                                                \
+        M2H_Result res = (expr);                                               \
+        if (res == M2H_RESULT_OK) {                                            \
+            ok;                                                                \
+        }                                                                      \
+        if (res != (err)) {                                                    \
+            return res;                                                        \
+        }                                                                      \
+    } else                                                                     \
+        (void)0
 
 #endif // RESULT_H
