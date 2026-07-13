@@ -26,15 +26,17 @@
 
 #include "common.h"
 #include "result.h"
+#include <sys/types.h>
 
 typedef enum {
     M2H_ASTNODE_TYPE_NONE = 0,
-    M2H_ASTNODE_TYPE_DOCUMENT = 1,
-    
+
+    M2H_ASTNODE_TYPE_ROOT = 1,
+    M2H_ASTNODE_TYPE_PLACEHOLDER,
+
     M2H_ASTNODE_TYPE_HEADING,
     M2H_ASTNODE_TYPE_PARAGRAPH,
 
-    M2H_ASTNODE_TYPE_BLANK,
     M2H_ASTNODE_TYPE_TEXT,
 } M2H_ASTNodeType;
 
@@ -49,62 +51,109 @@ typedef enum {
 typedef struct {
     M2H_TextStyle style;
     char *content;
-} M2H_ASTNodeText;
+} M2H_ASTNodeDataText;
 
 typedef struct {
     uint8_t level;
-} M2H_ASTNodeHeading;
+} M2H_ASTNodeDataHeading;
 
 typedef struct M2H_ASTNode M2H_ASTNode;
-
-typedef M2H_ASTNode *astnode_ptr;
-#define M2H_VEC_T astnode_ptr
-#define M2H_VEC_DISPT ASTNodePtr
-#include "vector.h"
-#undef M2H_VEC_DISPT
-#undef M2H_VEC_T
 
 struct M2H_ASTNode {
     M2H_ASTNodeType type;
     union {
-        M2H_ASTNodeHeading heading;
-        M2H_ASTNodeText text;
+        M2H_ASTNodeDataHeading heading;
+        M2H_ASTNodeDataText text;
     };
-    M2H_VectorASTNodePtr children;
+
+    ssize_t prev_sibling;
+    ssize_t next_sibling;
+    ssize_t parent;
+    // point to the last child
+    ssize_t child;
 };
 
-/**
- * @brief Construct an AST node
- * @param self Out, the node to construct
- * @param type In, the type of the node
- * @return M2H_Result
- */
-M2H_Result M2H_astnode_ctor(M2H_OUT M2H_ASTNode *self,
-                            M2H_IN M2H_ASTNodeType type);
+typedef ssize_t idx;
+#define M2H_VEC_T idx
+#define M2H_VEC_DISPT Idx
+#include "vector.h"
+#undef M2H_VEC_DISPT
+#undef M2H_VEC_T
+
+typedef struct {
+    M2H_ASTNode *data;
+    ssize_t *next_free;
+    bool *is_allocated;
+    ssize_t first_free;
+    size_t cap;
+} M2H_AST;
+
+#define M2H_DEFAULT_AST_SIZE 8
 
 /**
- * @brief Destroy an AST node
- * @param self Out, the node to destroy
- * @return M2H_Result
+ * @brief Destruct a AST node
+ * @param self Out, the node to destruct
+ * @return M2H_Result 
  */
 M2H_Result M2H_astnode_dtor(M2H_OUT M2H_ASTNode *self);
 
 /**
- * @brief Construct a text AST node
- * @param self Out, the node to construct
- * @param text Move, the pointer to a string to be moved into the node
+ * @brief Construct an AST
+ * @param self Out, the AST to construct
+ * @param root Out, the root of AST
+ * @return M2H_Result
+ */
+M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *head);
+
+/**
+ * @brief Destruct an AST
+ * @param self Out, the AST to destruct
+ * @return M2H_Result
+ */
+M2H_Result M2H_ast_dtor(M2H_OUT M2H_AST *self);
+
+typedef enum {
+    M2H_AST_INSERT_CHILD = 0,
+    M2H_AST_INSERT_SIBLING = 1
+} M2H_ASTInsertMethod;
+
+/**
+ * @brief Insert an AST node after a given node (head insertion method if the
+ *        method is @c M2H_AST_INSERT_CHILD )
+ * @param addee Out, the inserted node. Can be @c NULL if you don't need it
+ * @param ast Out, the AST where the function inserts
+ * @param node In & out, the given node
+ * @param type In, the type of node to insert
+ * @return M2H_Result
+ */
+M2H_Result M2H_insert_astnode(M2H_OUT ssize_t *insertee, M2H_OUT M2H_AST *ast,
+                              M2H_INOUT ssize_t parent,
+                              M2H_IN M2H_ASTNodeType type);
+
+/**
+ * @brief Delete an given ast node and all of its children
+ * @param ast Out, the AST where the function deletes
+ * @param dest In & out, the node to delete
+ * @return M2H_Result
+ */
+M2H_Result M2H_delete_astnode(M2H_OUT M2H_AST *ast, M2H_INOUT ssize_t dest);
+
+/**
+ * @brief Construct a text AST node data
+ * @param self Out, the data to construct
+ * @param text Move, the pointer to a string to be moved into the data
  * @param style In, the style of the text
  * @return M2H_Result
  */
-M2H_Result M2H_astnode_text_ctor(M2H_OUT M2H_ASTNodeText *self,
-                                 M2H_MOVE char *text,
-                                 M2H_IN M2H_TextStyle style);
+M2H_Result M2H_astnode_data_text_ctor(M2H_OUT M2H_ASTNodeDataText *self,
+                                      M2H_MOVE char *text,
+                                      M2H_IN M2H_TextStyle style);
 
 /**
- * @brief Destroy a text AST node
- * @param self Out, the node to destroy
+ * @brief Destruct a text AST node data
+ * @param self Out, the data to destruct
  * @return M2H_Result
  */
-M2H_Result M2H_astnode_text_dtor(M2H_OUT M2H_ASTNodeText *self);
+M2H_Result M2H_astnode_data_text_dtor(M2H_OUT M2H_ASTNodeDataText *self);
 
 #endif // AST_H

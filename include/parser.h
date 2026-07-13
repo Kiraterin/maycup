@@ -28,11 +28,23 @@
 #include "lexer.h"
 
 typedef struct {
-    M2H_Token cur;
-    M2H_ASTNode ast;
+    M2H_Token cur_token;
+    M2H_AST ast;
+    ssize_t root_astnode;
 } M2H_Parser;
 
+/**
+ * @brief Construct a parser
+ * @param self Out, the parser to construct
+ * @return M2H_Result 
+ */
 M2H_Result M2H_parser_ctor(M2H_OUT M2H_Parser *self);
+
+/**
+ * @brief Destruct a parser
+ * @param self Out, the parser to destruct
+ * @return M2H_Result
+ */
 M2H_Result M2H_parser_dtor(M2H_OUT M2H_Parser *self);
 
 M2H_Result M2H_parse(M2H_INOUT M2H_Parser *parser, M2H_INOUT M2H_Lexer *lexer);

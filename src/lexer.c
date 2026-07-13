@@ -33,12 +33,27 @@
 #undef M2H_VEC_DISPT
 #undef M2H_VEC_T
 
+M2H_Result M2H_token_duplicate(M2H_OUT M2H_Token *dest, M2H_IN M2H_Token *src) {
+    if (dest->type != M2H_TOKENTYPE_NONE) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
+    *dest = *src;
+    if (src->type == M2H_TOKENTYPE_TEXT) {
+        dest->text = (char *)malloc((strlen(src->text) + 1) * sizeof(char));
+        if (dest->text == NULL) {
+            return M2H_RESULT_MALLOC_FAIL;
+        }
+        strcpy(dest->text, src->text);
+    }
+    return M2H_RESULT_OK;
+}
+
 M2H_Result M2H_token_dtor(M2H_OUT M2H_Token *self) {
     if (self->type == M2H_TOKENTYPE_TEXT) {
         free(self->text);
         self->text = NULL;
     }
-
+    self->type = M2H_TOKENTYPE_NONE;
     return M2H_RESULT_OK;
 }
 
@@ -47,7 +62,7 @@ M2H_Result M2H_lexer_ctor(M2H_OUT M2H_Lexer *self, M2H_IN const char *path) {
     size_t len = strlen(path);
     self->input_file_path = (char *)malloc((len + 1) * sizeof(char));
     if (self->input_file_path == NULL) {
-        return M2H_RESULT_NOMEM;
+        return M2H_RESULT_MALLOC_FAIL;
     }
     memcpy(self->input_file_path, path, len);
     self->input_file_path[len] = '\0';
@@ -59,7 +74,7 @@ M2H_Result M2H_lexer_ctor(M2H_OUT M2H_Lexer *self, M2H_IN const char *path) {
     }
 
     // checkpoint
-    self->checkpoint = 0;
+    M2H_RELAY(M2H_vector_long_ctor(&self->checkpoint, M2H_DEFAULT_VEC_SIZE));
 
     return M2H_RESULT_OK;
 }
@@ -75,6 +90,8 @@ M2H_Result M2H_lexer_dtor(M2H_OUT M2H_Lexer *self) {
         return M2H_RESULT_CANNOT_CLOSE_FILE;
     }
     self->fp = NULL;
+
+    M2H_RELAY(M2H_vector_long_dtor(&self->checkpoint));
     return M2H_RESULT_OK;
 }
 
@@ -170,17 +187,21 @@ M2H_Result M2H_next_token(M2H_OUT M2H_Token *token, M2H_IN M2H_Lexer *lexer) {
 }
 
 M2H_Result M2H_lexer_checkpoint(M2H_OUT M2H_Lexer *self) {
-    self->checkpoint = ftell(self->fp);
-    if (self->checkpoint == -1L) {
+    long current = ftell(self->fp);
+    if (current == -1L) {
         return M2H_RESULT_ERRNO;
     }
+    M2H_RELAY(M2H_vector_long_pushback(&self->checkpoint, current));
     return M2H_RESULT_OK;
 }
 
 M2H_Result M2H_lexer_restore(M2H_INOUT M2H_Lexer *self) {
-    if (fseek(self->fp, self->checkpoint, SEEK_SET)) {
+    long top;
+    M2H_RELAY(M2H_vector_long_top(&self->checkpoint, &top));
+    if (fseek(self->fp, top, SEEK_SET)) {
         return M2H_RESULT_ERRNO;
     }
+    M2H_RELAY(M2H_vector_long_popback(&self->checkpoint));
     return M2H_RESULT_OK;
 }
 

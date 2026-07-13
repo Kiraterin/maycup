@@ -22,24 +22,29 @@
  */
 
 #include "lexer.h"
+#include "parser.h"
 #include <stdio.h>
 
 int main(int argc, char *argv[]) {
-    M2H_Lexer lexer;
-    M2H_Token token;
-
     if (argc == 2) {
+        M2H_Lexer lexer;
+        M2H_Token token;
         M2H_UNWRAP(M2H_lexer_ctor(&lexer, argv[1]));
+        do {
+            M2H_UNWRAP(M2H_next_token(&token, &lexer));
+            M2H_print_token(&token);
+            M2H_UNWRAP(M2H_token_dtor(&token));
+        } while (token.type != M2H_TOKENTYPE_EOF);
+        M2H_UNWRAP(M2H_lexer_dtor(&lexer));
     } else {
-        M2H_UNWRAP(M2H_lexer_ctor(&lexer, "test/cases/a.in"));
+        M2H_Lexer lexer;
+        M2H_Parser parser;
+        M2H_UNWRAP(M2H_lexer_ctor(&lexer, ".vscode/test.md"));
+        M2H_UNWRAP(M2H_parser_ctor(&parser));
+        M2H_UNWRAP(M2H_parse(&parser, &lexer));
+        M2H_UNWRAP(M2H_parser_dtor(&parser));
+        M2H_UNWRAP(M2H_lexer_dtor(&lexer));
     }
 
-    do {
-        M2H_UNWRAP(M2H_next_token(&token, &lexer));
-        M2H_print_token(&token);
-        M2H_UNWRAP(M2H_token_dtor(&token));
-    } while (token.type != M2H_TOKENTYPE_EOF);
-
-    M2H_UNWRAP(M2H_lexer_dtor(&lexer));
     return 0;
 }
