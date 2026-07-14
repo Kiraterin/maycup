@@ -63,9 +63,6 @@ typedef struct {
 }
 
 [[maybe_unused]] static M2H_Result CONCAT(FUNC_PREF, dtor)(M2H_OUT VECT *self) {
-    if (self->ptr == NULL) {
-        return M2H_RESULT_NULL_DESTROY;
-    }
     free(self->ptr);
     self->len = 0;
     self->cap = 0;

@@ -23,6 +23,7 @@
 
 #include "lexer.h"
 #include "parser.h"
+#include "renderer.h"
 #include <stdio.h>
 
 int main(int argc, char *argv[]) {
@@ -39,10 +40,16 @@ int main(int argc, char *argv[]) {
     } else {
         M2H_Lexer lexer;
         M2H_Parser parser;
+        M2H_Renderer renderer;
         M2H_UNWRAP(M2H_lexer_ctor(&lexer, ".vscode/test.md"));
         M2H_UNWRAP(M2H_parser_ctor(&parser));
+        M2H_UNWRAP(M2H_renderer_ctor(&renderer, ".vscode/test.html"));
+
         M2H_UNWRAP(M2H_parse(&parser, &lexer));
         M2H_print_ast(&parser.ast, parser.root_astnode);
+        M2H_UNWRAP(M2H_render(&renderer, &parser));
+
+        M2H_UNWRAP(M2H_renderer_dtor(&renderer));
         M2H_UNWRAP(M2H_parser_dtor(&parser));
         M2H_UNWRAP(M2H_lexer_dtor(&lexer));
     }

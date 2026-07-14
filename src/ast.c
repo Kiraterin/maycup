@@ -53,7 +53,14 @@ M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *head) {
 
     self->cap = M2H_DEFAULT_AST_SIZE;
 
-    *head = 0;
+    *head = 1;
+    self->data[0] = (M2H_ASTNode){
+        .type = M2H_ASTNODE_TYPE_NONE,
+        .prev_sibling = -1,
+        .next_sibling = -1,
+        .parent = -1,
+        .child = -1,
+    };
     self->data[*head] = (M2H_ASTNode){
         .type = M2H_ASTNODE_TYPE_ROOT,
         .prev_sibling = -1,
@@ -68,7 +75,8 @@ M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *head) {
     }
     self->next_free[self->cap - 1] = -1;
     self->is_allocated[0] = true;
-    self->first_free = 1;
+    self->is_allocated[*head] = true;
+    self->first_free = *head + 1;
 
     return M2H_RESULT_OK;
 }
@@ -153,45 +161,46 @@ M2H_Result M2H_insert_astnode(M2H_OUT ssize_t *insertee, M2H_OUT M2H_AST *ast,
 }
 
 M2H_Result M2H_delete_astnode(M2H_OUT M2H_AST *ast, M2H_INOUT ssize_t dest) {
-    if (ast->data[dest].next_sibling != -1) {
-        ast->data[ast->data[dest].next_sibling].prev_sibling =
-            ast->data[dest].prev_sibling;
+    M2H_ASTNode *const p_dest = &ast->data[dest];
+    if (p_dest->next_sibling != -1) {
+        ast->data[p_dest->next_sibling].prev_sibling =
+            p_dest->prev_sibling;
     }
-    if (ast->data[dest].prev_sibling != -1) {
-        ast->data[ast->data[dest].prev_sibling].next_sibling =
-            ast->data[dest].next_sibling;
+    if (p_dest->prev_sibling != -1) {
+        ast->data[p_dest->prev_sibling].next_sibling =
+            p_dest->next_sibling;
     }
-    if (ast->data[ast->data[dest].parent].child == dest) {
-        ast->data[ast->data[dest].parent].child = ast->data[dest].prev_sibling;
+    if (ast->data[p_dest->parent].child == dest) {
+        ast->data[p_dest->parent].child = p_dest->prev_sibling;
     }
 
     M2H_VectorIdx stack;
     M2H_RELAY(M2H_vector_idx_ctor(&stack, M2H_DEFAULT_VEC_SIZE));
-    if (ast->data[dest].child != -1) {
-        M2H_RELAY(M2H_vector_idx_pushback(&stack, ast->data[dest].child));
+    if (p_dest->child != -1) {
+        M2H_RELAY(M2H_vector_idx_pushback(&stack, p_dest->child));
     }
-    M2H_RELAY(M2H_astnode_dtor(&ast->data[dest]));
+    M2H_RELAY(M2H_astnode_dtor(p_dest));
     ast->next_free[dest] = ast->first_free;
     ast->is_allocated[dest] = false;
     ast->first_free = dest;
 
     while (stack.len > 0) {
-        ssize_t cur;
-        M2H_RELAY(M2H_vector_idx_top(&stack, &cur));
+        ssize_t curidx;
+        M2H_RELAY(M2H_vector_idx_top(&stack, &curidx));
         M2H_RELAY(M2H_vector_idx_popback(&stack));
+        M2H_ASTNode *const cur = &ast->data[curidx];
 
-        if (ast->data[cur].prev_sibling != -1) {
-            M2H_RELAY(
-                M2H_vector_idx_pushback(&stack, ast->data[cur].prev_sibling));
+        if (cur->prev_sibling != -1) {
+            M2H_RELAY(M2H_vector_idx_pushback(&stack, cur->prev_sibling));
         }
-        if (ast->data[cur].child != -1) {
-            M2H_RELAY(M2H_vector_idx_pushback(&stack, ast->data[cur].child));
+        if (cur->child != -1) {
+            M2H_RELAY(M2H_vector_idx_pushback(&stack, cur->child));
         }
 
-        M2H_RELAY(M2H_astnode_dtor(&ast->data[cur]));
-        ast->next_free[cur] = ast->first_free;
-        ast->is_allocated[cur] = false;
-        ast->first_free = cur;
+        M2H_RELAY(M2H_astnode_dtor(&ast->data[curidx]));
+        ast->next_free[curidx] = ast->first_free;
+        ast->is_allocated[curidx] = false;
+        ast->first_free = curidx;
     }
 
     M2H_RELAY(M2H_vector_idx_dtor(&stack));
@@ -250,9 +259,6 @@ void M2H_print_ast(M2H_IN M2H_AST *ast, M2H_IN ssize_t root) {
             break;
         case M2H_ASTNODE_TYPE_NONE:
             printf("NONE");
-            break;
-        case M2H_ASTNODE_TYPE_PLACEHOLDER:
-            printf("PLACEHOLDER");
             break;
         case M2H_ASTNODE_TYPE_PARAGRAPH:
             printf("PARAGRAPH");
