@@ -21,7 +21,7 @@
  * along with this program.  If not, see <https: //www.gnu.org/licenses/>.
  */
 
-#include "lexer.h"
+#include "md2html/lexer.h"
 #include <ctype.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -29,7 +29,7 @@
 
 #define M2H_VEC_T char
 #define M2H_VEC_DISPT Char
-#include "vector.h"
+#include "md2html/vector.h"
 #undef M2H_VEC_DISPT
 #undef M2H_VEC_T
 
@@ -87,7 +87,7 @@ M2H_Result M2H_lexer_dtor(M2H_OUT M2H_Lexer *self) {
     self->input_file_path = NULL;
 
     if (self->fp == NULL || fclose(self->fp) == EOF) {
-        return M2H_RESULT_CANNOT_CLOSE_FILE;
+        return M2H_RESULT_ERRNO;
     }
     self->fp = NULL;
 

@@ -21,31 +21,63 @@
  * along with this program.  If not, see <https: //www.gnu.org/licenses/>.
  */
 
-#include "lexer.h"
-#include "parser.h"
+#include "md2html.h"
 #include <stdio.h>
+#include <unistd.h>
+
+const char *usage = "Usage: md2html input_file -o output_file\n";
 
 int main(int argc, char *argv[]) {
-    if (argc == 2) {
-        M2H_Lexer lexer;
-        M2H_Token token;
-        M2H_UNWRAP(M2H_lexer_ctor(&lexer, argv[1]));
-        do {
-            M2H_UNWRAP(M2H_next_token(&token, &lexer));
-            M2H_print_token(&token);
-            M2H_UNWRAP(M2H_token_dtor(&token));
-        } while (token.type != M2H_TOKENTYPE_EOF);
-        M2H_UNWRAP(M2H_lexer_dtor(&lexer));
-    } else {
-        M2H_Lexer lexer;
-        M2H_Parser parser;
-        M2H_UNWRAP(M2H_lexer_ctor(&lexer, ".vscode/test.md"));
-        M2H_UNWRAP(M2H_parser_ctor(&parser));
-        M2H_UNWRAP(M2H_parse(&parser, &lexer));
-        M2H_print_ast(&parser.ast, parser.root_astnode);
-        M2H_UNWRAP(M2H_parser_dtor(&parser));
-        M2H_UNWRAP(M2H_lexer_dtor(&lexer));
+    int opt;
+    char *input = NULL;
+    char *output = NULL;
+
+    opterr = 0;
+
+    while ((opt = getopt(argc, argv, ":h::o:")) != -1) {
+        switch (opt) {
+        case 'h': {
+            printf("%s", usage);
+            return EXIT_SUCCESS;
+        }
+        case 'o': {
+            output = optarg;
+            break;
+        }
+        case ':': {
+            fprintf(stderr, "Error: expect option -%c\n", optopt);
+            goto err_msg;
+        }
+        case '?': {
+            fprintf(stderr, "Error: unknown option -%c\n", optopt);
+            goto err_msg;
+        }
+        }
     }
 
-    return 0;
+    if (optind < argc) {
+        input = argv[optind];
+        if (optind + 1 < argc) {
+            fprintf(stderr, "Error: only one input file can be converted\n");
+            goto err_msg;
+        }
+    }
+
+    if (input == NULL) {
+        fprintf(stderr, "Error: expect input file\n");
+        goto err_msg;
+    }
+
+    if (output == NULL) {
+        fprintf(stderr, "Error: expect output file\n");
+        goto err_msg;
+    }
+
+    M2H_UNWRAP(M2H_convert(input, output));
+
+    return EXIT_SUCCESS;
+
+err_msg:
+    fprintf(stderr, "%s", usage);
+    return EXIT_FAILURE;
 }

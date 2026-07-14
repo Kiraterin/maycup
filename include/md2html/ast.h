@@ -24,15 +24,13 @@
 #ifndef AST_H
 #define AST_H
 
-#include "common.h"
-#include "result.h"
+#include "md2html/common.h"
+#include "md2html/result.h"
 #include <sys/types.h>
 
 typedef enum {
     M2H_ASTNODE_TYPE_NONE = 0,
-
     M2H_ASTNODE_TYPE_ROOT = 1,
-    M2H_ASTNODE_TYPE_PLACEHOLDER,
 
     M2H_ASTNODE_TYPE_HEADING,
     M2H_ASTNODE_TYPE_PARAGRAPH,

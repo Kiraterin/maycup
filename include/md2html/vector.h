@@ -21,7 +21,7 @@
  * along with this program.  If not, see <https: //www.gnu.org/licenses/>.
  */
 
-#include "common.h"
+#include "md2html/common.h"
 #define M2H_DEFAULT_VEC_SIZE 2
 #define M2H_MAX_VEC_CAP (SIZE_MAX / 2)
 
@@ -30,7 +30,6 @@
 
 #if defined(M2H_VEC_T) && defined(M2H_VEC_DISPT)
 
-#include "lib_marker.h"
 #include "result.h"
 #include <stdlib.h>
 
@@ -63,9 +62,6 @@ typedef struct {
 }
 
 [[maybe_unused]] static M2H_Result CONCAT(FUNC_PREF, dtor)(M2H_OUT VECT *self) {
-    if (self->ptr == NULL) {
-        return M2H_RESULT_NULL_DESTROY;
-    }
     free(self->ptr);
     self->len = 0;
     self->cap = 0;

@@ -21,13 +21,13 @@
  * along with this program.  If not, see <https: //www.gnu.org/licenses/>.
  */
 
-#include "parser.h"
+#include "md2html/parser.h"
 #include <ctype.h>
 #include <string.h>
 
 #define M2H_VEC_T char
 #define M2H_VEC_DISPT Char
-#include "vector.h"
+#include "md2html/vector.h"
 #undef M2H_VEC_DISPT
 #undef M2H_VEC_T
 
