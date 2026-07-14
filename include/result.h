@@ -24,21 +24,20 @@
 #ifndef RESULT_H
 #define RESULT_H
 
-#include "common.h"
 #include "lib_marker.h"
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 typedef enum {
     M2H_RESULT_OK = 0,
     M2H_RESULT_ERRNO = 1,
-    M2H_RESULT_NOMEM,
+    M2H_RESULT_MALLOC_FAIL,
     M2H_RESULT_NULL_DESTROY,
     M2H_RESULT_CANNOT_CLOSE_FILE,
     M2H_RESULT_UNKNOWN_TOKENTYPE,
-    M2H_RESULT_ILLEGAL_ARGUMENT
+    M2H_RESULT_ILLEGAL_ARGUMENT,
+    M2H_RESULT_EMPTY_VECTOR,
+    M2H_RESULT_ARENA_ERROR,
+
+    M2H_RESULT_PARSE_MISMATCH
 } M2H_Result;
 
 /**
@@ -48,15 +47,44 @@ typedef enum {
 void M2H_error_printmsg(M2H_IN M2H_Result res);
 
 /**
- * @brief Relay error to caller
+ * @brief Do something when @c expr is not @c M2H_RESULT_OK ; The error type is
+ *        @c res
  */
-#define M2H_RELAY(expr)                                                        \
+#define M2H_HANDLE(expr, handler)                                              \
     do {                                                                       \
         M2H_Result res = (expr);                                               \
         if (res != M2H_RESULT_OK) {                                            \
-            return res;                                                        \
+            handler;                                                           \
         }                                                                      \
     } while (false)
+
+/**
+ * @brief Relay error to caller
+ */
+#define M2H_RELAY(expr) M2H_HANDLE(expr, return res)
+
+/**
+ * @brief Relay error or ok to caller, but if the res is @c when , continue; if
+ *        the res is @c act_res , do action
+ */
+#define M2H_RELAY_UNLESS_DO(expr, when, act_res, action)                      \
+    if (true) {                                                                \
+        M2H_Result res = (expr);                                               \
+        if (res == act_res) {                                                  \
+            action;                                                            \
+        }                                                                      \
+        if (res != (when)) {                                                   \
+            return res;                                                        \
+        }                                                                      \
+    } else                                                                     \
+        (void)0
+
+/**
+ * @brief Relay error to caller or do action if it's ok, but if the res is
+ *        @c err , continue
+ */
+#define M2H_RELAY_UNLESSOK_DO(expr, err, ok)                                  \
+    M2H_RELAY_UNLESS_DO(expr, err, M2H_RESULT_OK, ok)
 
 /**
  * @brief Abort and print error message if the result of expr is not @c

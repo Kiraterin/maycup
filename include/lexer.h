@@ -45,15 +45,30 @@ typedef struct {
 } M2H_Token;
 
 /**
+ * @brief Duplicate a token
+ * @param dest Out, the destination
+ * @param src In, the token to duplicate
+ * @return M2H_Result
+ */
+M2H_Result M2H_token_duplicate(M2H_OUT M2H_Token *dest, M2H_IN M2H_Token *src);
+
+/**
  * @brief Destruct a token
  * @param self Out, the token to destruct
  * @return M2H_Result
  */
 M2H_Result M2H_token_dtor(M2H_OUT M2H_Token *self);
 
+#define M2H_VEC_T long
+#define M2H_VEC_DISPT Long
+#include "vector.h"
+#undef M2H_VEC_DISPT
+#undef M2H_VEC_T
+
 typedef struct {
     char *input_file_path;
     FILE *fp;
+    M2H_VectorLong checkpoint;
 } M2H_Lexer;
 
 /**
@@ -65,8 +80,8 @@ typedef struct {
 M2H_Result M2H_lexer_ctor(M2H_OUT M2H_Lexer *self, M2H_IN const char *path);
 
 /**
- * @brief Destroy a lexer
- * @param self Out, the lexer to destroy
+ * @brief Destruct a lexer
+ * @param self Out, the lexer to destruct
  * @return M2H_Result
  */
 M2H_Result M2H_lexer_dtor(M2H_OUT M2H_Lexer *self);
@@ -78,6 +93,27 @@ M2H_Result M2H_lexer_dtor(M2H_OUT M2H_Lexer *self);
  * @return M2H_Result
  */
 M2H_Result M2H_next_token(M2H_OUT M2H_Token *token, M2H_IN M2H_Lexer *lexer);
+
+/**
+ * @brief Set a checkpoint in the file
+ * @param self Out, the lexer
+ * @return M2H_Result
+ */
+M2H_Result M2H_lexer_checkpoint(M2H_OUT M2H_Lexer *self);
+
+/**
+ * @brief Return to the checkpoint and won't pop out it
+ * @param self In & out, the lexer
+ * @return M2H_Result
+ */
+M2H_Result M2H_lexer_restore(M2H_INOUT M2H_Lexer *self);
+
+/**
+ * @brief Drop the top checkpoint
+ * @param self Out, the lexer
+ * @return M2H_Result 
+ */
+M2H_Result M2H_lexer_drop_checkpoint(M2H_OUT M2H_Lexer *self);
 
 #ifdef DEBUG
 

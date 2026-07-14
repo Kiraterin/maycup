@@ -1,7 +1,7 @@
 /**
- * @file lib_marker.h
- * @brief Misc macros
- * @date 2026-07-08
+ * @file parser.h
+ * @brief Parser in md2html
+ * @date 2026-07-12
  * @copyright GPLv3 License
  * @section LICENSE
  * md2html
@@ -21,16 +21,32 @@
  * along with this program.  If not, see <https: //www.gnu.org/licenses/>.
  */
 
-#ifndef LIB_MARKER_H
-#define LIB_MARKER_H
+#ifndef PARSER_H
+#define PARSER_H
 
-// Parameter ("Read" excludes checking value)
-#define M2H_IN    // Read only
-#define M2H_OUT   // Write only
-#define M2H_INOUT // Read & Write
-#define M2H_MOVE // Move ownership
+#include "ast.h"
+#include "lexer.h"
 
-// Function
-#define M2H_NOERR void
+typedef struct {
+    M2H_Token cur_token;
+    M2H_AST ast;
+    ssize_t root_astnode;
+} M2H_Parser;
 
-#endif // LIB_MARKER_H
+/**
+ * @brief Construct a parser
+ * @param self Out, the parser to construct
+ * @return M2H_Result 
+ */
+M2H_Result M2H_parser_ctor(M2H_OUT M2H_Parser *self);
+
+/**
+ * @brief Destruct a parser
+ * @param self Out, the parser to destruct
+ * @return M2H_Result
+ */
+M2H_Result M2H_parser_dtor(M2H_OUT M2H_Parser *self);
+
+M2H_Result M2H_parse(M2H_INOUT M2H_Parser *parser, M2H_INOUT M2H_Lexer *lexer);
+
+#endif // PARSER_H
