@@ -42,6 +42,7 @@ int main(int argc, char *argv[]) {
         M2H_UNWRAP(M2H_lexer_ctor(&lexer, ".vscode/test.md"));
         M2H_UNWRAP(M2H_parser_ctor(&parser));
         M2H_UNWRAP(M2H_parse(&parser, &lexer));
+        M2H_print_ast(&parser.ast, parser.root_astnode);
         M2H_UNWRAP(M2H_parser_dtor(&parser));
         M2H_UNWRAP(M2H_lexer_dtor(&lexer));
     }

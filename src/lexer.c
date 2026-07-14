@@ -124,6 +124,10 @@ static bool is_literal(int ch) {
 }
 
 M2H_Result M2H_next_token(M2H_OUT M2H_Token *token, M2H_IN M2H_Lexer *lexer) {
+    if (token->type != M2H_TOKENTYPE_NONE) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
+
     M2H_VectorChar buf;
 
     // Use the first char to determine token type

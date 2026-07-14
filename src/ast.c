@@ -23,6 +23,13 @@
 
 #include "ast.h"
 
+typedef ssize_t idx;
+#define M2H_VEC_T idx
+#define M2H_VEC_DISPT Idx
+#include "vector.h"
+#undef M2H_VEC_DISPT
+#undef M2H_VEC_T
+
 M2H_Result M2H_astnode_dtor(M2H_OUT M2H_ASTNode *self) {
     switch (self->type) {
     case M2H_ASTNODE_TYPE_TEXT:
@@ -65,6 +72,7 @@ M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *head) {
 
     return M2H_RESULT_OK;
 }
+
 M2H_Result M2H_ast_dtor(M2H_OUT M2H_AST *self) {
     for (size_t i = 0; i < self->cap; ++i) {
         if (self->is_allocated[i]) {
@@ -162,7 +170,7 @@ M2H_Result M2H_delete_astnode(M2H_OUT M2H_AST *ast, M2H_INOUT ssize_t dest) {
     if (ast->data[dest].child != -1) {
         M2H_RELAY(M2H_vector_idx_pushback(&stack, ast->data[dest].child));
     }
-    M2H_astnode_dtor(&ast->data[dest]);
+    M2H_RELAY(M2H_astnode_dtor(&ast->data[dest]));
     ast->next_free[dest] = ast->first_free;
     ast->is_allocated[dest] = false;
     ast->first_free = dest;
@@ -171,6 +179,7 @@ M2H_Result M2H_delete_astnode(M2H_OUT M2H_AST *ast, M2H_INOUT ssize_t dest) {
         ssize_t cur;
         M2H_RELAY(M2H_vector_idx_top(&stack, &cur));
         M2H_RELAY(M2H_vector_idx_popback(&stack));
+
         if (ast->data[cur].prev_sibling != -1) {
             M2H_RELAY(
                 M2H_vector_idx_pushback(&stack, ast->data[cur].prev_sibling));
@@ -178,7 +187,8 @@ M2H_Result M2H_delete_astnode(M2H_OUT M2H_AST *ast, M2H_INOUT ssize_t dest) {
         if (ast->data[cur].child != -1) {
             M2H_RELAY(M2H_vector_idx_pushback(&stack, ast->data[cur].child));
         }
-        M2H_astnode_dtor(&ast->data[cur]);
+
+        M2H_RELAY(M2H_astnode_dtor(&ast->data[cur]));
         ast->next_free[cur] = ast->first_free;
         ast->is_allocated[cur] = false;
         ast->first_free = cur;
@@ -204,3 +214,81 @@ M2H_Result M2H_astnode_data_text_dtor(M2H_OUT M2H_ASTNodeDataText *self) {
     self->content = NULL;
     return M2H_RESULT_OK;
 }
+
+#ifdef DEBUG
+
+#include <stdio.h>
+
+void M2H_print_ast(M2H_IN M2H_AST *ast, M2H_IN ssize_t root) {
+    M2H_VectorIdx stack;
+    M2H_VectorIdx level;
+    M2H_UNWRAP(M2H_vector_idx_ctor(&stack, M2H_DEFAULT_VEC_SIZE));
+    M2H_UNWRAP(M2H_vector_idx_ctor(&level, M2H_DEFAULT_VEC_SIZE));
+    M2H_UNWRAP(M2H_vector_idx_pushback(&stack, root));
+    M2H_UNWRAP(M2H_vector_idx_pushback(&level, 0));
+    while (stack.len > 0) {
+        ssize_t cur, lvl;
+        M2H_UNWRAP(M2H_vector_idx_top(&stack, &cur));
+        M2H_UNWRAP(M2H_vector_idx_popback(&stack));
+        M2H_UNWRAP(M2H_vector_idx_top(&level, &lvl));
+        M2H_UNWRAP(M2H_vector_idx_popback(&level));
+
+        // if (ast->data[cur].child != -1) {
+        //     M2H_UNWRAP(M2H_vector_idx_pushback(&stack, ast->data[cur].child));
+        //     M2H_UNWRAP(M2H_vector_idx_pushback(&level, lvl + 1));
+        // }
+
+        ssize_t getter = ast->data[cur].child;
+        while (getter != -1) {
+            M2H_UNWRAP(M2H_vector_idx_pushback(&stack, getter));
+            M2H_UNWRAP(M2H_vector_idx_pushback(&level, lvl + 1));
+            getter = ast->data[getter].prev_sibling;
+        }
+
+        for (int i = 1; i < lvl; ++i) {
+            printf("    ");
+        }
+        switch (ast->data[cur].type) {
+        case M2H_ASTNODE_TYPE_ROOT:
+            printf("ROOT");
+            break;
+        case M2H_ASTNODE_TYPE_NONE:
+            printf("NONE");
+            break;
+        case M2H_ASTNODE_TYPE_PLACEHOLDER:
+            printf("PLACEHOLDER");
+            break;
+        case M2H_ASTNODE_TYPE_PARAGRAPH:
+            printf("PARAGRAPH");
+            break;
+        case M2H_ASTNODE_TYPE_HEADING:
+            printf("HEADING level=%d", ast->data[cur].heading.level);
+            break;
+        case M2H_ASTNODE_TYPE_TEXT:
+            printf("TEXT text=\"%s\", style=", ast->data[cur].text.content);
+            switch (ast->data[cur].text.style) {
+            case M2H_TEXTSTYLE_PLAIN:
+                printf("plain");
+                break;
+            case M2H_TEXTSTYLE_BOLD:
+                printf("bold");
+                break;
+            case M2H_TEXTSTYLE_ITALIC:
+                printf("italic");
+                break;
+            case M2H_TEXTSTYLE_BOLDITALIC:
+                printf("bold & italic");
+                break;
+            case M2H_TEXTSTYLE_CODE:
+                printf("code");
+                break;
+            }
+        }
+        putchar('\n');
+    }
+
+    M2H_UNWRAP(M2H_vector_idx_dtor(&stack));
+    M2H_UNWRAP(M2H_vector_idx_dtor(&level));
+}
+
+#endif // DEBUG

@@ -21,7 +21,7 @@
  * along with this program.  If not, see <https: //www.gnu.org/licenses/>.
  */
 
-#include <common.h>
+#include "common.h"
 #define M2H_DEFAULT_VEC_SIZE 2
 #define M2H_MAX_VEC_CAP (SIZE_MAX / 2)
 

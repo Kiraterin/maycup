@@ -63,7 +63,11 @@ void M2H_error_printmsg(M2H_IN M2H_Result res);
  */
 #define M2H_RELAY(expr) M2H_HANDLE(expr, return res)
 
-#define M2H_RELAY_UNLESS_AND(expr, when, act_res, action)                           \
+/**
+ * @brief Relay error or ok to caller, but if the res is @c when , continue; if
+ *        the res is @c act_res , do action
+ */
+#define M2H_RELAY_UNLESS_DO(expr, when, act_res, action)                      \
     if (true) {                                                                \
         M2H_Result res = (expr);                                               \
         if (res == act_res) {                                                  \
@@ -75,8 +79,12 @@ void M2H_error_printmsg(M2H_IN M2H_Result res);
     } else                                                                     \
         (void)0
 
-#define M2H_RELAY_UNLESSOK_AND(expr, err, ok)                                       \
-    M2H_RELAY_UNLESS_AND(expr, err, M2H_RESULT_OK, ok)
+/**
+ * @brief Relay error to caller or do action if it's ok, but if the res is
+ *        @c err , continue
+ */
+#define M2H_RELAY_UNLESSOK_DO(expr, err, ok)                                  \
+    M2H_RELAY_UNLESS_DO(expr, err, M2H_RESULT_OK, ok)
 
 /**
  * @brief Abort and print error message if the result of expr is not @c

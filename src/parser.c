@@ -128,7 +128,7 @@ static M2H_Result parse_paragraph_section(M2H_Parser *parser, M2H_Lexer *lexer,
 static M2H_Result parse_heading(M2H_Parser *parser, M2H_Lexer *lexer,
                                 ssize_t parent) {
 
-    if (parser->cur_token.type != M2H_TOKENTYPE_LITERAL &&
+    if (parser->cur_token.type != M2H_TOKENTYPE_LITERAL ||
         parser->cur_token.literal != '#') {
         return M2H_RESULT_PARSE_MISMATCH;
     }
@@ -214,18 +214,18 @@ static M2H_Result parse_blocks(M2H_Parser *parser, M2H_Lexer *lexer) {
 
         M2H_RELAY(M2H_lexer_checkpoint(lexer));
         M2H_RELAY(M2H_token_duplicate(&tmp, &parser->cur_token));
-        M2H_RELAY_UNLESSOK_AND(
+        M2H_RELAY_UNLESSOK_DO(
             parse_heading(parser, lexer, parser->root_astnode),
             M2H_RESULT_PARSE_MISMATCH, continue);
 
         M2H_RELAY(M2H_lexer_restore(lexer));
         M2H_RELAY(M2H_token_dtor(&parser->cur_token));
         M2H_RELAY(M2H_token_duplicate(&parser->cur_token, &tmp));
-        M2H_RELAY_UNLESSOK_AND(
+        M2H_RELAY_UNLESSOK_DO(
             parse_paragraph(parser, lexer, parser->root_astnode),
             M2H_RESULT_PARSE_MISMATCH, continue);
 
-        M2H_RELAY_UNLESSOK_AND(parse_eof(parser), M2H_RESULT_PARSE_MISMATCH,
+        M2H_RELAY_UNLESSOK_DO(parse_eof(parser), M2H_RESULT_PARSE_MISMATCH,
                                break);
     }
 

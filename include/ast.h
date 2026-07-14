@@ -73,13 +73,6 @@ struct M2H_ASTNode {
     ssize_t child;
 };
 
-typedef ssize_t idx;
-#define M2H_VEC_T idx
-#define M2H_VEC_DISPT Idx
-#include "vector.h"
-#undef M2H_VEC_DISPT
-#undef M2H_VEC_T
-
 typedef struct {
     M2H_ASTNode *data;
     ssize_t *next_free;
@@ -155,5 +148,16 @@ M2H_Result M2H_astnode_data_text_ctor(M2H_OUT M2H_ASTNodeDataText *self,
  * @return M2H_Result
  */
 M2H_Result M2H_astnode_data_text_dtor(M2H_OUT M2H_ASTNodeDataText *self);
+
+#ifdef DEBUG
+
+/**
+ * @brief Print an AST
+ * @param ast In, the ast to print
+ * @param root In, the entry point
+ */
+void M2H_print_ast(M2H_IN M2H_AST *ast, M2H_IN ssize_t root);
+
+#endif // DEBUG
 
 #endif // AST_H
