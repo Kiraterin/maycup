@@ -24,13 +24,12 @@
 #ifndef RESULT_H
 #define RESULT_H
 
-#include "lib_marker.h"
+#include "md2html/common.h"
 
 typedef enum {
     M2H_RESULT_OK = 0,
     M2H_RESULT_ERRNO = 1,
     M2H_RESULT_MALLOC_FAIL,
-    M2H_RESULT_CANNOT_CLOSE_FILE,
     M2H_RESULT_UNKNOWN_TOKENTYPE,
     M2H_RESULT_ILLEGAL_ARGUMENT,
     M2H_RESULT_EMPTY_VECTOR,

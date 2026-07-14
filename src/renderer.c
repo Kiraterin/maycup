@@ -21,14 +21,14 @@
  * along with this program.  If not, see <https: //www.gnu.org/licenses/>.
  */
 
-#include "renderer.h"
+#include "md2html/renderer.h"
 #include <stdio.h>
 #include <string.h>
 
 typedef ssize_t idx;
 #define M2H_VEC_T idx
 #define M2H_VEC_DISPT Idx
-#include "vector.h"
+#include "md2html/vector.h"
 #undef M2H_VEC_DISPT
 #undef M2H_VEC_T
 
@@ -53,7 +53,7 @@ M2H_Result M2H_renderer_dtor(M2H_OUT M2H_Renderer *self) {
     self->output_file_path = NULL;
 
     if (self->fp == NULL || fclose(self->fp) == EOF) {
-        return M2H_RESULT_CANNOT_CLOSE_FILE;
+        return M2H_RESULT_ERRNO;
     }
     self->fp = NULL;
     return M2H_RESULT_OK;

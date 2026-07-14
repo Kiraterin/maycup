@@ -21,12 +21,12 @@
  * along with this program.  If not, see <https: //www.gnu.org/licenses/>.
  */
 
-#include "ast.h"
+#include "md2html/ast.h"
 
 typedef ssize_t idx;
 #define M2H_VEC_T idx
 #define M2H_VEC_DISPT Idx
-#include "vector.h"
+#include "md2html/vector.h"
 #undef M2H_VEC_DISPT
 #undef M2H_VEC_T
 

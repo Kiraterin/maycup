@@ -24,8 +24,8 @@
 #ifndef AST_H
 #define AST_H
 
-#include "common.h"
-#include "result.h"
+#include "md2html/common.h"
+#include "md2html/result.h"
 #include <sys/types.h>
 
 typedef enum {

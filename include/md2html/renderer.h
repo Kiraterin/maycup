@@ -24,10 +24,10 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include "common.h"
-#include "lexer.h"
-#include "parser.h"
-#include "result.h"
+#include "md2html/common.h"
+#include "md2html/lexer.h"
+#include "md2html/parser.h"
+#include "md2html/result.h"
 
 typedef struct {
     char *output_file_path;
@@ -38,7 +38,7 @@ typedef struct {
  * @brief Construct a renderer
  * @param self Out, the renderer to construct
  * @param path In, the path to the output file
- * @return M2H_Result 
+ * @return M2H_Result
  */
 M2H_Result M2H_renderer_ctor(M2H_OUT M2H_Renderer *self,
                              M2H_IN const char *path);
@@ -46,7 +46,7 @@ M2H_Result M2H_renderer_ctor(M2H_OUT M2H_Renderer *self,
 /**
  * @brief Destruct a renderer
  * @param self Out, the renderer to destruct
- * @return M2H_Result 
+ * @return M2H_Result
  */
 M2H_Result M2H_renderer_dtor(M2H_OUT M2H_Renderer *self);
 
@@ -54,7 +54,7 @@ M2H_Result M2H_renderer_dtor(M2H_OUT M2H_Renderer *self);
  * @brief Render HTML file from AST
  * @param renderer In & out, the renderer which do render
  * @param parser In, the parser which provides AST
- * @return M2H_Result 
+ * @return M2H_Result
  */
 M2H_Result M2H_render(M2H_INOUT M2H_Renderer *renderer,
                       M2H_IN M2H_Parser *parser);

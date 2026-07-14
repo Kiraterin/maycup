@@ -1,7 +1,7 @@
 /**
- * @file lib_marker.h
- * @brief Misc macros
- * @date 2026-07-08
+ * @file md2html.h
+ * @brief A lightweight tool library converts markdown to html
+ * @date 2026-07-15
  * @copyright GPLv3 License
  * @section LICENSE
  * md2html
@@ -21,16 +21,12 @@
  * along with this program.  If not, see <https: //www.gnu.org/licenses/>.
  */
 
-#ifndef LIB_MARKER_H
-#define LIB_MARKER_H
+#ifndef MD2HTML_H
+#define MD2HTML_H
 
-// Parameter ("Read" excludes checking value)
-#define M2H_IN    // Read only
-#define M2H_OUT   // Write only
-#define M2H_INOUT // Read & Write
-#define M2H_MOVE // Move ownership
+#include "md2html/renderer.h"
+#include "md2html/result.h"
 
-// Function
-#define M2H_NOERR void
+M2H_Result M2H_convert(M2H_IN const char *input_file, M2H_IN const char *output_file);
 
-#endif // LIB_MARKER_H
+#endif // MD2HTML_H

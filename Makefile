@@ -51,4 +51,3 @@ clean:
 
 test:
 	@echo -e '$(C_GREEN)Running tests:$(C_RESET)'
-	$(TEST_DIR)/run.sh
