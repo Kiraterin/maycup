@@ -233,11 +233,6 @@ void M2H_print_ast(M2H_IN M2H_AST *ast, M2H_IN ssize_t root) {
         M2H_UNWRAP(M2H_vector_idx_top(&level, &lvl));
         M2H_UNWRAP(M2H_vector_idx_popback(&level));
 
-        // if (ast->data[cur].child != -1) {
-        //     M2H_UNWRAP(M2H_vector_idx_pushback(&stack, ast->data[cur].child));
-        //     M2H_UNWRAP(M2H_vector_idx_pushback(&level, lvl + 1));
-        // }
-
         ssize_t getter = ast->data[cur].child;
         while (getter != -1) {
             M2H_UNWRAP(M2H_vector_idx_pushback(&stack, getter));
@@ -245,9 +240,10 @@ void M2H_print_ast(M2H_IN M2H_AST *ast, M2H_IN ssize_t root) {
             getter = ast->data[getter].prev_sibling;
         }
 
-        for (int i = 1; i < lvl; ++i) {
-            printf("    ");
+        for (int i = 1; i <= lvl; ++i) {
+            printf("  ");
         }
+
         switch (ast->data[cur].type) {
         case M2H_ASTNODE_TYPE_ROOT:
             printf("ROOT");

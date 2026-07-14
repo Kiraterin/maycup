@@ -48,7 +48,7 @@ typedef struct {
  * @brief Duplicate a token
  * @param dest Out, the destination
  * @param src In, the token to duplicate
- * @return M2H_Result 
+ * @return M2H_Result
  */
 M2H_Result M2H_token_duplicate(M2H_OUT M2H_Token *dest, M2H_IN M2H_Token *src);
 
@@ -102,11 +102,18 @@ M2H_Result M2H_next_token(M2H_OUT M2H_Token *token, M2H_IN M2H_Lexer *lexer);
 M2H_Result M2H_lexer_checkpoint(M2H_OUT M2H_Lexer *self);
 
 /**
- * @brief Return to the checkpoint
+ * @brief Return to the checkpoint and won't pop out it
  * @param self In & out, the lexer
  * @return M2H_Result
  */
 M2H_Result M2H_lexer_restore(M2H_INOUT M2H_Lexer *self);
+
+/**
+ * @brief Drop the top checkpoint
+ * @param self Out, the lexer
+ * @return M2H_Result 
+ */
+M2H_Result M2H_lexer_drop_checkpoint(M2H_OUT M2H_Lexer *self);
 
 #ifdef DEBUG
 

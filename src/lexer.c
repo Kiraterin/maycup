@@ -205,6 +205,10 @@ M2H_Result M2H_lexer_restore(M2H_INOUT M2H_Lexer *self) {
     if (fseek(self->fp, top, SEEK_SET)) {
         return M2H_RESULT_ERRNO;
     }
+    return M2H_RESULT_OK;
+}
+
+M2H_Result M2H_lexer_drop_checkpoint(M2H_OUT M2H_Lexer *self) {
     M2H_RELAY(M2H_vector_long_popback(&self->checkpoint));
     return M2H_RESULT_OK;
 }

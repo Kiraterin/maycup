@@ -114,7 +114,7 @@ static M2H_Result parse_paragraph_section(M2H_Parser *parser, M2H_Lexer *lexer,
     if (parser->cur_token.type == M2H_TOKENTYPE_NEWLINE) {
         return M2H_RESULT_PARSE_MISMATCH;
     }
-    
+
     M2H_RELAY(parse_inline_text(parser, lexer, paranode));
 
     if (parser->cur_token.type != M2H_TOKENTYPE_NEWLINE) {
@@ -155,7 +155,9 @@ static M2H_Result parse_heading(M2H_Parser *parser, M2H_Lexer *lexer,
         goto mismatch;
     }
 
-    M2H_RELAY(parse_inline_text(parser, lexer, heading_node));
+    M2H_RELAY_UNLESS_DO(parse_inline_text(parser, lexer, heading_node),
+                        M2H_RESULT_OK, M2H_RESULT_PARSE_MISMATCH,
+                        goto mismatch);
 
     if (parser->cur_token.type != M2H_TOKENTYPE_NEWLINE) {
         goto mismatch;
@@ -175,7 +177,9 @@ static M2H_Result parse_paragraph(M2H_Parser *parser, M2H_Lexer *lexer,
     M2H_RELAY(M2H_insert_astnode(&paranode, &parser->ast, parent,
                                  M2H_ASTNODE_TYPE_PARAGRAPH));
 
-    M2H_RELAY(parse_paragraph_section(parser, lexer, paranode));
+    M2H_RELAY_UNLESS_DO(parse_paragraph_section(parser, lexer, paranode),
+                        M2H_RESULT_OK, M2H_RESULT_PARSE_MISMATCH,
+                        goto mismatch);
 
     while (true) {
         M2H_Result res = parse_paragraph_section(parser, lexer, paranode);
@@ -190,7 +194,11 @@ static M2H_Result parse_paragraph(M2H_Parser *parser, M2H_Lexer *lexer,
     }
 
 loop_break:
-    M2H_RELAY(parse_blank(parser, lexer));
+    // match EOF or blank
+    if (parser->cur_token.type != M2H_TOKENTYPE_EOF) {
+        M2H_RELAY_UNLESS_DO(parse_blank(parser, lexer), M2H_RESULT_OK,
+                            M2H_RESULT_PARSE_MISMATCH, goto mismatch);
+    }
     return M2H_RESULT_OK;
 
 mismatch:
@@ -208,28 +216,44 @@ static M2H_Result parse_eof(M2H_Parser *parser) {
 }
 
 static M2H_Result parse_blocks(M2H_Parser *parser, M2H_Lexer *lexer) {
-    M2H_Token tmp = (M2H_Token){.type = M2H_TOKENTYPE_NONE};
     while (parser->cur_token.type != M2H_TOKENTYPE_EOF) {
-        M2H_RELAY(M2H_token_dtor(&tmp));
+        M2H_Token tmp = (M2H_Token){.type = M2H_TOKENTYPE_NONE};
 
         M2H_RELAY(M2H_lexer_checkpoint(lexer));
         M2H_RELAY(M2H_token_duplicate(&tmp, &parser->cur_token));
         M2H_RELAY_UNLESSOK_DO(
             parse_heading(parser, lexer, parser->root_astnode),
-            M2H_RESULT_PARSE_MISMATCH, continue);
+            M2H_RESULT_PARSE_MISMATCH, goto drop_checkpoint);
 
         M2H_RELAY(M2H_lexer_restore(lexer));
         M2H_RELAY(M2H_token_dtor(&parser->cur_token));
         M2H_RELAY(M2H_token_duplicate(&parser->cur_token, &tmp));
         M2H_RELAY_UNLESSOK_DO(
             parse_paragraph(parser, lexer, parser->root_astnode),
-            M2H_RESULT_PARSE_MISMATCH, continue);
+            M2H_RESULT_PARSE_MISMATCH, goto drop_checkpoint);
 
-        M2H_RELAY_UNLESSOK_DO(parse_eof(parser), M2H_RESULT_PARSE_MISMATCH,
-                               break);
+        M2H_RELAY(M2H_lexer_restore(lexer));
+        M2H_RELAY(M2H_token_dtor(&parser->cur_token));
+        M2H_RELAY(M2H_token_duplicate(&parser->cur_token, &tmp));
+        M2H_RELAY_UNLESSOK_DO(parse_blank(parser, lexer),
+                              M2H_RESULT_PARSE_MISMATCH, goto drop_checkpoint);
+
+        M2H_RELAY(M2H_lexer_restore(lexer));
+        M2H_RELAY(M2H_token_dtor(&parser->cur_token));
+        M2H_RELAY(M2H_token_duplicate(&parser->cur_token, &tmp));
+        M2H_RELAY_UNLESSOK_DO(parse_eof(parser), M2H_RESULT_PARSE_MISMATCH, {
+            M2H_lexer_drop_checkpoint(lexer);
+            M2H_RELAY(M2H_token_dtor(&tmp));
+            break;
+        });
+
+        return M2H_RESULT_PARSE_MISMATCH;
+
+    drop_checkpoint:
+        M2H_RELAY(M2H_token_dtor(&tmp));
+        M2H_lexer_drop_checkpoint(lexer);
+        continue;
     }
-
-    M2H_RELAY(M2H_token_dtor(&tmp));
     return M2H_RESULT_OK;
 }
 
