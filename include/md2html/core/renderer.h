@@ -24,10 +24,10 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include "md2html/common.h"
-#include "md2html/lexer.h"
-#include "md2html/parser.h"
-#include "md2html/result.h"
+#include "md2html/base/common.h"
+#include "md2html/core/lexer.h"
+#include "md2html/core/parser.h"
+#include "md2html/base/result.h"
 
 typedef struct {
     char *output_file_path;

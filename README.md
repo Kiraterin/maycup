@@ -18,10 +18,10 @@ md2html <input_file> [options]
 
 ### Options
 
-| Option      | Necessary | Value            | Description     |
-| ----------- | --------- | ---------------- | --------------- |
+| Option        | Necessary | Value              | Description     |
+| ------------- | --------- | ------------------ | --------------- |
 | `-o <file>` | Yes       | `path/to/output` | Set output path |
-| `-h`        | No        | None             | Print usage     |
+| `-h`        | No        | None               | Print usage     |
 
 ### Example
 
@@ -41,5 +41,5 @@ md2html input.md -o output.html
 ### Build System
 
 - Refactor the Makefile
-  - [ ] Support source file compilation in recursive folders
-  - [ ] Clean redundant code
+  - [X] Support source file compilation in recursive folders
+  - [ ] Support debug/release configuration

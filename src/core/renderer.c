@@ -21,14 +21,14 @@
  * along with this program.  If not, see <https: //www.gnu.org/licenses/>.
  */
 
-#include "md2html/renderer.h"
+#include "md2html/core/renderer.h"
 #include <stdio.h>
 #include <string.h>
 
 typedef ssize_t idx;
 #define M2H_VEC_T idx
 #define M2H_VEC_DISPT Idx
-#include "md2html/vector.h"
+#include "md2html/base/vector.h"
 #undef M2H_VEC_DISPT
 #undef M2H_VEC_T
 

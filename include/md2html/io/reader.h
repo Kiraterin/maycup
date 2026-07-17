@@ -1,7 +1,7 @@
 /**
- * @file md2html.h
- * @brief A lightweight tool library converts markdown to html
- * @date 2026-07-15
+ * @file reader.h
+ * @brief Reader in IO layer
+ * @date 2026-07-18
  * @copyright GPLv3 License
  * @section LICENSE
  * md2html
@@ -21,12 +21,9 @@
  * along with this program.  If not, see <https: //www.gnu.org/licenses/>.
  */
 
-#ifndef MD2HTML_H
-#define MD2HTML_H
+#ifndef READER_H
+#define READER_H
 
-#include "md2html/core/renderer.h"
-#include "md2html/base/result.h"
 
-M2H_Result M2H_convert(M2H_IN const char *input_file, M2H_IN const char *output_file);
 
-#endif // MD2HTML_H
+#endif // READER_H

@@ -1,7 +1,7 @@
 /**
- * @file parser.h
- * @brief Parser in md2html
- * @date 2026-07-12
+ * @file reader.c
+ * @brief Reader in IO layer
+ * @date 2026-07-18
  * @copyright GPLv3 License
  * @section LICENSE
  * md2html
@@ -21,32 +21,4 @@
  * along with this program.  If not, see <https: //www.gnu.org/licenses/>.
  */
 
-#ifndef PARSER_H
-#define PARSER_H
-
-#include "md2html/ast.h"
-#include "md2html/lexer.h"
-
-typedef struct {
-    M2H_Token cur_token;
-    M2H_AST ast;
-    ssize_t root_astnode;
-} M2H_Parser;
-
-/**
- * @brief Construct a parser
- * @param self Out, the parser to construct
- * @return M2H_Result 
- */
-M2H_Result M2H_parser_ctor(M2H_OUT M2H_Parser *self);
-
-/**
- * @brief Destruct a parser
- * @param self Out, the parser to destruct
- * @return M2H_Result
- */
-M2H_Result M2H_parser_dtor(M2H_OUT M2H_Parser *self);
-
-M2H_Result M2H_parse(M2H_INOUT M2H_Parser *parser, M2H_INOUT M2H_Lexer *lexer);
-
-#endif // PARSER_H
+#include "md2html/io/reader.h"

@@ -24,7 +24,7 @@
 #ifndef RESULT_H
 #define RESULT_H
 
-#include "md2html/common.h"
+#include "md2html/base/common.h"
 
 typedef enum {
     M2H_RESULT_OK = 0,
