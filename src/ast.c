@@ -209,12 +209,14 @@ M2H_Result M2H_delete_astnode(M2H_OUT M2H_AST *ast, M2H_INOUT ssize_t dest) {
 
 M2H_Result M2H_astnode_data_text_ctor(M2H_OUT M2H_ASTNodeDataText *self,
                                       M2H_MOVE char *text,
-                                      M2H_IN M2H_TextStyle style) {
+                                      M2H_IN M2H_TextStyle style,
+                                      M2H_IN bool newline_tailed) {
     if (text == NULL) {
         return M2H_RESULT_ILLEGAL_ARGUMENT;
     }
     self->style = style;
     self->content = text;
+    self->newline_tailed = newline_tailed;
     return M2H_RESULT_OK;
 }
 

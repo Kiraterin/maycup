@@ -49,6 +49,7 @@ typedef enum {
 typedef struct {
     M2H_TextStyle style;
     char *content;
+    bool newline_tailed;
 } M2H_ASTNodeDataText;
 
 typedef struct {
@@ -84,7 +85,7 @@ typedef struct {
 /**
  * @brief Destruct a AST node
  * @param self Out, the node to destruct
- * @return M2H_Result 
+ * @return M2H_Result
  */
 M2H_Result M2H_astnode_dtor(M2H_OUT M2H_ASTNode *self);
 
@@ -134,11 +135,13 @@ M2H_Result M2H_delete_astnode(M2H_OUT M2H_AST *ast, M2H_INOUT ssize_t dest);
  * @param self Out, the data to construct
  * @param text Move, the pointer to a string to be moved into the data
  * @param style In, the style of the text
+ * @param newline_tailed In, whether the text tailed with newline
  * @return M2H_Result
  */
 M2H_Result M2H_astnode_data_text_ctor(M2H_OUT M2H_ASTNodeDataText *self,
                                       M2H_MOVE char *text,
-                                      M2H_IN M2H_TextStyle style);
+                                      M2H_IN M2H_TextStyle style,
+                                      M2H_IN bool newline_tailed);
 
 /**
  * @brief Destruct a text AST node data

@@ -70,7 +70,8 @@ M2H_Result M2H_render(M2H_INOUT M2H_Renderer *renderer,
         ssize_t curidx;
         M2H_RELAY(M2H_vector_idx_top(&stack, &curidx));
         M2H_RELAY(M2H_vector_idx_popback(&stack));
-        M2H_ASTNode *const cur = &parser->ast.data[(curidx > 0 ? curidx : -curidx)];
+        M2H_ASTNode *const cur =
+            &parser->ast.data[(curidx > 0 ? curidx : -curidx)];
 
         if (curidx > 0) {
             // close mark
@@ -110,7 +111,9 @@ M2H_Result M2H_render(M2H_INOUT M2H_Renderer *renderer,
                 fputs("</p>", renderer->fp);
                 break;
             case M2H_ASTNODE_TYPE_TEXT:
-                fputs("<br>", renderer->fp);
+                if (cur->text.newline_tailed) {
+                    fputs("<br>", renderer->fp);
+                }
                 break;
             }
         }
@@ -119,7 +122,6 @@ M2H_Result M2H_render(M2H_INOUT M2H_Renderer *renderer,
             M2H_RELAY(M2H_vector_idx_dtor(&stack));
             return M2H_RESULT_ERRNO;
         }
-
     }
 
     M2H_RELAY(M2H_vector_idx_dtor(&stack));
