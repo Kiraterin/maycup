@@ -23,6 +23,7 @@
 
 #include "md2html.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 const char *usage = "Usage: md2html input_file -o output_file\n";

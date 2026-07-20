@@ -24,7 +24,6 @@
 #ifndef MD2HTML_H
 #define MD2HTML_H
 
-#include "md2html/core/renderer.h"
 #include "md2html/base/result.h"
 
 M2H_Result M2H_convert(M2H_IN const char *input_file, M2H_IN const char *output_file);

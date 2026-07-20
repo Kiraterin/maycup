@@ -26,6 +26,7 @@
 
 #include "md2html/base/common.h"
 #include "md2html/base/result.h"
+#include "md2html/io/reader.h"
 #include <stdio.h>
 
 typedef enum {
@@ -66,18 +67,17 @@ M2H_Result M2H_token_dtor(M2H_OUT M2H_Token *self);
 #undef M2H_VEC_T
 
 typedef struct {
-    char *input_file_path;
-    FILE *fp;
+    M2H_Reader *reader;
     M2H_VectorLong checkpoint;
 } M2H_Lexer;
 
 /**
  * @brief Construct a lexer
  * @param self Out, the lexer to construct
- * @param path In, the path to the source Markdown file
+ * @param reader In & out, the reader which lexer will use
  * @return M2H_Result
  */
-M2H_Result M2H_lexer_ctor(M2H_OUT M2H_Lexer *self, M2H_IN const char *path);
+M2H_Result M2H_lexer_ctor(M2H_OUT M2H_Lexer *self, M2H_INOUT M2H_Reader *reader);
 
 /**
  * @brief Destruct a lexer

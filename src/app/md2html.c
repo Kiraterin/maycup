@@ -22,13 +22,18 @@
  */
 
 #include "md2html.h"
+#include "md2html/core/renderer.h"
+#include "md2html/io/reader.h"
 
 M2H_Result M2H_convert(M2H_IN const char *input_file,
                        M2H_IN const char *output_file) {
     M2H_Lexer lexer;
     M2H_Parser parser;
     M2H_Renderer renderer;
-    M2H_RELAY(M2H_lexer_ctor(&lexer, input_file));
+    M2H_FileReader freader;
+
+    M2H_RELAY(M2H_filereader_ctor(&freader, input_file));
+    M2H_RELAY(M2H_lexer_ctor(&lexer, (M2H_Reader *)&freader));
     M2H_RELAY(M2H_parser_ctor(&parser));
     M2H_RELAY(M2H_renderer_ctor(&renderer, output_file));
 
@@ -38,5 +43,6 @@ M2H_Result M2H_convert(M2H_IN const char *input_file,
     M2H_RELAY(M2H_renderer_dtor(&renderer));
     M2H_RELAY(M2H_parser_dtor(&parser));
     M2H_RELAY(M2H_lexer_dtor(&lexer));
+    M2H_RELAY(M2H_filereader_dtor(&freader));
     return M2H_RESULT_OK;
 }

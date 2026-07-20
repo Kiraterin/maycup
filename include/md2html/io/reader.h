@@ -24,6 +24,23 @@
 #ifndef READER_H
 #define READER_H
 
+#include "md2html/base/result.h"
+#include <stdio.h>
 
+typedef struct M2H_Reader M2H_Reader;
+
+struct M2H_Reader {
+    M2H_Result (*get_char)(M2H_Reader *self, M2H_OUT char *res);
+    M2H_Result (*tell)(M2H_Reader *self, M2H_OUT long *res);
+    M2H_Result (*seek)(M2H_Reader *self, M2H_IN long pos, M2H_IN int whence);
+};
+
+typedef struct {
+    M2H_Reader base;
+    FILE *fp;
+} M2H_FileReader;
+
+M2H_Result M2H_filereader_ctor(M2H_OUT M2H_FileReader *self, M2H_IN const char *path);
+M2H_Result M2H_filereader_dtor(M2H_OUT M2H_FileReader *self);
 
 #endif // READER_H

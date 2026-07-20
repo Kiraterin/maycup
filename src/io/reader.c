@@ -22,3 +22,57 @@
  */
 
 #include "md2html/io/reader.h"
+
+static M2H_Result filereader_get_char(M2H_FileReader *self, M2H_OUT char *res) {
+    int _res = fgetc(self->fp);
+    if (_res == EOF && !feof(self->fp)) {
+        return M2H_RESULT_ERRNO;
+    }
+    if (res != NULL) {
+        *res = _res;
+    }
+    return M2H_RESULT_OK;
+}
+
+static M2H_Result filereader_tell(M2H_FileReader *self, M2H_OUT long *res) {
+    long _res = ftell(self->fp);
+    if (_res == -1L) {
+        return M2H_RESULT_ERRNO;
+    }
+    if (res != NULL) {
+        *res = _res;
+    }
+    return M2H_RESULT_OK;
+}
+
+static M2H_Result filereader_seek(M2H_FileReader *self, M2H_IN long pos,
+                                  M2H_IN int whence) {
+    if (fseek(self->fp, pos, whence)) {
+        return M2H_RESULT_ERRNO;
+    }
+    return M2H_RESULT_OK;
+}
+
+M2H_Result M2H_filereader_ctor(M2H_OUT M2H_FileReader *self,
+                               M2H_IN const char *path) {
+    self->fp = fopen(path, "r");
+    if (self->fp == NULL) {
+        return M2H_RESULT_ERRNO;
+    }
+    self->base.get_char =
+        (M2H_Result (*)(M2H_Reader *, char *))filereader_get_char;
+    self->base.tell = (M2H_Result (*)(M2H_Reader *, long *))filereader_tell;
+    self->base.seek = (M2H_Result (*)(M2H_Reader *, long, int))filereader_seek;
+    return M2H_RESULT_OK;
+}
+
+M2H_Result M2H_filereader_dtor(M2H_OUT M2H_FileReader *self) {
+    if (self->fp == NULL) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
+    if (fclose(self->fp) == EOF) {
+        return M2H_RESULT_ERRNO;
+    }
+    self->fp = NULL;
+    return M2H_RESULT_OK;
+}
