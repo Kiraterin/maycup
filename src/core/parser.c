@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https: //www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "md2html/core/parser.h"
@@ -152,13 +152,8 @@ static M2H_Result parse_heading_mark_textbegin(M2H_Parser *parser,
 static M2H_Result parse_para_begin_char(M2H_Parser *parser) {
     switch (parser->cur_token.type) {
     case M2H_TOKENTYPE_TEXT:
-        return M2H_RESULT_OK;
     case M2H_TOKENTYPE_LITERAL:
-        if (parser->cur_token.literal != '#') {
-            return M2H_RESULT_OK;
-        } else {
-            return M2H_RESULT_PARSE_MISMATCH;
-        }
+        return M2H_RESULT_OK;
     default:
         return M2H_RESULT_PARSE_MISMATCH;
     }
