@@ -23,6 +23,7 @@
 
 #include "md2html.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 const char *usage = "Usage: md2html input_file -o output_file\n";
@@ -73,7 +74,7 @@ int main(int argc, char *argv[]) {
         goto err_msg;
     }
 
-    M2H_UNWRAP(M2H_convert(input, output));
+    M2H_UNWRAP(M2H_convert_file(input, output));
 
     return EXIT_SUCCESS;
 

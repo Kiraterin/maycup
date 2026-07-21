@@ -21,7 +21,7 @@
  * along with this program.  If not, see <https: //www.gnu.org/licenses/>.
  */
 
-#include "md2html/lexer.h"
+#include "md2html/core/lexer.h"
 #include <ctype.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -29,7 +29,7 @@
 
 #define M2H_VEC_T char
 #define M2H_VEC_DISPT Char
-#include "md2html/vector.h"
+#include "md2html/base/vector.h"
 #undef M2H_VEC_DISPT
 #undef M2H_VEC_T
 
@@ -57,40 +57,14 @@ M2H_Result M2H_token_dtor(M2H_OUT M2H_Token *self) {
     return M2H_RESULT_OK;
 }
 
-M2H_Result M2H_lexer_ctor(M2H_OUT M2H_Lexer *self, M2H_IN const char *path) {
-    // input_file_path
-    size_t len = strlen(path);
-    self->input_file_path = (char *)malloc((len + 1) * sizeof(char));
-    if (self->input_file_path == NULL) {
-        return M2H_RESULT_MALLOC_FAIL;
-    }
-    memcpy(self->input_file_path, path, len);
-    self->input_file_path[len] = '\0';
-
-    // fp
-    self->fp = fopen(self->input_file_path, "r");
-    if (self->fp == NULL) {
-        return M2H_RESULT_ERRNO;
-    }
-
-    // checkpoint
+M2H_Result M2H_lexer_ctor(M2H_OUT M2H_Lexer *self,
+                          M2H_INOUT M2H_Reader *reader) {
+    self->reader = reader;
     M2H_RELAY(M2H_vector_long_ctor(&self->checkpoint, M2H_DEFAULT_VEC_SIZE));
-
     return M2H_RESULT_OK;
 }
 
 M2H_Result M2H_lexer_dtor(M2H_OUT M2H_Lexer *self) {
-    if (self->input_file_path == NULL) {
-        return M2H_RESULT_ILLEGAL_ARGUMENT;
-    }
-    free(self->input_file_path);
-    self->input_file_path = NULL;
-
-    if (self->fp == NULL || fclose(self->fp) == EOF) {
-        return M2H_RESULT_ERRNO;
-    }
-    self->fp = NULL;
-
     M2H_RELAY(M2H_vector_long_dtor(&self->checkpoint));
     return M2H_RESULT_OK;
 }
@@ -131,14 +105,11 @@ M2H_Result M2H_next_token(M2H_OUT M2H_Token *token, M2H_IN M2H_Lexer *lexer) {
     M2H_VectorChar buf;
 
     // Use the first char to determine token type
-    int cur = fgetc(lexer->fp);
+    int cur;
+    M2H_RELAY(lexer->reader->get_char(lexer->reader, &cur));
     if (cur == EOF) {
-        if (feof(lexer->fp)) {
-            token->type = M2H_TOKENTYPE_EOF;
-            return M2H_RESULT_OK;
-        } else {
-            return M2H_RESULT_ERRNO;
-        }
+        token->type = M2H_TOKENTYPE_EOF;
+        return M2H_RESULT_OK;
     } else if (is_literal(cur)) {
         token->type = M2H_TOKENTYPE_LITERAL;
         token->literal = cur;
@@ -155,29 +126,25 @@ M2H_Result M2H_next_token(M2H_OUT M2H_Token *token, M2H_IN M2H_Lexer *lexer) {
 
     switch (token->type) {
     case M2H_TOKENTYPE_NEWLINE: {
+        long backward_pos;
         do {
-            cur = fgetc(lexer->fp);
+            M2H_RELAY(lexer->reader->tell(lexer->reader, &backward_pos));
+            M2H_RELAY(lexer->reader->get_char(lexer->reader, &cur));
         } while (isspace(cur) && cur != '\n');
-        if (cur == EOF) {
-            if (!feof(lexer->fp)) {
-                return M2H_RESULT_ERRNO;
-            }
-        } else {
-            fseek(lexer->fp, -1, SEEK_CUR);
+        if (cur != EOF) {
+            M2H_RELAY(lexer->reader->seek(lexer->reader, backward_pos));
         }
         break;
     }
     case M2H_TOKENTYPE_TEXT: {
+        long backward_pos;
         do {
-            M2H_RELAY(M2H_vector_char_pushback(&buf, cur));
-            cur = fgetc(lexer->fp);
+            M2H_RELAY(lexer->reader->tell(lexer->reader, &backward_pos));
+            M2H_RELAY(M2H_vector_char_pushback(&buf, (char)cur));
+            M2H_RELAY(lexer->reader->get_char(lexer->reader, &cur));
         } while (cur != '\n' && cur != EOF && !is_literal(cur));
-        if (cur == EOF) {
-            if (!feof(lexer->fp)) {
-                return M2H_RESULT_ERRNO;
-            }
-        } else {
-            fseek(lexer->fp, -1, SEEK_CUR);
+        if (cur != EOF) {
+            M2H_RELAY(lexer->reader->seek(lexer->reader, backward_pos));
         }
         M2H_RELAY(M2H_vector_char_pushback(&buf, '\0'));
         token->text = buf.ptr;
@@ -191,7 +158,8 @@ M2H_Result M2H_next_token(M2H_OUT M2H_Token *token, M2H_IN M2H_Lexer *lexer) {
 }
 
 M2H_Result M2H_lexer_checkpoint(M2H_OUT M2H_Lexer *self) {
-    long current = ftell(self->fp);
+    long current;
+    M2H_RELAY(self->reader->tell(self->reader, &current));
     if (current == -1L) {
         return M2H_RESULT_ERRNO;
     }
@@ -202,9 +170,7 @@ M2H_Result M2H_lexer_checkpoint(M2H_OUT M2H_Lexer *self) {
 M2H_Result M2H_lexer_restore(M2H_INOUT M2H_Lexer *self) {
     long top;
     M2H_RELAY(M2H_vector_long_top(&self->checkpoint, &top));
-    if (fseek(self->fp, top, SEEK_SET)) {
-        return M2H_RESULT_ERRNO;
-    }
+    M2H_RELAY(self->reader->seek(self->reader, top));
     return M2H_RESULT_OK;
 }
 

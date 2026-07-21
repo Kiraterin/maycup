@@ -13,7 +13,7 @@ LIB_DIR = lib
 TEST_DIR = test
 
 # Files
-SRC = $(wildcard $(SRC_DIR)/*.c)
+SRC = $(shell find $(SRC_DIR) -name "*.c")
 OBJ = $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SRC))
 DEP = $(OBJ:.o=.d)
 TARGET = md2html

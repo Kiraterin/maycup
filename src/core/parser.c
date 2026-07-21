@@ -21,13 +21,13 @@
  * along with this program.  If not, see <https: //www.gnu.org/licenses/>.
  */
 
-#include "md2html/parser.h"
+#include "md2html/core/parser.h"
 #include <ctype.h>
 #include <string.h>
 
 #define M2H_VEC_T char
 #define M2H_VEC_DISPT Char
-#include "md2html/vector.h"
+#include "md2html/base/vector.h"
 #undef M2H_VEC_DISPT
 #undef M2H_VEC_T
 
@@ -150,11 +150,18 @@ static M2H_Result parse_heading_mark_textbegin(M2H_Parser *parser,
 }
 
 static M2H_Result parse_para_begin_char(M2H_Parser *parser) {
-    if (parser->cur_token.type != M2H_TOKENTYPE_TEXT ||
-        parser->cur_token.text[0] == '#') {
+    switch (parser->cur_token.type) {
+    case M2H_TOKENTYPE_TEXT:
+        return M2H_RESULT_OK;
+    case M2H_TOKENTYPE_LITERAL:
+        if (parser->cur_token.literal != '#') {
+            return M2H_RESULT_OK;
+        } else {
+            return M2H_RESULT_PARSE_MISMATCH;
+        }
+    default:
         return M2H_RESULT_PARSE_MISMATCH;
     }
-    return M2H_RESULT_OK;
 }
 
 static M2H_Result parse_blank(M2H_Parser *parser, M2H_Lexer *lexer) {
@@ -204,7 +211,8 @@ static M2H_Result parse_paragraph_section(M2H_Parser *parser, M2H_Lexer *lexer,
         }
     }
 
-    M2H_RELAY(parse_inline_text(parser, lexer, paranode, level == 0 ? NULL : heading_marker));
+    M2H_RELAY(parse_inline_text(parser, lexer, paranode,
+                                level == 0 ? NULL : heading_marker));
 
     if (parser->cur_token.type != M2H_TOKENTYPE_NEWLINE) {
         return M2H_RESULT_PARSE_MISMATCH;

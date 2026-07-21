@@ -24,8 +24,8 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "md2html/ast.h"
-#include "md2html/lexer.h"
+#include "md2html/core/ast.h"
+#include "md2html/core/lexer.h"
 
 typedef struct {
     M2H_Token cur_token;

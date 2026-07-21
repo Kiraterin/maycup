@@ -21,7 +21,7 @@
  * along with this program.  If not, see <https: //www.gnu.org/licenses/>.
  */
 
-#include "md2html/result.h"
+#include "md2html/base/result.h"
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
