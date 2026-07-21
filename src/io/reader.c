@@ -23,7 +23,7 @@
 
 #include "md2html/io/reader.h"
 
-static M2H_Result filereader_get_char(M2H_FileReader *self, M2H_OUT char *res) {
+static M2H_Result filereader_get_char(M2H_IN M2H_FileReader *self, M2H_OUT int *res) {
     int _res = fgetc(self->fp);
     if (_res == EOF && !feof(self->fp)) {
         return M2H_RESULT_ERRNO;
@@ -34,7 +34,7 @@ static M2H_Result filereader_get_char(M2H_FileReader *self, M2H_OUT char *res) {
     return M2H_RESULT_OK;
 }
 
-static M2H_Result filereader_tell(M2H_FileReader *self, M2H_OUT long *res) {
+static M2H_Result filereader_tell(M2H_IN M2H_FileReader *self, M2H_OUT long *res) {
     long _res = ftell(self->fp);
     if (_res == -1L) {
         return M2H_RESULT_ERRNO;
@@ -45,9 +45,8 @@ static M2H_Result filereader_tell(M2H_FileReader *self, M2H_OUT long *res) {
     return M2H_RESULT_OK;
 }
 
-static M2H_Result filereader_seek(M2H_FileReader *self, M2H_IN long pos,
-                                  M2H_IN int whence) {
-    if (fseek(self->fp, pos, whence)) {
+static M2H_Result filereader_seek(M2H_IN M2H_FileReader *self, M2H_IN long offset) {
+    if (fseek(self->fp, offset, SEEK_SET)) {
         return M2H_RESULT_ERRNO;
     }
     return M2H_RESULT_OK;
@@ -60,9 +59,9 @@ M2H_Result M2H_filereader_ctor(M2H_OUT M2H_FileReader *self,
         return M2H_RESULT_ERRNO;
     }
     self->base.get_char =
-        (M2H_Result (*)(M2H_Reader *, char *))filereader_get_char;
+        (M2H_Result (*)(M2H_Reader *, int *))filereader_get_char;
     self->base.tell = (M2H_Result (*)(M2H_Reader *, long *))filereader_tell;
-    self->base.seek = (M2H_Result (*)(M2H_Reader *, long, int))filereader_seek;
+    self->base.seek = (M2H_Result (*)(M2H_Reader *, long))filereader_seek;
     return M2H_RESULT_OK;
 }
 
@@ -74,5 +73,60 @@ M2H_Result M2H_filereader_dtor(M2H_OUT M2H_FileReader *self) {
         return M2H_RESULT_ERRNO;
     }
     self->fp = NULL;
+    return M2H_RESULT_OK;
+}
+
+static M2H_Result stringreader_get_char(M2H_INOUT M2H_StringReader *self,
+                                        M2H_OUT int *res) {
+    int _res;
+    if (self->iter >= self->end) {
+        _res = EOF;
+    } else {
+        _res = *self->iter;
+        ++self->iter;
+    }
+    if (res != NULL) {
+        *res = _res;
+    }
+    return M2H_RESULT_OK;
+}
+
+static M2H_Result stringreader_tell(M2H_IN M2H_StringReader *self, M2H_OUT long *res) {
+    long _res = self->iter - self->begin;
+    if (res != NULL) {
+        *res = _res;
+    }
+    return M2H_RESULT_OK;
+}
+
+static M2H_Result string_reader_seek(M2H_OUT M2H_StringReader *self,
+                                     M2H_IN long offset) {
+    if (offset < 0) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
+    if (self->begin + offset > self->end) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
+    self->iter = self->begin + offset;
+    return M2H_RESULT_OK;
+}
+
+M2H_Result M2H_stringreader_ctor(M2H_OUT M2H_StringReader *self,
+                                 M2H_IN const char *str,
+                                 M2H_IN const size_t len) {
+    if (str == NULL) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
+    self->begin = self->iter = str;
+    self->end = str + len;
+    self->base.get_char =
+        (M2H_Result (*)(M2H_Reader *, int *))stringreader_get_char;
+    self->base.tell = (M2H_Result (*)(M2H_Reader *, long *))stringreader_tell;
+    self->base.seek = (M2H_Result (*)(M2H_Reader *, long))string_reader_seek;
+    return M2H_RESULT_OK;
+}
+
+M2H_Result M2H_stringreader_dtor(M2H_OUT M2H_StringReader *self) {
+    self->begin = self->iter = self->end = NULL;
     return M2H_RESULT_OK;
 }

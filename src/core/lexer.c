@@ -105,7 +105,7 @@ M2H_Result M2H_next_token(M2H_OUT M2H_Token *token, M2H_IN M2H_Lexer *lexer) {
     M2H_VectorChar buf;
 
     // Use the first char to determine token type
-    char cur;
+    int cur;
     M2H_RELAY(lexer->reader->get_char(lexer->reader, &cur));
     if (cur == EOF) {
         token->type = M2H_TOKENTYPE_EOF;
@@ -126,21 +126,25 @@ M2H_Result M2H_next_token(M2H_OUT M2H_Token *token, M2H_IN M2H_Lexer *lexer) {
 
     switch (token->type) {
     case M2H_TOKENTYPE_NEWLINE: {
+        long backward_pos;
         do {
+            M2H_RELAY(lexer->reader->tell(lexer->reader, &backward_pos));
             M2H_RELAY(lexer->reader->get_char(lexer->reader, &cur));
         } while (isspace(cur) && cur != '\n');
         if (cur != EOF) {
-            M2H_RELAY(lexer->reader->seek(lexer->reader, -1, SEEK_CUR));
+            M2H_RELAY(lexer->reader->seek(lexer->reader, backward_pos));
         }
         break;
     }
     case M2H_TOKENTYPE_TEXT: {
+        long backward_pos;
         do {
-            M2H_RELAY(M2H_vector_char_pushback(&buf, cur));
+            M2H_RELAY(lexer->reader->tell(lexer->reader, &backward_pos));
+            M2H_RELAY(M2H_vector_char_pushback(&buf, (char)cur));
             M2H_RELAY(lexer->reader->get_char(lexer->reader, &cur));
         } while (cur != '\n' && cur != EOF && !is_literal(cur));
         if (cur != EOF) {
-            M2H_RELAY(lexer->reader->seek(lexer->reader, -1, SEEK_CUR));
+            M2H_RELAY(lexer->reader->seek(lexer->reader, backward_pos));
         }
         M2H_RELAY(M2H_vector_char_pushback(&buf, '\0'));
         token->text = buf.ptr;
@@ -166,7 +170,7 @@ M2H_Result M2H_lexer_checkpoint(M2H_OUT M2H_Lexer *self) {
 M2H_Result M2H_lexer_restore(M2H_INOUT M2H_Lexer *self) {
     long top;
     M2H_RELAY(M2H_vector_long_top(&self->checkpoint, &top));
-    M2H_RELAY(self->reader->seek(self->reader, top, SEEK_SET));
+    M2H_RELAY(self->reader->seek(self->reader, top));
     return M2H_RESULT_OK;
 }
 

@@ -22,8 +22,8 @@
  */
 
 #include "md2html/core/renderer.h"
+#include "md2html/io/writer.h"
 #include <stdio.h>
-#include <string.h>
 
 typedef ssize_t idx;
 #define M2H_VEC_T idx
@@ -33,39 +33,22 @@ typedef ssize_t idx;
 #undef M2H_VEC_T
 
 M2H_Result M2H_renderer_ctor(M2H_OUT M2H_Renderer *self,
-                             M2H_IN const char *path) {
-    size_t len = strlen(path);
-    self->output_file_path = (char *)malloc((len + 1) * sizeof(char));
-    if (self->output_file_path == NULL) {
-        return M2H_RESULT_MALLOC_FAIL;
-    }
-    strcpy(self->output_file_path, path);
-
-    self->fp = fopen(self->output_file_path, "w");
-    if (self->fp == NULL) {
-        return M2H_RESULT_ERRNO;
-    }
-
+                             M2H_IN M2H_Writer *writer) {
+    self->writer = writer;
     return M2H_RESULT_OK;
 }
 M2H_Result M2H_renderer_dtor(M2H_OUT M2H_Renderer *self) {
-    free(self->output_file_path);
-    self->output_file_path = NULL;
-
-    if (self->fp == NULL || fclose(self->fp) == EOF) {
-        return M2H_RESULT_ERRNO;
-    }
-    self->fp = NULL;
+    (void)self;
     return M2H_RESULT_OK;
 }
 
 M2H_Result M2H_render(M2H_INOUT M2H_Renderer *renderer,
                       M2H_IN M2H_Parser *parser) {
-    fputs("<!DOCTYPE html>", renderer->fp);
+    renderer->writer->puts(renderer->writer, "<!DOCTYPE html>");
     M2H_VectorIdx stack;
     M2H_RELAY(M2H_vector_idx_ctor(&stack, M2H_DEFAULT_VEC_SIZE));
     M2H_RELAY(M2H_vector_idx_pushback(&stack, parser->root_astnode));
-    int iores = 0;
+    M2H_Result iores = 0;
     while (stack.len > 0) {
         ssize_t curidx;
         M2H_RELAY(M2H_vector_idx_top(&stack, &curidx));
@@ -85,16 +68,18 @@ M2H_Result M2H_render(M2H_INOUT M2H_Renderer *renderer,
             case M2H_ASTNODE_TYPE_NONE:
                 return M2H_RESULT_ILLEGAL_ARGUMENT;
             case M2H_ASTNODE_TYPE_ROOT:
-                iores = fputs("<body>", renderer->fp);
+                iores = renderer->writer->puts(renderer->writer, "<body>");
                 break;
             case M2H_ASTNODE_TYPE_HEADING:
-                iores = fprintf(renderer->fp, "<h%d>", cur->heading.level);
+                iores = renderer->writer->printf(renderer->writer, "<h%d>",
+                                                 cur->heading.level);
                 break;
             case M2H_ASTNODE_TYPE_PARAGRAPH:
-                iores = fputs("<p>", renderer->fp);
+                iores = renderer->writer->puts(renderer->writer, "<p>");
                 break;
             case M2H_ASTNODE_TYPE_TEXT:
-                iores = fputs(cur->text.content, renderer->fp);
+                iores =
+                    renderer->writer->puts(renderer->writer, cur->text.content);
                 break;
             }
         } else if (curidx < 0) {
@@ -102,25 +87,26 @@ M2H_Result M2H_render(M2H_INOUT M2H_Renderer *renderer,
             case M2H_ASTNODE_TYPE_NONE:
                 return M2H_RESULT_ILLEGAL_ARGUMENT;
             case M2H_ASTNODE_TYPE_ROOT:
-                fputs("</body>", renderer->fp);
+                iores = renderer->writer->puts(renderer->writer, "</body>");
                 break;
             case M2H_ASTNODE_TYPE_HEADING:
-                fprintf(renderer->fp, "</h%d>", cur->heading.level);
+                iores = renderer->writer->printf(renderer->writer, "</h%d>",
+                                         cur->heading.level);
                 break;
             case M2H_ASTNODE_TYPE_PARAGRAPH:
-                fputs("</p>", renderer->fp);
+                iores = renderer->writer->puts(renderer->writer, "</p>");
                 break;
             case M2H_ASTNODE_TYPE_TEXT:
                 if (cur->text.newline_tailed) {
-                    fputs("<br>", renderer->fp);
+                    iores = renderer->writer->puts(renderer->writer, "<br>");
                 }
                 break;
             }
         }
 
-        if (iores < 0) {
+        if (iores != M2H_RESULT_OK) {
             M2H_RELAY(M2H_vector_idx_dtor(&stack));
-            return M2H_RESULT_ERRNO;
+            return iores;
         }
     }
 

@@ -24,6 +24,75 @@
 #ifndef WRITER_H
 #define WRITER_H
 
+#include "md2html/base/result.h"
+#include <stdio.h>
 
+typedef struct M2H_Writer M2H_Writer;
+
+struct M2H_Writer {
+    M2H_Result (*puts)(M2H_Writer *self, M2H_IN char *str);
+    M2H_Result (*printf)(M2H_Writer *self, M2H_IN const char *format, ...);
+};
+
+typedef struct {
+    M2H_Writer base;
+    FILE *fp;
+} M2H_FileWriter;
+
+/**
+ * @brief Construct a file writer
+ * @param self Out, the file writer to construct
+ * @param path In, the path that the file writer will read
+ * @return M2H_Result
+ */
+M2H_Result M2H_filewriter_ctor(M2H_OUT M2H_FileWriter *self,
+                               M2H_IN const char *path);
+
+/**
+ * @brief Destruct a file writer
+ * @param self Out, the file writer to destruct
+ * @return M2H_Result
+ */
+M2H_Result M2H_filewriter_dtor(M2H_OUT M2H_FileWriter *self);
+
+typedef struct {
+    M2H_Writer base;
+    char *buf;
+    size_t size;
+    size_t cap;
+    bool flexible;
+} M2H_StringWriter;
+
+/**
+ * @brief Construct a string writer with a given buffer
+ * @param self Out, the string writer to construct
+ * @param buf In, the buffer in writer
+ * @param bufsz In, the length of buffer
+ * @return M2H_Result
+ */
+M2H_Result M2H_stringwriter_ctor(M2H_OUT M2H_StringWriter *self,
+                                 M2H_IN char *buf, M2H_IN size_t bufsz);
+
+#define M2H_DEFAULT_STRWRITER_FLEXBUF_SIZE 128
+
+/**
+ * @brief Construct a string writer with an independent flexible buffer
+ * @param self Out, the string writer to construct
+ * @param bufsz In, the original length of buffer
+ * @return M2H_Result
+ */
+M2H_Result M2H_stringwriter_ctor_flexible(M2H_OUT M2H_StringWriter *self,
+                                          M2H_IN size_t bufsz);
+
+/**
+ * @brief Destruct a string writer
+ * @param self Out, the string writer to destruct
+ * @param buf Out, the buffer in writer. The buffer in string writer will be
+ *            freed if param @c buf is NULL (if the buffer is flexible).
+ *            Remember to free it after use.
+ * @return M2H_Result
+ */
+M2H_Result M2H_stringwriter_dtor(M2H_OUT M2H_StringWriter *self,
+                                 M2H_OUT char **buf);
 
 #endif // WRITER_H

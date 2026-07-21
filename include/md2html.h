@@ -26,6 +26,26 @@
 
 #include "md2html/base/result.h"
 
-M2H_Result M2H_convert(M2H_IN const char *input_file, M2H_IN const char *output_file);
+/**
+ * @brief Convert a Markdown file into an HTML file
+ * @param input_file In, path to input file
+ * @param output_file In, path to output file
+ * @return M2H_Result
+ */
+M2H_Result M2H_convert_file(M2H_IN const char *input_file,
+                            M2H_IN const char *output_file);
+
+/**
+ * @brief Convert a Markdown string into an HTML string
+ * @param input_string In, the input string
+ * @param input_len In, length of input string
+ * @param output_string In, the output string buffer
+ * @param output_len In, the max length of output
+ * @return M2H_Result
+ */
+M2H_Result M2H_convert_string(M2H_IN const char *input_string,
+                              M2H_IN const size_t input_len,
+                              M2H_IN char *output_string,
+                              M2H_IN const size_t output_len);
 
 #endif // MD2HTML_H

@@ -25,23 +25,23 @@
 #define RENDERER_H
 
 #include "md2html/base/common.h"
+#include "md2html/base/result.h"
 #include "md2html/core/lexer.h"
 #include "md2html/core/parser.h"
-#include "md2html/base/result.h"
+#include "md2html/io/writer.h"
 
 typedef struct {
-    char *output_file_path;
-    FILE *fp;
+    M2H_Writer *writer;
 } M2H_Renderer;
 
 /**
  * @brief Construct a renderer
  * @param self Out, the renderer to construct
- * @param path In, the path to the output file
+ * @param writer In, the writer which the renderer will use
  * @return M2H_Result
  */
 M2H_Result M2H_renderer_ctor(M2H_OUT M2H_Renderer *self,
-                             M2H_IN const char *path);
+                             M2H_IN M2H_Writer *writer);
 
 /**
  * @brief Destruct a renderer
