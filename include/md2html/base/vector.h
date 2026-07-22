@@ -33,13 +33,13 @@
 #include "md2html/base/result.h"
 #include <stdlib.h>
 
-#define CONCAT_INNER(a, b) a##b
-#define CONCAT(a, b) CONCAT_INNER(a, b)
+#define _CONCAT_INNER(a, b) a##b
+#define _CONCAT(a, b) _CONCAT_INNER(a, b)
 
 #define T M2H_VEC_T
 #define DT M2H_VEC_DISPT
-#define VECT CONCAT(M2H_Vector, DT)
-#define FUNC_PREF CONCAT(CONCAT(M2H_vector_, T), _)
+#define VECT _CONCAT(M2H_Vector, DT)
+#define FUNC_PREF _CONCAT(_CONCAT(M2H_vector_, T), _)
 
 typedef struct {
     T *ptr;
@@ -47,7 +47,7 @@ typedef struct {
     size_t cap;
 } VECT;
 
-[[maybe_unused]] static M2H_Result CONCAT(FUNC_PREF, ctor)(M2H_OUT VECT *self,
+[[maybe_unused]] static M2H_Result _CONCAT(FUNC_PREF, ctor)(M2H_OUT VECT *self,
                                                            M2H_IN size_t cap) {
     if (cap == 0 || cap > M2H_MAX_VEC_CAP) {
         return M2H_RESULT_ILLEGAL_ARGUMENT;
@@ -61,7 +61,7 @@ typedef struct {
     return M2H_RESULT_OK;
 }
 
-[[maybe_unused]] static M2H_Result CONCAT(FUNC_PREF, dtor)(M2H_OUT VECT *self) {
+[[maybe_unused]] static M2H_Result _CONCAT(FUNC_PREF, dtor)(M2H_OUT VECT *self) {
     free(self->ptr);
     self->len = 0;
     self->cap = 0;
@@ -69,7 +69,7 @@ typedef struct {
 }
 
 [[maybe_unused]] static M2H_Result
-CONCAT(FUNC_PREF, reserve)(M2H_INOUT VECT *self, M2H_IN size_t cap) {
+_CONCAT(FUNC_PREF, reserve)(M2H_INOUT VECT *self, M2H_IN size_t cap) {
     if (cap == 0 || cap > M2H_MAX_VEC_CAP) {
         return M2H_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -86,16 +86,16 @@ CONCAT(FUNC_PREF, reserve)(M2H_INOUT VECT *self, M2H_IN size_t cap) {
 }
 
 [[maybe_unused]] static M2H_Result
-CONCAT(FUNC_PREF, pushback)(M2H_INOUT VECT *self, M2H_IN T elem) {
+_CONCAT(FUNC_PREF, pushback)(M2H_INOUT VECT *self, M2H_IN T elem) {
     if (self->cap <= self->len) {
-        M2H_RELAY(CONCAT(FUNC_PREF, reserve)(self, self->cap * 2));
+        M2H_RELAY(_CONCAT(FUNC_PREF, reserve)(self, self->cap * 2));
     }
     self->ptr[self->len] = elem;
     self->len++;
     return M2H_RESULT_OK;
 }
 
-[[maybe_unused]] static M2H_Result CONCAT(FUNC_PREF, top)(M2H_IN VECT *self,
+[[maybe_unused]] static M2H_Result _CONCAT(FUNC_PREF, top)(M2H_IN VECT *self,
                                                           M2H_OUT T *value) {
     if (self->len == 0) {
         return M2H_RESULT_EMPTY_VECTOR;
@@ -104,7 +104,7 @@ CONCAT(FUNC_PREF, pushback)(M2H_INOUT VECT *self, M2H_IN T elem) {
     return M2H_RESULT_OK;
 }
 
-[[maybe_unused]] static M2H_Result CONCAT(FUNC_PREF, topptr)(M2H_IN VECT *self,
+[[maybe_unused]] static M2H_Result _CONCAT(FUNC_PREF, topptr)(M2H_IN VECT *self,
                                                           M2H_OUT T **value) {
     if (self->len == 0) {
         return M2H_RESULT_EMPTY_VECTOR;
@@ -113,7 +113,7 @@ CONCAT(FUNC_PREF, pushback)(M2H_INOUT VECT *self, M2H_IN T elem) {
     return M2H_RESULT_OK;
 }
 
-[[maybe_unused]] static M2H_Result CONCAT(FUNC_PREF,
+[[maybe_unused]] static M2H_Result _CONCAT(FUNC_PREF,
                                           popback)(M2H_OUT VECT *self) {
     if (self->len == 0) {
         return M2H_RESULT_EMPTY_VECTOR;
@@ -127,7 +127,7 @@ CONCAT(FUNC_PREF, pushback)(M2H_INOUT VECT *self, M2H_IN T elem) {
 #undef DT
 #undef T
 
-#undef CONCAT
-#undef CONCAT_INNER
+#undef _CONCAT
+#undef _CONCAT_INNER
 
 #endif // M2H_VEC_T && M2H_VEC_DISPT

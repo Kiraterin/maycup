@@ -1,0 +1,79 @@
+/**
+ * @file test.c
+ * @brief Test tool
+ * @date 2026-07-22
+ * @copyright GPLv3 License
+ * @section LICENSE
+ * md2html
+ * Copyright (C) 2026 Kiraterin
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+#include "test.h"
+#include <stdio.h>
+
+void run_all_test_suites() {
+    size_t pass_cnt_all = 0;
+    size_t fail_cnt_all = 0;
+    for (size_t i = 0; i < TEST_CTX.suite_cnt; ++i) {
+        TestSuite *cur = &TEST_CTX.suites[i];
+        printf(COLOR_LIGHT_GREEN "Running test suite: " COLOR_RESET "%s\n\n",
+               cur->suite_name);
+        size_t pass_cnt = 0;
+        size_t fail_cnt = 0;
+        for (size_t j = 0; j < cur->case_cnt; ++j) {
+            TestResult res = cur->cases[j].case_func();
+            switch (res) {
+            case TEST_RESULT_PASS:
+                printf(COLOR_LIGHT_GREEN "PASS " COLOR_RESET "%s\n",
+                       cur->cases[j].case_name);
+                ++pass_cnt;
+                break;
+            case TEST_RESULT_FAIL:
+                printf(COLOR_LIGHT_RED "FAIL " COLOR_RESET "%s\n",
+                       cur->cases[j].case_name);
+                ++fail_cnt;
+                break;
+            }
+        }
+        if (pass_cnt == 0) {
+            printf(COLOR_RESET);
+        } else {
+            printf(COLOR_LIGHT_GREEN);
+        }
+        printf("\n %zu" COLOR_RESET " Passed, ", pass_cnt);
+        if (fail_cnt == 0) {
+            printf(COLOR_RESET);
+        } else {
+            printf(COLOR_LIGHT_RED);
+        }
+        printf("%zu" COLOR_RESET " Failed\n\n\n", fail_cnt);
+        pass_cnt_all += pass_cnt;
+        fail_cnt_all += fail_cnt;
+    }
+    printf("Summary: ");
+    if (pass_cnt_all == 0) {
+        printf(COLOR_RESET);
+    } else {
+        printf(COLOR_LIGHT_GREEN);
+    }
+    printf("\n %zu" COLOR_RESET " Passed, ", pass_cnt_all);
+    if (fail_cnt_all == 0) {
+        printf(COLOR_RESET);
+    } else {
+        printf(COLOR_LIGHT_RED);
+    }
+    printf("%zu" COLOR_RESET " Failed\n", fail_cnt_all);
+}

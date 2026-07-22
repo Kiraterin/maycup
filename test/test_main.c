@@ -1,6 +1,6 @@
 /**
- * @file test.h
- * @brief Test suit
+ * @file test_main.c
+ * @brief Test suit entry point
  * @date 2026-07-22
  * @copyright GPLv3 License
  * @section LICENSE
@@ -21,9 +21,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TEST_H
-#define TEST_H
+ #include "test.h"
 
+TEST_CTX_DEF;
 
-
-#endif // TEST_H
+int main() {
+    TEST_SUITE_REG(vector);
+    TEST_RUN;
+    return 0;
+}

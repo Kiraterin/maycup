@@ -8,9 +8,9 @@ RM = rm -rf
 SRC_DIR = src
 BUILD_DIR = build
 BIN_DIR = bin
-INC_DIR = include
+INC_DIR = include test
 LIB_DIR = lib
-TEST_DIR = tests
+TEST_DIR = test
 
 # Files
 SRC = $(shell find $(SRC_DIR) -name "*.c")
@@ -41,7 +41,7 @@ clean:
 	$(RM) -- $(BUILD_DIR) $(BIN_DIR)
 
 test: $(BIN_DIR)/$(TEST_TARGET)
-	@echo -e '$(C_GREEN)Running tests:$(C_RESET)'
+	@echo -e '$(C_GREEN)Running test:$(C_RESET)'
 	$(BIN_DIR)/$(TEST_TARGET)
 
 $(BIN_DIR)/$(TARGET): $(SRC_OBJ)
@@ -57,6 +57,6 @@ $(BIN_DIR)/$(TEST_TARGET): $(TEST_OBJ)
 $(BUILD_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	@echo -e '$(C_GREEN)Compiling $<:$(C_RESET)'
-	$(CC) $(CFLAGS) $(DEPFLAGS) -I$(INC_DIR) -c $< -o $@
+	$(CC) $(CFLAGS) $(DEPFLAGS) $(addprefix -I, $(INC_DIR)) -c $< -o $@
 
 -include $(DEP)
