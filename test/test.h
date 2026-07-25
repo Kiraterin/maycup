@@ -106,7 +106,7 @@ extern TestContext TEST_CTX;
     do {                                                                       \
         if ((expr) != (val)) {                                                 \
             printf("assertion failed("__FILE__                                 \
-                   ":"                                                         \
+                   ": "                                                         \
                    "%d"                                                        \
                    "):",                                                       \
                    __LINE__);                                                  \
@@ -114,5 +114,9 @@ extern TestContext TEST_CTX;
             goto fail_label;                                                   \
         }                                                                      \
     } while (false)
+
+#define ASSERT_NEQ(expr, val, fail_label) ASSERT_EQ(!(expr), (val), fail_label)
+
+#define ASSERT_OK(expr, fail_label) ASSERT_EQ((expr), M2H_RESULT_OK, fail_label)
 
 #endif // TEST_H

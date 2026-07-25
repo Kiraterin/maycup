@@ -91,7 +91,7 @@ M2H_Result M2H_render(M2H_INOUT M2H_Renderer *renderer,
                 break;
             case M2H_ASTNODE_TYPE_HEADING:
                 iores = renderer->writer->printf(renderer->writer, "</h%d>",
-                                         cur->heading.level);
+                                                 cur->heading.level);
                 break;
             case M2H_ASTNODE_TYPE_PARAGRAPH:
                 iores = renderer->writer->puts(renderer->writer, "</p>");
@@ -105,11 +105,11 @@ M2H_Result M2H_render(M2H_INOUT M2H_Renderer *renderer,
         }
 
         if (iores != M2H_RESULT_OK) {
-            M2H_RELAY(M2H_vector_idx_dtor(&stack));
+            M2H_vector_idx_dtor(&stack);
             return iores;
         }
     }
 
-    M2H_RELAY(M2H_vector_idx_dtor(&stack));
+    M2H_vector_idx_dtor(&stack);
     return M2H_RESULT_OK;
 }

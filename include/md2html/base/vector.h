@@ -25,9 +25,6 @@
 #define M2H_DEFAULT_VEC_SIZE 2
 #define M2H_MAX_VEC_CAP (SIZE_MAX / 2)
 
-// #define M2H_VEC_T char
-// #define M2H_VEC_DISPT Char
-
 #if defined(M2H_VEC_T) && defined(M2H_VEC_DISPT)
 
 #include "md2html/base/result.h"
@@ -47,8 +44,13 @@ typedef struct {
     size_t cap;
 } VECT;
 
+/**
+ * @brief Construct a vector
+ * @param self Out, the vector to construct
+ * @param cap In, the initial capacity of vector
+ */
 [[maybe_unused]] static M2H_Result _CONCAT(FUNC_PREF, ctor)(M2H_OUT VECT *self,
-                                                           M2H_IN size_t cap) {
+                                                            M2H_IN size_t cap) {
     if (cap == 0 || cap > M2H_MAX_VEC_CAP) {
         return M2H_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -61,16 +63,30 @@ typedef struct {
     return M2H_RESULT_OK;
 }
 
-[[maybe_unused]] static M2H_Result _CONCAT(FUNC_PREF, dtor)(M2H_OUT VECT *self) {
+/**
+ * @brief Destruct a vector
+ * @note After destruction, all of the member will be @c 0 or @c NULL
+ * @param self Out, the vector to destruct
+ */
+[[maybe_unused]] static void _CONCAT(FUNC_PREF,
+                                           dtor)(M2H_OUT VECT *self) {
     free(self->ptr);
+    self->ptr = NULL;
     self->len = 0;
     self->cap = 0;
-    return M2H_RESULT_OK;
 }
 
+/**
+ * @brief Reserve memory for vector
+ * @note 1. The max capacity is @c M2H_MAX_VEC_CAP
+ *       2. The function will do nothing when the new capacity is less than or
+ *          equal to the current
+ * @param self In & out, the vector being reserved
+ * @param cap In, the capacity that the function reserves
+ */
 [[maybe_unused]] static M2H_Result
 _CONCAT(FUNC_PREF, reserve)(M2H_INOUT VECT *self, M2H_IN size_t cap) {
-    if (cap == 0 || cap > M2H_MAX_VEC_CAP) {
+    if (cap == 0 || cap > M2H_MAX_VEC_CAP || self->ptr == NULL) {
         return M2H_RESULT_ILLEGAL_ARGUMENT;
     }
     if (cap <= self->cap) {
@@ -85,36 +101,52 @@ _CONCAT(FUNC_PREF, reserve)(M2H_INOUT VECT *self, M2H_IN size_t cap) {
     return M2H_RESULT_OK;
 }
 
+/**
+ * @brief Push an element to the back of a vector
+ * @note The capacity of the vector will be doubled before operation when
+ *       the vector is full
+ * @param self In & out, the vector accepting the element
+ * @param elem In, the element to be pushed back
+ */
 [[maybe_unused]] static M2H_Result
 _CONCAT(FUNC_PREF, pushback)(M2H_INOUT VECT *self, M2H_IN T elem) {
     if (self->cap <= self->len) {
         M2H_RELAY(_CONCAT(FUNC_PREF, reserve)(self, self->cap * 2));
+    }
+    if (self->ptr == NULL) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
     }
     self->ptr[self->len] = elem;
     self->len++;
     return M2H_RESULT_OK;
 }
 
+/**
+ * @brief Get the top element of a vector
+ * @note The vector cannot be empty and value cannot be @c NULL
+ * @param self In, the vector
+ * @param value Out, the space where the result will be return
+ */
 [[maybe_unused]] static M2H_Result _CONCAT(FUNC_PREF, top)(M2H_IN VECT *self,
-                                                          M2H_OUT T *value) {
+                                                           M2H_OUT T *value) {
     if (self->len == 0) {
         return M2H_RESULT_EMPTY_VECTOR;
+    }
+    if (self->ptr == NULL || value == NULL) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
     }
     *value = self->ptr[self->len - 1];
     return M2H_RESULT_OK;
 }
 
-[[maybe_unused]] static M2H_Result _CONCAT(FUNC_PREF, topptr)(M2H_IN VECT *self,
-                                                          M2H_OUT T **value) {
-    if (self->len == 0) {
-        return M2H_RESULT_EMPTY_VECTOR;
-    }
-    *value = &self->ptr[self->len - 1];
-    return M2H_RESULT_OK;
-}
-
+/**
+ * @brief Remove the last element of a vector
+ * @note 1. Pop back an empty vector is not allowed
+ *       2. The capacity will not be changed
+ * @param self Out, the vector
+ */
 [[maybe_unused]] static M2H_Result _CONCAT(FUNC_PREF,
-                                          popback)(M2H_OUT VECT *self) {
+                                           popback)(M2H_OUT VECT *self) {
     if (self->len == 0) {
         return M2H_RESULT_EMPTY_VECTOR;
     }

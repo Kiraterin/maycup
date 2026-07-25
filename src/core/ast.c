@@ -163,12 +163,10 @@ M2H_Result M2H_insert_astnode(M2H_OUT ssize_t *insertee, M2H_OUT M2H_AST *ast,
 M2H_Result M2H_delete_astnode(M2H_OUT M2H_AST *ast, M2H_INOUT ssize_t dest) {
     M2H_ASTNode *const p_dest = &ast->data[dest];
     if (p_dest->next_sibling != -1) {
-        ast->data[p_dest->next_sibling].prev_sibling =
-            p_dest->prev_sibling;
+        ast->data[p_dest->next_sibling].prev_sibling = p_dest->prev_sibling;
     }
     if (p_dest->prev_sibling != -1) {
-        ast->data[p_dest->prev_sibling].next_sibling =
-            p_dest->next_sibling;
+        ast->data[p_dest->prev_sibling].next_sibling = p_dest->next_sibling;
     }
     if (ast->data[p_dest->parent].child == dest) {
         ast->data[p_dest->parent].child = p_dest->prev_sibling;
@@ -203,7 +201,7 @@ M2H_Result M2H_delete_astnode(M2H_OUT M2H_AST *ast, M2H_INOUT ssize_t dest) {
         ast->first_free = curidx;
     }
 
-    M2H_RELAY(M2H_vector_idx_dtor(&stack));
+    M2H_vector_idx_dtor(&stack);
     return M2H_RESULT_OK;
 }
 
@@ -291,8 +289,8 @@ void M2H_print_ast(M2H_IN M2H_AST *ast, M2H_IN ssize_t root) {
         putchar('\n');
     }
 
-    M2H_UNWRAP(M2H_vector_idx_dtor(&stack));
-    M2H_UNWRAP(M2H_vector_idx_dtor(&level));
+    M2H_vector_idx_dtor(&stack);
+    M2H_vector_idx_dtor(&level);
 }
 
 #endif // DEBUG
