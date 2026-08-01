@@ -1,7 +1,7 @@
 # Tools
 CC := clang
 CFLAGS += -Wall -Wextra -Werror
-CFLAGS_LINK +=
+LD_FLAGS +=
 DEPFLAGS += -MMD -MP
 RM := rm -rf
 
@@ -34,17 +34,18 @@ BUILD_DIR = $(BUILD_DIR_ROOT)/$(CONFIG)
 BIN_DIR = $(BIN_DIR_ROOT)/$(CONFIG)
 
 ifeq ($(CONFIG), release)
-	CFLAGS += -O2 -DNDEBUG
+	CFLAGS += -O3 -DNDEBUG -ffunction-sections -fdata-sections
+	LD_FLAGS += -s -Wl,--gc-sections
 	OBJ := $(SRC_OBJ)
 	TARGET := $(BIN_DIR)/md2html
 else ifeq ($(CONFIG), debug)
-	CFLAGS += -g -O0 $(CFLAGS_LINK) -DDEBUG
-	CFLAGS_LINK += -fsanitize=address -fno-omit-frame-pointer 
+	CFLAGS += -g -O0 -fsanitize=address -DDEBU
+	LD_FLAGS += -fsanitize=address -fno-omit-frame-pointer 
 	OBJ := $(SRC_OBJ)
 	TARGET := $(BIN_DIR)/md2html
 else ifeq ($(CONFIG), test)
 	CFLAGS += -g -O0 -fsanitize=address -DDEBUG -DTEST
-	CFLAGS_LINK += -fsanitize=address -fno-omit-frame-pointer
+	LD_FLAGS += -fsanitize=address -fno-omit-frame-pointer
 	OBJ := $(SRC_OBJ) $(TEST_OBJ)
 	OBJ := $(filter-out %/main.o, $(OBJ))
 	TARGET := $(BIN_DIR)/md2html_test
@@ -101,7 +102,7 @@ run_test: build
 $(TARGET): $(OBJ)
 	@mkdir -p $(dir $@)
 	@echo -e '$(C_GREEN)Linking $@:$(C_RESET)'
-	$(CC) $(CFLAGS_LINK) $^ -L$(LIB_DIR) $(addprefix -l, $(LIB)) -o $@
+	$(CC) $^ -L$(LIB_DIR) $(addprefix -l, $(LIB)) -o $@ $(LD_FLAGS)
 
 $(BUILD_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
