@@ -77,3 +77,22 @@ void run_all_test_suites() {
     }
     printf("%zu" COLOR_RESET " Failed\n", fail_cnt_all);
 }
+
+#undef malloc
+#undef realloc
+
+void *malloc_mock(size_t p) {
+    if (TEST_CTX.mock_state.m_malloc) {
+        return NULL;
+    } else {
+        return malloc(p);
+    }
+}
+
+void *realloc_mock(void *pa, size_t pb) {
+    if (TEST_CTX.mock_state.m_realloc) {
+        return NULL;
+    } else {
+        return realloc(pa, pb);
+    }
+}

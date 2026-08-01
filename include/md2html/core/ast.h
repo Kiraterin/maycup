@@ -92,26 +92,23 @@ M2H_Result M2H_astnode_dtor(M2H_OUT M2H_ASTNode *self);
 /**
  * @brief Construct an AST
  * @param self Out, the AST to construct
- * @param root Out, the root of AST
+ * @param root Out, the root of AST, cannot be @c NULL
  * @return M2H_Result
  */
 M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *head);
 
 /**
  * @brief Destruct an AST
+ * @note 1. All of the member will be @c 0 or @c NULL (except @c first_free ,
+ *          which will be @c -1 )
+ *       2. The allocated nodes will be properly destructed
  * @param self Out, the AST to destruct
  * @return M2H_Result
  */
 M2H_Result M2H_ast_dtor(M2H_OUT M2H_AST *self);
 
-typedef enum {
-    M2H_AST_INSERT_CHILD = 0,
-    M2H_AST_INSERT_SIBLING = 1
-} M2H_ASTInsertMethod;
-
 /**
- * @brief Insert an AST node after a given node (head insertion method if the
- *        method is @c M2H_AST_INSERT_CHILD )
+ * @brief Insert an AST node after a given node (head insertion method)
  * @param addee Out, the inserted node. Can be @c NULL if you don't need it
  * @param ast Out, the AST where the function inserts
  * @param node In & out, the given node

@@ -42,6 +42,10 @@ M2H_Result M2H_astnode_dtor(M2H_OUT M2H_ASTNode *self) {
 }
 
 M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *head) {
+    if (self == NULL || head == NULL) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
+
     self->data =
         (M2H_ASTNode *)malloc(M2H_DEFAULT_AST_SIZE * sizeof(M2H_ASTNode));
     self->next_free = (ssize_t *)malloc(M2H_DEFAULT_AST_SIZE * sizeof(ssize_t));

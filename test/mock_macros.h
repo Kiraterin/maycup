@@ -1,7 +1,7 @@
 /**
- * @file test_main.c
- * @brief Test suit entry point
- * @date 2026-07-22
+ * @file mock_macros.h
+ * @brief Mock function macro definitions
+ * @date 2026-08-02
  * @copyright GPLv3 License
  * @section LICENSE
  * md2html
@@ -21,13 +21,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
- #include "test.h"
+#ifndef MOCK_MACROS_H
+#define MOCK_MACROS_H
 
-TEST_CTX_DEF;
+#define malloc malloc_mock
+#define realloc realloc_mock
 
-int main() {
-    TEST_SUITE_REG(vector);
-    TEST_SUITE_REG(ast);
-    TEST_RUN;
-    return 0;
-}
+#endif // MOCK_MACROS_H

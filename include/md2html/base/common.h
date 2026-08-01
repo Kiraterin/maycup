@@ -34,4 +34,8 @@
 #define M2H_INOUT // Read & Write
 #define M2H_MOVE  // Move ownership
 
+#ifdef TEST
+#include "mock_macros.h"
+#endif // TEST
+
 #endif // COMMON_H

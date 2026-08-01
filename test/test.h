@@ -27,6 +27,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 // helper macros
 #define CONCAT_INNER(a, b) a##b
@@ -52,8 +53,8 @@ typedef struct {
 } TestSuite;
 
 // test case macros
-#define TEST_NAME(name) CONCAT(test_, name)
-#define TEST(name) static TestResult TEST_NAME(name)(void)
+#define TEST_CASE_NAME(name) CONCAT(test_, name)
+#define TEST_CASE(name) static TestResult TEST_CASE_NAME(name)(void)
 
 // test suite macros
 #define TEST_SUITE_NAME(name) CONCAT(test_suite_, name)
@@ -62,12 +63,12 @@ typedef struct {
     TEST_SUITE_DECLARE(name) {                                                 \
         TEST_CTX.suites[TEST_CTX.suite_cnt].suite_name =                       \
             STRINGIFY(TEST_SUITE_NAME(name));
-#define TEST_ADD(case)                                                         \
+#define TEST_CASE_ADD(case)                                                         \
     do {                                                                       \
         TEST_CTX.suites[TEST_CTX.suite_cnt]                                    \
             .cases[TEST_CTX.suites[TEST_CTX.suite_cnt].case_cnt++] =           \
-            (TestCase){.case_name = STRINGIFY(TEST_NAME(case)),                \
-                       .case_func = TEST_NAME(case)};                          \
+            (TestCase){.case_name = STRINGIFY(TEST_CASE_NAME(case)),                \
+                       .case_func = TEST_CASE_NAME(case)};                          \
     } while (false)
 #define TEST_SUITE_END                                                         \
     ++TEST_CTX.suite_cnt;                                                      \
@@ -85,16 +86,6 @@ typedef struct {
         run_all_test_suites();                                                 \
     } while (false)
 
-// test context struct and macros
-typedef struct {
-    TestSuite suites[MAX_TEST_SUITE_CNT];
-    size_t suite_cnt;
-} TestContext;
-
-#define TEST_CTX test_ctx
-#define TEST_CTX_DEF TestContext TEST_CTX
-extern TestContext TEST_CTX;
-
 // color macros
 #define COLOR_LIGHT_RED "\033[91m"
 #define COLOR_LIGHT_GREEN "\033[92m"
@@ -106,7 +97,7 @@ extern TestContext TEST_CTX;
     do {                                                                       \
         if ((expr) != (val)) {                                                 \
             printf("assertion failed("__FILE__                                 \
-                   ": "                                                         \
+                   ": "                                                        \
                    "%d"                                                        \
                    "):",                                                       \
                    __LINE__);                                                  \
@@ -118,5 +109,27 @@ extern TestContext TEST_CTX;
 #define ASSERT_NEQ(expr, val, fail_label) ASSERT_EQ(!(expr), (val), fail_label)
 
 #define ASSERT_OK(expr, fail_label) ASSERT_EQ((expr), M2H_RESULT_OK, fail_label)
+
+// mock functions
+typedef struct {
+    bool m_malloc : 1;
+    bool m_realloc : 1;
+} TestMockState;
+
+void *malloc_mock(size_t p);
+void *realloc_mock(void *pa, size_t pb);
+
+// test context struct and macros
+typedef struct {
+    TestSuite suites[MAX_TEST_SUITE_CNT];
+    size_t suite_cnt;
+    TestMockState mock_state;
+} TestContext;
+
+#define TEST_CTX test_ctx
+#define TEST_CTX_DEF                                                           \
+    TestContext TEST_CTX = {                                                   \
+        .mock_state = {.m_malloc = false, .m_realloc = false}}
+extern TestContext TEST_CTX;
 
 #endif // TEST_H

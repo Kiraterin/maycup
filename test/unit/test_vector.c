@@ -29,7 +29,7 @@
 #undef M2H_VEC_DISPT
 #undef M2H_VEC_T
 
-TEST(vector_ctor_normal) {
+TEST_CASE(vector_ctor_normal) {
     const size_t cap = M2H_DEFAULT_VEC_SIZE;
     M2H_VectorInt vec;
 
@@ -44,32 +44,34 @@ fail:
     return TEST_RESULT_FAIL;
 }
 
-TEST(vector_ctor_zero) {
+TEST_CASE(vector_ctor_illegal_arg) {
     M2H_VectorInt vec;
 
     ASSERT_EQ(M2H_vector_int_ctor(&vec, 0), M2H_RESULT_ILLEGAL_ARGUMENT, fail);
-
-    M2H_vector_int_dtor(&vec);
-    return TEST_RESULT_PASS;
-fail:
-    M2H_vector_int_dtor(&vec);
-    return TEST_RESULT_FAIL;
-}
-
-TEST(vector_ctor_overflow) {
-    M2H_VectorInt vec;
-
     ASSERT_EQ(M2H_vector_int_ctor(&vec, M2H_MAX_VEC_CAP + 1),
               M2H_RESULT_ILLEGAL_ARGUMENT, fail);
 
-    M2H_vector_int_dtor(&vec);
     return TEST_RESULT_PASS;
 fail:
-    M2H_vector_int_dtor(&vec);
     return TEST_RESULT_FAIL;
 }
 
-TEST(vector_dtor_normal) {
+TEST_CASE(vector_ctor_malloc_fail) {
+    M2H_VectorInt vec;
+
+    TEST_CTX.mock_state.m_malloc = true;
+
+    ASSERT_EQ(M2H_vector_int_ctor(&vec, M2H_DEFAULT_VEC_SIZE),
+              M2H_RESULT_MALLOC_FAIL, fail);
+
+    TEST_CTX.mock_state.m_malloc = false;
+    return TEST_RESULT_PASS;
+fail:
+    TEST_CTX.mock_state.m_malloc = false;
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(vector_dtor_normal) {
     M2H_VectorInt vec;
 
     ASSERT_OK(M2H_vector_int_ctor(&vec, M2H_DEFAULT_VEC_SIZE), fail);
@@ -83,13 +85,13 @@ fail:
     return TEST_RESULT_FAIL;
 }
 
-TEST(vector_dtor_double) {
+TEST_CASE(vector_dtor_double) {
     M2H_VectorInt vec;
 
     ASSERT_OK(M2H_vector_int_ctor(&vec, M2H_DEFAULT_VEC_SIZE), fail);
     M2H_vector_int_dtor(&vec);
 
-    // double free
+    // allow double free
     M2H_vector_int_dtor(&vec);
 
     return TEST_RESULT_PASS;
@@ -97,25 +99,13 @@ fail:
     return TEST_RESULT_FAIL;
 }
 
-TEST(vector_reserve_normal) {
+TEST_CASE(vector_reserve_normal) {
     M2H_VectorInt vec;
     const size_t reserve_cap = 1024;
 
     ASSERT_OK(M2H_vector_int_ctor(&vec, M2H_DEFAULT_VEC_SIZE), fail);
     ASSERT_OK(M2H_vector_int_reserve(&vec, reserve_cap), fail);
     ASSERT_EQ(vec.cap, reserve_cap, fail);
-    M2H_vector_int_dtor(&vec);
-    return TEST_RESULT_PASS;
-fail:
-    return TEST_RESULT_FAIL;
-}
-
-TEST(vector_reserve_rw) {
-    M2H_VectorInt vec;
-    const size_t reserve_cap = 1 << 24;
-
-    ASSERT_OK(M2H_vector_int_ctor(&vec, M2H_DEFAULT_VEC_SIZE), fail);
-    ASSERT_OK(M2H_vector_int_reserve(&vec, reserve_cap), fail);
     for (size_t i = 0; i < reserve_cap; ++i) {
         vec.ptr[i] = (int)i;
     }
@@ -126,10 +116,37 @@ TEST(vector_reserve_rw) {
     M2H_vector_int_dtor(&vec);
     return TEST_RESULT_PASS;
 fail:
+    M2H_vector_int_dtor(&vec);
     return TEST_RESULT_FAIL;
 }
 
-TEST(vector_pushback_little) {
+TEST_CASE(vector_reserve_realloc_fail) {
+    M2H_VectorInt vec;
+    const size_t cap = 512;
+    const size_t reserve_cap = 1024;
+
+    TEST_CTX.mock_state.m_realloc = true;
+
+    ASSERT_OK(M2H_vector_int_ctor(&vec, cap), fail);
+    ASSERT_EQ(M2H_vector_int_reserve(&vec, reserve_cap), M2H_RESULT_MALLOC_FAIL,
+              fail);
+    for (size_t i = 0; i < cap; ++i) {
+        vec.ptr[i] = (int)i;
+    }
+    for (size_t i = 0; i < cap; ++i) {
+        ASSERT_EQ(vec.ptr[i], (int)i, fail);
+    }
+
+    M2H_vector_int_dtor(&vec);
+    TEST_CTX.mock_state.m_realloc = false;
+    return TEST_RESULT_PASS;
+fail:
+    M2H_vector_int_dtor(&vec);
+    TEST_CTX.mock_state.m_realloc = false;
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(vector_pushback_little) {
     const size_t cap = M2H_DEFAULT_VEC_SIZE;
     M2H_VectorInt vec;
     ASSERT_OK(M2H_vector_int_ctor(&vec, cap), fail);
@@ -149,7 +166,7 @@ fail:
     return TEST_RESULT_FAIL;
 }
 
-TEST(vector_pushback_bulk) {
+TEST_CASE(vector_pushback_bulk) {
     const size_t cap = M2H_DEFAULT_VEC_SIZE;
     const size_t ratio = 1 << 16;
     M2H_VectorInt vec;
@@ -170,7 +187,7 @@ fail:
     return TEST_RESULT_FAIL;
 }
 
-TEST(vector_top_normal) {
+TEST_CASE(vector_top_normal) {
     const size_t cap = M2H_DEFAULT_VEC_SIZE;
     const size_t ratio = 1 << 8;
     M2H_VectorInt vec;
@@ -190,7 +207,7 @@ fail:
     return TEST_RESULT_FAIL;
 }
 
-TEST(vector_top_empty) {
+TEST_CASE(vector_top_empty) {
     const size_t cap = M2H_DEFAULT_VEC_SIZE;
     M2H_VectorInt vec;
     ASSERT_OK(M2H_vector_int_ctor(&vec, cap), fail);
@@ -204,7 +221,7 @@ fail:
     return TEST_RESULT_FAIL;
 }
 
-TEST(vector_popback_normal) {
+TEST_CASE(vector_popback_normal) {
     const size_t cap = M2H_DEFAULT_VEC_SIZE;
     const size_t ratio = 1 << 8;
     M2H_VectorInt vec;
@@ -226,7 +243,7 @@ fail:
     return TEST_RESULT_FAIL;
 }
 
-TEST(vector_popback_empty) {
+TEST_CASE(vector_popback_empty) {
     const size_t cap = M2H_DEFAULT_VEC_SIZE;
     M2H_VectorInt vec;
     ASSERT_OK(M2H_vector_int_ctor(&vec, cap), fail);
@@ -240,7 +257,7 @@ fail:
     return TEST_RESULT_FAIL;
 }
 
-TEST(vector_module_common) {
+TEST_CASE(vector_module_common) {
     M2H_VectorInt vec;
 
     ASSERT_OK(M2H_vector_int_ctor(&vec, M2H_DEFAULT_VEC_SIZE), fail);
@@ -275,7 +292,7 @@ fail:
     return TEST_RESULT_FAIL;
 }
 
-TEST(vector_module_pressure) {
+TEST_CASE(vector_module_pressure) {
     M2H_VectorInt vec;
     const size_t n = 2000000 * 2;
 
@@ -316,26 +333,26 @@ fail:
 
 TEST_SUITE_BEGIN(vector)
 
-TEST_ADD(vector_ctor_normal);
-TEST_ADD(vector_ctor_zero);
-TEST_ADD(vector_ctor_overflow);
+TEST_CASE_ADD(vector_ctor_normal);
+TEST_CASE_ADD(vector_ctor_illegal_arg);
+TEST_CASE_ADD(vector_ctor_malloc_fail);
 
-TEST_ADD(vector_dtor_normal);
-TEST_ADD(vector_dtor_double);
+TEST_CASE_ADD(vector_dtor_normal);
+TEST_CASE_ADD(vector_dtor_double);
 
-TEST_ADD(vector_reserve_normal);
-TEST_ADD(vector_reserve_rw);
+TEST_CASE_ADD(vector_reserve_normal);
+TEST_CASE_ADD(vector_reserve_realloc_fail);
 
-TEST_ADD(vector_pushback_little);
-TEST_ADD(vector_pushback_bulk);
+TEST_CASE_ADD(vector_pushback_little);
+TEST_CASE_ADD(vector_pushback_bulk);
 
-TEST_ADD(vector_top_normal);
-TEST_ADD(vector_top_empty);
+TEST_CASE_ADD(vector_top_normal);
+TEST_CASE_ADD(vector_top_empty);
 
-TEST_ADD(vector_popback_normal);
-TEST_ADD(vector_popback_empty);
+TEST_CASE_ADD(vector_popback_normal);
+TEST_CASE_ADD(vector_popback_empty);
 
-TEST_ADD(vector_module_common);
-TEST_ADD(vector_module_pressure);
+TEST_CASE_ADD(vector_module_common);
+TEST_CASE_ADD(vector_module_pressure);
 
 TEST_SUITE_END
