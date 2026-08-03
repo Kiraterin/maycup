@@ -112,7 +112,7 @@ TEST_CASE(ast_insert_normal) {
 
     ASSERT_OK(M2H_ast_ctor(&ast, &root), fail);
 
-    ssize_t node[4];
+    ssize_t node[5];
     ASSERT_OK(M2H_insert_astnode(&node[0], &ast, root, M2H_ASTNODE_TYPE_NONE),
               fail);
     ASSERT_OK(
@@ -120,6 +120,8 @@ TEST_CASE(ast_insert_normal) {
         fail);
 
     ast.data[node[1]].heading.level = 2;
+
+    ASSERT_EQ(ast.data[root].child, node[0], fail);
 
     ASSERT_EQ(ast.data[node[0]].parent, root, fail);
     ASSERT_EQ(ast.data[node[0]].child, node[1], fail);
@@ -134,6 +136,8 @@ TEST_CASE(ast_insert_normal) {
     ASSERT_OK(
         M2H_insert_astnode(&node[2], &ast, node[0], M2H_ASTNODE_TYPE_NONE),
         fail);
+
+    ASSERT_EQ(ast.data[root].child, node[0], fail);
 
     ASSERT_EQ(ast.data[node[0]].parent, root, fail);
     ASSERT_EQ(ast.data[node[0]].child, node[2], fail);
@@ -154,6 +158,8 @@ TEST_CASE(ast_insert_normal) {
         M2H_insert_astnode(&node[3], &ast, node[0], M2H_ASTNODE_TYPE_NONE),
         fail);
 
+    ASSERT_EQ(ast.data[root].child, node[0], fail);
+
     ASSERT_EQ(ast.data[node[0]].parent, root, fail);
     ASSERT_EQ(ast.data[node[0]].child, node[3], fail);
     ASSERT_EQ(ast.data[node[0]].prev_sibling, -1, fail);
@@ -173,6 +179,37 @@ TEST_CASE(ast_insert_normal) {
     ASSERT_EQ(ast.data[node[3]].child, -1, fail);
     ASSERT_EQ(ast.data[node[3]].prev_sibling, node[2], fail);
     ASSERT_EQ(ast.data[node[3]].next_sibling, -1, fail);
+
+    ASSERT_OK(
+        M2H_insert_astnode(&node[4], &ast, node[2], M2H_ASTNODE_TYPE_NONE),
+        fail);
+
+    ASSERT_EQ(ast.data[root].child, node[0], fail);
+
+    ASSERT_EQ(ast.data[node[0]].parent, root, fail);
+    ASSERT_EQ(ast.data[node[0]].child, node[3], fail);
+    ASSERT_EQ(ast.data[node[0]].prev_sibling, -1, fail);
+    ASSERT_EQ(ast.data[node[0]].next_sibling, -1, fail);
+
+    ASSERT_EQ(ast.data[node[1]].parent, node[0], fail);
+    ASSERT_EQ(ast.data[node[1]].child, -1, fail);
+    ASSERT_EQ(ast.data[node[1]].prev_sibling, -1, fail);
+    ASSERT_EQ(ast.data[node[1]].next_sibling, node[2], fail);
+
+    ASSERT_EQ(ast.data[node[2]].parent, node[0], fail);
+    ASSERT_EQ(ast.data[node[2]].child, node[4], fail);
+    ASSERT_EQ(ast.data[node[2]].prev_sibling, node[1], fail);
+    ASSERT_EQ(ast.data[node[2]].next_sibling, node[3], fail);
+
+    ASSERT_EQ(ast.data[node[3]].parent, node[0], fail);
+    ASSERT_EQ(ast.data[node[3]].child, -1, fail);
+    ASSERT_EQ(ast.data[node[3]].prev_sibling, node[2], fail);
+    ASSERT_EQ(ast.data[node[3]].next_sibling, -1, fail);
+
+    ASSERT_EQ(ast.data[node[4]].parent, node[2], fail);
+    ASSERT_EQ(ast.data[node[4]].child, -1, fail);
+    ASSERT_EQ(ast.data[node[4]].prev_sibling, -1, fail);
+    ASSERT_EQ(ast.data[node[4]].next_sibling, -1, fail);
 
     ASSERT_EQ(ast.data[node[1]].type, M2H_ASTNODE_TYPE_HEADING, fail);
     ASSERT_EQ(ast.data[node[1]].heading.level, 2, fail);
@@ -397,7 +434,7 @@ fail:
     return TEST_RESULT_FAIL;
 }
 
-TEST_CASE(ast_delete_branchnode) {
+TEST_CASE(ast_delete_directnode_2layers) {
     M2H_AST ast;
     ssize_t root;
     const size_t cnt_1st = 5;
@@ -468,6 +505,9 @@ TEST_CASE(ast_delete_branchnode) {
         }
     }
     for (size_t i = 0; i < cnt_1st; ++i) {
+        if (i == dest_1st) {
+            continue;
+        }
         for (size_t j = 0; j < cnt_2nd; ++j) {
             ASSERT_EQ(ast.data[node_2nd[i][j]].parent, node_1st[i], fail);
             ASSERT_EQ(ast.data[node_2nd[i][j]].child, -1, fail);
@@ -475,6 +515,229 @@ TEST_CASE(ast_delete_branchnode) {
                       j == 0 ? -1 : node_2nd[i][j - 1], fail);
             ASSERT_EQ(ast.data[node_2nd[i][j]].next_sibling,
                       j == cnt_2nd - 1 ? -1 : node_2nd[i][j + 1], fail);
+        }
+    }
+
+    ASSERT_OK(M2H_ast_dtor(&ast), fail);
+    return TEST_RESULT_PASS;
+fail:
+    M2H_ast_dtor(&ast);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(ast_delete_directnode_3layers) {
+    M2H_AST ast;
+    ssize_t root;
+    const size_t cnt_1st = 5;
+    const size_t cnt_2nd = 6;
+    const size_t cnt_3rd = 5;
+    const size_t dest_1st = 1;
+    ssize_t node_1st[cnt_1st];
+    ssize_t node_2nd[cnt_1st][cnt_2nd];
+    ssize_t node_3rd[cnt_1st][cnt_2nd][cnt_3rd];
+
+    ASSERT_OK(M2H_ast_ctor(&ast, &root), fail);
+
+    for (size_t i = 0; i < cnt_1st; ++i) {
+        ASSERT_OK(
+            M2H_insert_astnode(&node_1st[i], &ast, root, M2H_ASTNODE_TYPE_NONE),
+            fail);
+        for (size_t j = 0; j < cnt_2nd; ++j) {
+            ASSERT_OK(M2H_insert_astnode(&node_2nd[i][j], &ast, node_1st[i],
+                                         M2H_ASTNODE_TYPE_NONE),
+                      fail);
+            for (size_t k = 0; k < cnt_3rd; ++k) {
+                ASSERT_OK(M2H_insert_astnode(&node_3rd[i][j][k], &ast,
+                                             node_2nd[i][j],
+                                             M2H_ASTNODE_TYPE_NONE),
+                          fail);
+            }
+        }
+    }
+
+    for (size_t i = 0; i < cnt_1st; ++i) {
+        ASSERT_EQ(ast.data[node_1st[i]].parent, root, fail);
+        ASSERT_EQ(ast.data[node_1st[i]].child, node_2nd[i][cnt_2nd - 1], fail);
+        ASSERT_EQ(ast.data[node_1st[i]].prev_sibling,
+                  i == 0 ? -1 : node_1st[i - 1], fail);
+        ASSERT_EQ(ast.data[node_1st[i]].next_sibling,
+                  i == cnt_1st - 1 ? -1 : node_1st[i + 1], fail);
+        for (size_t j = 0; j < cnt_2nd; ++j) {
+            ASSERT_EQ(ast.data[node_2nd[i][j]].parent, node_1st[i], fail);
+            ASSERT_EQ(ast.data[node_2nd[i][j]].child,
+                      node_3rd[i][j][cnt_3rd - 1], fail);
+            ASSERT_EQ(ast.data[node_2nd[i][j]].prev_sibling,
+                      j == 0 ? -1 : node_2nd[i][j - 1], fail);
+            ASSERT_EQ(ast.data[node_2nd[i][j]].next_sibling,
+                      j == cnt_2nd - 1 ? -1 : node_2nd[i][j + 1], fail);
+            for (size_t k = 0; k < cnt_3rd; ++k) {
+                ASSERT_EQ(ast.data[node_3rd[i][j][k]].parent, node_2nd[i][j],
+                          fail);
+                ASSERT_EQ(ast.data[node_3rd[i][j][k]].child, -1, fail);
+                ASSERT_EQ(ast.data[node_3rd[i][j][k]].prev_sibling,
+                          k == 0 ? -1 : node_3rd[i][j][k - 1], fail);
+                ASSERT_EQ(ast.data[node_3rd[i][j][k]].next_sibling,
+                          k == cnt_3rd - 1 ? -1 : node_3rd[i][j][k + 1], fail);
+            }
+        }
+    }
+
+    ASSERT_OK(M2H_delete_astnode(&ast, node_1st[dest_1st]), fail);
+
+    for (size_t i = 0; i < cnt_1st; ++i) {
+        if (i == dest_1st) {
+            continue;
+        }
+        ASSERT_EQ(ast.data[node_1st[i]].parent, root, fail);
+        ASSERT_EQ(ast.data[node_1st[i]].child, node_2nd[i][cnt_2nd - 1], fail);
+        if (abs((int)i - (int)dest_1st) <= 1) {
+            if (dest_1st != 0 && i == dest_1st - 1) {
+                ASSERT_EQ(ast.data[node_1st[i]].prev_sibling,
+                          i == 0 ? -1 : node_1st[i - 1], fail);
+                ASSERT_EQ(ast.data[node_1st[i]].next_sibling,
+                          i == cnt_1st - 1 ? -1 : node_1st[i + 2], fail);
+            } else if (i == dest_1st + 1) {
+                ASSERT_EQ(ast.data[node_1st[i]].prev_sibling,
+                          i == 0 ? -1 : node_1st[i - 2], fail);
+                ASSERT_EQ(ast.data[node_1st[i]].next_sibling,
+                          i == cnt_1st - 1 ? -1 : node_1st[i + 1], fail);
+            }
+        } else {
+            ASSERT_EQ(ast.data[node_1st[i]].prev_sibling,
+                      i == 0 ? -1 : node_1st[i - 1], fail);
+            ASSERT_EQ(ast.data[node_1st[i]].next_sibling,
+                      i == cnt_1st - 1 ? -1 : node_1st[i + 1], fail);
+            for (size_t j = 0; j < cnt_2nd; ++j) {
+                ASSERT_EQ(ast.data[node_2nd[i][j]].parent, node_1st[i], fail);
+                ASSERT_EQ(ast.data[node_2nd[i][j]].child,
+                          node_3rd[i][j][cnt_3rd - 1], fail);
+                ASSERT_EQ(ast.data[node_2nd[i][j]].prev_sibling,
+                          j == 0 ? -1 : node_2nd[i][j - 1], fail);
+                ASSERT_EQ(ast.data[node_2nd[i][j]].next_sibling,
+                          j == cnt_2nd - 1 ? -1 : node_2nd[i][j + 1], fail);
+                for (size_t k = 0; k < cnt_3rd; ++k) {
+                    ASSERT_EQ(ast.data[node_3rd[i][j][k]].parent,
+                              node_2nd[i][j], fail);
+                    ASSERT_EQ(ast.data[node_3rd[i][j][k]].child, -1, fail);
+                    ASSERT_EQ(ast.data[node_3rd[i][j][k]].prev_sibling,
+                              k == 0 ? -1 : node_3rd[i][j][k - 1], fail);
+                    ASSERT_EQ(ast.data[node_3rd[i][j][k]].next_sibling,
+                              k == cnt_3rd - 1 ? -1 : node_3rd[i][j][k + 1],
+                              fail);
+                }
+            }
+        }
+    }
+
+    ASSERT_OK(M2H_ast_dtor(&ast), fail);
+    return TEST_RESULT_PASS;
+fail:
+    M2H_ast_dtor(&ast);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(ast_delete_middlenode) {
+    M2H_AST ast;
+    ssize_t root;
+    const size_t cnt_1st = 5;
+    const size_t cnt_2nd = 6;
+    const size_t cnt_3rd = 5;
+    const size_t dest_1st = 2;
+    const size_t dest_2nd = 3;
+    ssize_t node_1st[cnt_1st];
+    ssize_t node_2nd[cnt_1st][cnt_2nd];
+    ssize_t node_3rd[cnt_1st][cnt_2nd][cnt_3rd];
+
+    ASSERT_OK(M2H_ast_ctor(&ast, &root), fail);
+
+    for (size_t i = 0; i < cnt_1st; ++i) {
+        ASSERT_OK(
+            M2H_insert_astnode(&node_1st[i], &ast, root, M2H_ASTNODE_TYPE_NONE),
+            fail);
+        for (size_t j = 0; j < cnt_2nd; ++j) {
+            ASSERT_OK(M2H_insert_astnode(&node_2nd[i][j], &ast, node_1st[i],
+                                         M2H_ASTNODE_TYPE_NONE),
+                      fail);
+            for (size_t k = 0; k < cnt_3rd; ++k) {
+                ASSERT_OK(M2H_insert_astnode(&node_3rd[i][j][k], &ast,
+                                             node_2nd[i][j],
+                                             M2H_ASTNODE_TYPE_NONE),
+                          fail);
+            }
+        }
+    }
+
+    for (size_t i = 0; i < cnt_1st; ++i) {
+        ASSERT_EQ(ast.data[node_1st[i]].parent, root, fail);
+        ASSERT_EQ(ast.data[node_1st[i]].child, node_2nd[i][cnt_2nd - 1], fail);
+        ASSERT_EQ(ast.data[node_1st[i]].prev_sibling,
+                  i == 0 ? -1 : node_1st[i - 1], fail);
+        ASSERT_EQ(ast.data[node_1st[i]].next_sibling,
+                  i == cnt_1st - 1 ? -1 : node_1st[i + 1], fail);
+        for (size_t j = 0; j < cnt_2nd; ++j) {
+            ASSERT_EQ(ast.data[node_2nd[i][j]].parent, node_1st[i], fail);
+            ASSERT_EQ(ast.data[node_2nd[i][j]].child,
+                      node_3rd[i][j][cnt_3rd - 1], fail);
+            ASSERT_EQ(ast.data[node_2nd[i][j]].prev_sibling,
+                      j == 0 ? -1 : node_2nd[i][j - 1], fail);
+            ASSERT_EQ(ast.data[node_2nd[i][j]].next_sibling,
+                      j == cnt_2nd - 1 ? -1 : node_2nd[i][j + 1], fail);
+            for (size_t k = 0; k < cnt_3rd; ++k) {
+                ASSERT_EQ(ast.data[node_3rd[i][j][k]].parent, node_2nd[i][j],
+                          fail);
+                ASSERT_EQ(ast.data[node_3rd[i][j][k]].child, -1, fail);
+                ASSERT_EQ(ast.data[node_3rd[i][j][k]].prev_sibling,
+                          k == 0 ? -1 : node_3rd[i][j][k - 1], fail);
+                ASSERT_EQ(ast.data[node_3rd[i][j][k]].next_sibling,
+                          k == cnt_3rd - 1 ? -1 : node_3rd[i][j][k + 1], fail);
+            }
+        }
+    }
+
+    ASSERT_OK(M2H_delete_astnode(&ast, node_2nd[dest_1st][dest_2nd]), fail);
+
+    for (size_t i = 0; i < cnt_1st; ++i) {
+        ASSERT_EQ(ast.data[node_1st[i]].parent, root, fail);
+        ASSERT_EQ(ast.data[node_1st[i]].child, node_2nd[i][cnt_2nd - 1], fail);
+        ASSERT_EQ(ast.data[node_1st[i]].prev_sibling,
+                  i == 0 ? -1 : node_1st[i - 1], fail);
+        ASSERT_EQ(ast.data[node_1st[i]].next_sibling,
+                  i == cnt_1st - 1 ? -1 : node_1st[i + 1], fail);
+        for (size_t j = 0; j < cnt_2nd; ++j) {
+            if (j == dest_2nd) {
+                continue;
+            }
+            ASSERT_EQ(ast.data[node_2nd[i][j]].parent, node_1st[i], fail);
+            ASSERT_EQ(ast.data[node_2nd[i][j]].child,
+                      node_3rd[i][j][cnt_3rd - 1], fail);
+            if (i == dest_1st && abs((int)j - (int)dest_2nd) <= 1) {
+                if (dest_2nd != 0 && j == dest_2nd - 1) {
+                    ASSERT_EQ(ast.data[node_2nd[i][j]].prev_sibling,
+                              j == 0 ? -1 : node_2nd[i][j - 1], fail);
+                    ASSERT_EQ(ast.data[node_2nd[i][j]].next_sibling,
+                              j == cnt_2nd - 1 ? -1 : node_2nd[i][j + 2], fail);
+                } else if (j == dest_2nd + 1) {
+                    ASSERT_EQ(ast.data[node_2nd[i][j]].prev_sibling,
+                              j == 0 ? -1 : node_2nd[i][j - 2], fail);
+                    ASSERT_EQ(ast.data[node_2nd[i][j]].next_sibling,
+                              j == cnt_2nd - 1 ? -1 : node_2nd[i][j + 1], fail);
+                }
+            } else {
+                ASSERT_EQ(ast.data[node_2nd[i][j]].prev_sibling,
+                          j == 0 ? -1 : node_2nd[i][j - 1], fail);
+                ASSERT_EQ(ast.data[node_2nd[i][j]].next_sibling,
+                          j == cnt_2nd - 1 ? -1 : node_2nd[i][j + 1], fail);
+                for (size_t k = 0; k < cnt_3rd; ++k) {
+                    ASSERT_EQ(ast.data[node_3rd[i][j][k]].parent,
+                              node_2nd[i][j], fail);
+                    ASSERT_EQ(ast.data[node_3rd[i][j][k]].child, -1, fail);
+                    ASSERT_EQ(ast.data[node_3rd[i][j][k]].prev_sibling,
+                              k == 0 ? -1 : node_3rd[i][j][k - 1], fail);
+                    ASSERT_EQ(ast.data[node_3rd[i][j][k]].next_sibling,
+                              k == cnt_3rd - 1 ? -1 : node_3rd[i][j][k + 1],
+                              fail);
+                }
+            }
         }
     }
 
@@ -679,6 +942,43 @@ fail:
     return TEST_RESULT_FAIL;
 }
 
+TEST_CASE(astnode_dtor_normal) {
+    M2H_ASTNode node;
+    node.type = M2H_ASTNODE_TYPE_TEXT;
+
+    ASSERT_OK(M2H_astnode_data_text_ctor(&node.text, strdup("12345"),
+                                         M2H_TEXTSTYLE_PLAIN, false),
+              fail);
+    ASSERT_OK(M2H_astnode_dtor(&node), fail);
+    ASSERT_EQ(node.text.content, NULL, fail);
+
+    return TEST_RESULT_PASS;
+fail:
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(astnode_dtor_double) {
+    M2H_ASTNode node;
+    node.type = M2H_ASTNODE_TYPE_TEXT;
+
+    ASSERT_OK(M2H_astnode_data_text_ctor(&node.text, strdup("12345"),
+                                         M2H_TEXTSTYLE_PLAIN, false),
+              fail);
+    ASSERT_OK(M2H_astnode_dtor(&node), fail);
+    ASSERT_OK(M2H_astnode_dtor(&node), fail);
+
+    return TEST_RESULT_PASS;
+fail:
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(astnode_dtor_illegal_arg) {
+    ASSERT_EQ(M2H_astnode_dtor(NULL), M2H_RESULT_ILLEGAL_ARGUMENT, fail);
+    return TEST_RESULT_PASS;
+fail:
+    return TEST_RESULT_FAIL;
+}
+
 TEST_CASE(ast_module_common) {
     M2H_AST ast;
     ssize_t root;
@@ -869,7 +1169,9 @@ TEST_CASE_ADD(ast_insert_maxcap_exceeded);
 
 TEST_CASE_ADD(ast_delete_normal);
 TEST_CASE_ADD(ast_delete_reuse);
-TEST_CASE_ADD(ast_delete_branchnode);
+TEST_CASE_ADD(ast_delete_directnode_2layers);
+TEST_CASE_ADD(ast_delete_directnode_3layers);
+TEST_CASE_ADD(ast_delete_middlenode);
 TEST_CASE_ADD(ast_delete_leafnode);
 TEST_CASE_ADD(ast_delete_illegal_arg);
 
@@ -879,6 +1181,10 @@ TEST_CASE_ADD(astnode_text_ctor_illegal_arg);
 TEST_CASE_ADD(astnode_text_dtor_normal);
 TEST_CASE_ADD(astnode_text_dtor_double);
 TEST_CASE_ADD(astnode_text_dtor_illegal_arg);
+
+TEST_CASE_ADD(astnode_dtor_normal);
+TEST_CASE_ADD(astnode_dtor_double);
+TEST_CASE_ADD(astnode_dtor_illegal_arg);
 
 TEST_CASE_ADD(ast_module_common);
 

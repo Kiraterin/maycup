@@ -26,7 +26,7 @@ DEP :=
 TARGET :=
 
 # Libraries
-LIB := 
+LIB :=
 
 # Build configuration
 CONFIG :=
@@ -39,13 +39,13 @@ ifeq ($(CONFIG), release)
 	OBJ := $(SRC_OBJ)
 	TARGET := $(BIN_DIR)/md2html
 else ifeq ($(CONFIG), debug)
-	CFLAGS += -g -O0 -fsanitize=address -DDEBU
-	LD_FLAGS += -fsanitize=address -fno-omit-frame-pointer 
+	CFLAGS += -g -O0 -fsanitize=address -DDEBUG
+	LD_FLAGS += -fsanitize=address -fno-omit-frame-pointer
 	OBJ := $(SRC_OBJ)
 	TARGET := $(BIN_DIR)/md2html
 else ifeq ($(CONFIG), test)
-	CFLAGS += -g -O0 -fsanitize=address -DDEBUG -DTEST
-	LD_FLAGS += -fsanitize=address -fno-omit-frame-pointer
+	CFLAGS += -g -O0 -fsanitize=address -fprofile-instr-generate -fcoverage-mapping -DDEBUG -DTEST
+	LD_FLAGS += -fsanitize=address -fprofile-instr-generate -fno-omit-frame-pointer
 	OBJ := $(SRC_OBJ) $(TEST_OBJ)
 	OBJ := $(filter-out %/main.o, $(OBJ))
 	TARGET := $(BIN_DIR)/md2html_test
@@ -62,7 +62,9 @@ C_RESET := \033[0m
 
 # Goal control
 .DEFAULT_GOAL := all
-.PHONY: nothing all build release debug test test_not_run run_test clean
+.PHONY: nothing all build release debug test \
+	clean cov \
+	test_not_run test_run cov_inner
 
 nothing:
 
@@ -70,6 +72,7 @@ all:
 	$(MAKE) release --no-print-directory
 	$(MAKE) debug --no-print-directory
 	$(MAKE) test --no-print-directory
+	$(MAKE) cov --no-print-directory
 
 build: $(TARGET)
 
@@ -87,17 +90,30 @@ debug:
 
 test:
 	@echo -e '\n$(C_GREEN)Current Configuration: test $(C_RESET)'
-	$(MAKE) CONFIG=test run_test --no-print-directory
-	
+	$(MAKE) CONFIG=test test_run --no-print-directory
+
 test_not_run:
 	@echo -e '\n$(C_GREEN)Current Configuration: test $(C_RESET)'
 	$(MAKE) CONFIG=test build --no-print-directory
 
-run_test: build
+test_run: build
 	@echo -e '$(C_GREEN)Running test:$(C_RESET)'
-	$(TARGET)
+	LLVM_PROFILE_FILE="$(BIN_DIR)/test.profraw" $(TARGET)
+	llvm-profdata merge -sparse $(BIN_DIR)/test.profraw -o $(BIN_DIR)/test.profdata
 
+cov:
+	$(MAKE) CONFIG=test cov_inner --no-print-directory
 
+cov_inner:
+	@if [ ! -f "$(BIN_DIR)/test.profdata" ]; then \
+		$(MAKE) CONFIG=test test_run --no-print-directory; \
+	fi
+	@echo -e '$(C_GREEN)Test coverage:$(C_RESET)'
+	llvm-cov report $(TARGET) -instr-profile=$(BIN_DIR)/test.profdata \
+		-ignore-filename-regex='(^|/)test/.*|(^|/)src/debug/.*'
+	llvm-cov show $(TARGET) -instr-profile=$(BIN_DIR)/test.profdata \
+		-ignore-filename-regex='(^|/)test/.*|(^|/)src/debug/.*' \
+		-format=html -output-dir=$(BIN_DIR)/cov
 
 $(TARGET): $(OBJ)
 	@mkdir -p $(dir $@)

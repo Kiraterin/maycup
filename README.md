@@ -52,10 +52,16 @@ where `<config>` can be `release`, `debug` or `test`.
 
 Tests will be run automatically after compilation if `<config>` is `test`.
 
-### Make All Configurations
+### Make All Configurations and generate coverage report
 
 ```bash
 make all
+```
+
+## Generate coverage report
+The report page is at ./bin/test/cov/index.html
+```bash
+make cov
 ```
 
 ### Clean

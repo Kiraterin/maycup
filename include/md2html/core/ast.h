@@ -87,13 +87,6 @@ typedef struct {
 #define M2H_MAX_AST_CAP (SIZE_MAX / 2)
 
 /**
- * @brief Destruct a AST node
- * @param self Out, the node to destruct
- * @return M2H_Result
- */
-M2H_Result M2H_astnode_dtor(M2H_OUT M2H_ASTNode *self);
-
-/**
  * @brief Construct an AST
  * @note The index @c 0 is reserved and the root index will never be it
  * @param self Out, the AST to construct
@@ -163,15 +156,11 @@ M2H_Result M2H_astnode_data_text_ctor(M2H_OUT M2H_ASTNodeDataText *self,
  */
 M2H_Result M2H_astnode_data_text_dtor(M2H_OUT M2H_ASTNodeDataText *self);
 
-#ifdef DEBUG
-
 /**
- * @brief Print an AST
- * @param ast In, the ast to print
- * @param root In, the entry point
+ * @brief Destruct a AST node
+ * @param self Out, the node to destruct
+ * @return M2H_Result
  */
-void M2H_print_ast(M2H_IN M2H_AST *ast, M2H_IN ssize_t root);
-
-#endif // DEBUG
+M2H_Result M2H_astnode_dtor(M2H_OUT M2H_ASTNode *self);
 
 #endif // AST_H
