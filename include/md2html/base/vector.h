@@ -51,7 +51,7 @@ typedef struct {
  */
 [[maybe_unused]] static M2H_Result _CONCAT(FUNC_PREF, ctor)(M2H_OUT VECT *self,
                                                             M2H_IN size_t cap) {
-    if (cap == 0 || cap > M2H_MAX_VEC_CAP) {
+    if (self == NULL || cap == 0 || cap > M2H_MAX_VEC_CAP) {
         return M2H_RESULT_ILLEGAL_ARGUMENT;
     }
     self->len = 0;
@@ -68,12 +68,16 @@ typedef struct {
  * @note After destruction, all of the member will be @c 0 or @c NULL
  * @param self Out, the vector to destruct
  */
-[[maybe_unused]] static void _CONCAT(FUNC_PREF,
+[[maybe_unused]] static M2H_Result _CONCAT(FUNC_PREF,
                                            dtor)(M2H_OUT VECT *self) {
+    if (self == NULL) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
     free(self->ptr);
     self->ptr = NULL;
     self->len = 0;
     self->cap = 0;
+    return M2H_RESULT_OK;
 }
 
 /**
@@ -86,7 +90,8 @@ typedef struct {
  */
 [[maybe_unused]] static M2H_Result
 _CONCAT(FUNC_PREF, reserve)(M2H_INOUT VECT *self, M2H_IN size_t cap) {
-    if (cap == 0 || cap > M2H_MAX_VEC_CAP || self->ptr == NULL) {
+    if (self == NULL || cap == 0 || cap > M2H_MAX_VEC_CAP ||
+        self->ptr == NULL) {
         return M2H_RESULT_ILLEGAL_ARGUMENT;
     }
     if (cap <= self->cap) {
@@ -110,11 +115,15 @@ _CONCAT(FUNC_PREF, reserve)(M2H_INOUT VECT *self, M2H_IN size_t cap) {
  */
 [[maybe_unused]] static M2H_Result
 _CONCAT(FUNC_PREF, pushback)(M2H_INOUT VECT *self, M2H_IN T elem) {
-    if (self->cap <= self->len) {
-        M2H_RELAY(_CONCAT(FUNC_PREF, reserve)(self, self->cap * 2));
-    }
-    if (self->ptr == NULL) {
+    if (self == NULL || self->ptr == NULL) {
         return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
+    if (self->cap <= self->len) {
+        // use "/ 2" rather than "* 2" to avoid overflow
+        if (self->cap >= M2H_MAX_VEC_CAP / 2) {
+            return M2H_RESULT_MAX_CAP_EXCEEDED;
+        }
+        M2H_RELAY(_CONCAT(FUNC_PREF, reserve)(self, self->cap * 2));
     }
     self->ptr[self->len] = elem;
     self->len++;
@@ -129,11 +138,11 @@ _CONCAT(FUNC_PREF, pushback)(M2H_INOUT VECT *self, M2H_IN T elem) {
  */
 [[maybe_unused]] static M2H_Result _CONCAT(FUNC_PREF, top)(M2H_IN VECT *self,
                                                            M2H_OUT T *value) {
+    if (self == NULL || self->ptr == NULL || value == NULL) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
     if (self->len == 0) {
         return M2H_RESULT_EMPTY_VECTOR;
-    }
-    if (self->ptr == NULL || value == NULL) {
-        return M2H_RESULT_ILLEGAL_ARGUMENT;
     }
     *value = self->ptr[self->len - 1];
     return M2H_RESULT_OK;
@@ -147,6 +156,9 @@ _CONCAT(FUNC_PREF, pushback)(M2H_INOUT VECT *self, M2H_IN T elem) {
  */
 [[maybe_unused]] static M2H_Result _CONCAT(FUNC_PREF,
                                            popback)(M2H_OUT VECT *self) {
+    if (self == NULL) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
     if (self->len == 0) {
         return M2H_RESULT_EMPTY_VECTOR;
     }

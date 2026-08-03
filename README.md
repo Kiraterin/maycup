@@ -2,13 +2,14 @@
 
 [![License](https://img.shields.io/badge/License-GPLv3-bright_green.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Github](https://img.shields.io/badge/Github-repo-white?logo=github)](https://github.com/Kiraterin/md2html)
-[![Language](https://img.shields.io/badge/Language-blue?logo=c)](https://www.c-language.org/)
+[![Language](https://img.shields.io/badge/Language-C23-blue)](https://www.c-language.org/)
 
 A tiny Markdown-to-HTML tool written in C.
 
 ## Goals
 
 - Develop a lightweight md to html tool for my personal website
+- Learn how to maintain an open-source project
 - Learn software engineering practices, including how to write coherent, maintainable and testable code
 - Write all of the code by hand without AI-generation
 - Achieve zero memory leaks under ASan
@@ -25,8 +26,8 @@ md2html <input_file> [options]
 
 | Option        | Required | Value              | Description     |
 | ------------- | -------- | ------------------ | --------------- |
-| `-o <file>`   | Yes      | `path/to/output`   | Set output path |
-| `-h`          | No       | None               | Print usage     |
+| `-o <file>` | Yes      | `path/to/output` | Set output path |
+| `-h`        | No       | None               | Print usage     |
 
 ### Example
 
@@ -43,8 +44,9 @@ md2html input.md -o output.html
 There are three build configurations: `release`, `debug` and `test`.
 Use `make <config>` to build with a specified configuration, e.g. `make release`.
 Build artifacts are generated in
-- `./build/<config>/` intermediate build artifacts
-- `./bin/<config>/` final build artifact
+
+- `./build/<config>/`: intermediate build artifacts
+- `./bin/<config>/`: final build artifact
 
 where `<config>` can be `release`, `debug` or `test`.
 

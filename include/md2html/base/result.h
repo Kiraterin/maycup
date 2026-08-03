@@ -34,6 +34,7 @@ typedef enum {
     M2H_RESULT_ILLEGAL_ARGUMENT,
     M2H_RESULT_EMPTY_VECTOR,
     M2H_RESULT_ARENA_ERROR,
+    M2H_RESULT_MAX_CAP_EXCEEDED,
 
     M2H_RESULT_PARSE_MISMATCH
 } M2H_Result;
@@ -65,7 +66,7 @@ void M2H_error_printmsg(M2H_IN M2H_Result res);
  * @brief Relay error or ok to caller, but if the res is @c when , continue; if
  *        the res is @c act_res , do action
  */
-#define M2H_RELAY_UNLESS_DO(expr, when, act_res, action)                      \
+#define M2H_RELAY_UNLESS_DO(expr, when, act_res, action)                       \
     if (true) {                                                                \
         M2H_Result res = (expr);                                               \
         if (res == act_res) {                                                  \
@@ -81,7 +82,7 @@ void M2H_error_printmsg(M2H_IN M2H_Result res);
  * @brief Relay error to caller or do action if it's ok, but if the res is
  *        @c err , continue
  */
-#define M2H_RELAY_UNLESSOK_DO(expr, err, ok)                                  \
+#define M2H_RELAY_UNLESSOK_DO(expr, err, ok)                                   \
     M2H_RELAY_UNLESS_DO(expr, err, M2H_RESULT_OK, ok)
 
 /**

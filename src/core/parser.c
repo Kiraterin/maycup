@@ -54,7 +54,7 @@ static M2H_Result parse_inline_text(M2H_Parser *parser, M2H_Lexer *lexer,
         if (destlen >= buffer.cap) {
             M2H_RELAY(M2H_vector_char_reserve(&buffer, destlen * 2));
         }
-        buffer_end = stpcpy(buffer.ptr, prefix);
+        buffer_end = strcpy(buffer.ptr, prefix) + strlen(buffer.ptr);
         // ignore the '\0'
         buffer.len = destlen - 1;
     }
@@ -82,9 +82,10 @@ static M2H_Result parse_inline_text(M2H_Parser *parser, M2H_Lexer *lexer,
                     ++begin;
                 }
                 destlen = strlen(begin) + 1 + buffer.len;
-                buffer_end = stpcpy(buffer_end, begin);
+                buffer_end = strcpy(buffer_end, begin) + strlen(buffer_end);
             } else {
-                buffer_end = stpcpy(buffer_end, parser->cur_token.text);
+                buffer_end = strcpy(buffer_end, parser->cur_token.text) +
+                             strlen(buffer_end);
             }
 
             // ignore the '\0'

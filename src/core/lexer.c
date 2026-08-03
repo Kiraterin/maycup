@@ -65,7 +65,7 @@ M2H_Result M2H_lexer_ctor(M2H_OUT M2H_Lexer *self,
 }
 
 M2H_Result M2H_lexer_dtor(M2H_OUT M2H_Lexer *self) {
-    M2H_vector_long_dtor(&self->checkpoint);
+    M2H_RELAY(M2H_vector_long_dtor(&self->checkpoint));
     return M2H_RESULT_OK;
 }
 

@@ -31,6 +31,10 @@ typedef ssize_t idx;
 #undef M2H_VEC_T
 
 M2H_Result M2H_astnode_dtor(M2H_OUT M2H_ASTNode *self) {
+    if (self == NULL) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
+
     switch (self->type) {
     case M2H_ASTNODE_TYPE_TEXT:
         M2H_RELAY(M2H_astnode_data_text_dtor(&self->text));
@@ -86,6 +90,10 @@ M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *head) {
 }
 
 M2H_Result M2H_ast_dtor(M2H_OUT M2H_AST *self) {
+    if (self == NULL) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
+
     for (size_t i = 0; i < self->cap; ++i) {
         if (self->is_allocated[i]) {
             M2H_ASTNode *cur = &self->data[i];
@@ -114,7 +122,17 @@ M2H_Result M2H_ast_dtor(M2H_OUT M2H_AST *self) {
 M2H_Result M2H_insert_astnode(M2H_OUT ssize_t *insertee, M2H_OUT M2H_AST *ast,
                               M2H_INOUT ssize_t parent,
                               M2H_IN M2H_ASTNodeType type) {
+    if (ast == NULL || parent <= 0 || (size_t)parent >= ast->cap ||
+        !ast->is_allocated[parent]) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
+
     if (ast->first_free == -1) {
+        // use "/ 2" rather than "* 2" to avoid overflow
+        if (ast->cap >= M2H_MAX_AST_CAP / 2) {
+            return M2H_RESULT_MAX_CAP_EXCEEDED;
+        }
+
         M2H_ASTNode *new_data = (M2H_ASTNode *)realloc(
             ast->data, ast->cap * 2 * sizeof(M2H_ASTNode));
         ssize_t *new_next_free =
@@ -165,6 +183,11 @@ M2H_Result M2H_insert_astnode(M2H_OUT ssize_t *insertee, M2H_OUT M2H_AST *ast,
 }
 
 M2H_Result M2H_delete_astnode(M2H_OUT M2H_AST *ast, M2H_INOUT ssize_t dest) {
+    if (ast == NULL || dest <= 0 || (size_t)dest >= ast->cap ||
+        !ast->is_allocated[dest]) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
+
     M2H_ASTNode *const p_dest = &ast->data[dest];
     if (p_dest->next_sibling != -1) {
         ast->data[p_dest->next_sibling].prev_sibling = p_dest->prev_sibling;
@@ -205,7 +228,7 @@ M2H_Result M2H_delete_astnode(M2H_OUT M2H_AST *ast, M2H_INOUT ssize_t dest) {
         ast->first_free = curidx;
     }
 
-    M2H_vector_idx_dtor(&stack);
+    M2H_RELAY(M2H_vector_idx_dtor(&stack));
     return M2H_RESULT_OK;
 }
 
@@ -213,7 +236,7 @@ M2H_Result M2H_astnode_data_text_ctor(M2H_OUT M2H_ASTNodeDataText *self,
                                       M2H_MOVE char *text,
                                       M2H_IN M2H_TextStyle style,
                                       M2H_IN bool newline_tailed) {
-    if (text == NULL) {
+    if (self == NULL || text == NULL) {
         return M2H_RESULT_ILLEGAL_ARGUMENT;
     }
     self->style = style;
@@ -223,6 +246,9 @@ M2H_Result M2H_astnode_data_text_ctor(M2H_OUT M2H_ASTNodeDataText *self,
 }
 
 M2H_Result M2H_astnode_data_text_dtor(M2H_OUT M2H_ASTNodeDataText *self) {
+    if (self == NULL) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
     free(self->content);
     self->content = NULL;
     return M2H_RESULT_OK;
@@ -293,8 +319,8 @@ void M2H_print_ast(M2H_IN M2H_AST *ast, M2H_IN ssize_t root) {
         putchar('\n');
     }
 
-    M2H_vector_idx_dtor(&stack);
-    M2H_vector_idx_dtor(&level);
+    M2H_UNWRAP(M2H_vector_idx_dtor(&stack));
+    M2H_UNWRAP(M2H_vector_idx_dtor(&level));
 }
 
 #endif // DEBUG

@@ -72,6 +72,9 @@ struct M2H_ASTNode {
     ssize_t child;
 };
 
+/**
+ * @note Use expressions like @c ast.data[index] to get a node
+ */
 typedef struct {
     M2H_ASTNode *data;
     ssize_t *next_free;
@@ -81,6 +84,7 @@ typedef struct {
 } M2H_AST;
 
 #define M2H_DEFAULT_AST_SIZE 8
+#define M2H_MAX_AST_CAP (SIZE_MAX / 2)
 
 /**
  * @brief Destruct a AST node
@@ -91,6 +95,7 @@ M2H_Result M2H_astnode_dtor(M2H_OUT M2H_ASTNode *self);
 
 /**
  * @brief Construct an AST
+ * @note The index @c 0 is reserved and the head index will never be it
  * @param self Out, the AST to construct
  * @param root Out, the root of AST, cannot be @c NULL
  * @return M2H_Result
@@ -108,8 +113,15 @@ M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *head);
 M2H_Result M2H_ast_dtor(M2H_OUT M2H_AST *self);
 
 /**
- * @brief Insert an AST node after a given node (head insertion method)
- * @param addee Out, the inserted node. Can be @c NULL if you don't need it
+ * @brief Insert an AST node after a given node
+ * @note 1. If a node doesn't have a child/parent/sibling, the corresponding
+ *          data will be -1
+ *       2. The function follows the head insertion method, meaning that the
+ *          direct child of a parent is the last inserted, which makes
+ *          stack-based DFS traversal easier
+ *       3. Parameter @p parent cannot be negative, @c 0 or any node index that
+ *          haven't been allocated
+ * @param insertee Out, the inserted node. Can be @c NULL if you don't need it
  * @param ast Out, the AST where the function inserts
  * @param node In & out, the given node
  * @param type In, the type of node to insert
@@ -121,6 +133,8 @@ M2H_Result M2H_insert_astnode(M2H_OUT ssize_t *insertee, M2H_OUT M2H_AST *ast,
 
 /**
  * @brief Delete an given ast node and all of its children
+ * @note Parameter @p dest cannot be negative, @c 0 or any node index that
+ *       haven't been allocated
  * @param ast Out, the AST where the function deletes
  * @param dest In & out, the node to delete
  * @return M2H_Result
@@ -129,6 +143,7 @@ M2H_Result M2H_delete_astnode(M2H_OUT M2H_AST *ast, M2H_INOUT ssize_t dest);
 
 /**
  * @brief Construct a text AST node data
+ * @note The parameter @p text should only receive data that is from heap
  * @param self Out, the data to construct
  * @param text Move, the pointer to a string to be moved into the data
  * @param style In, the style of the text
@@ -142,6 +157,7 @@ M2H_Result M2H_astnode_data_text_ctor(M2H_OUT M2H_ASTNodeDataText *self,
 
 /**
  * @brief Destruct a text AST node data
+ * @note The member @c content will be freed and turn to @c NULL
  * @param self Out, the data to destruct
  * @return M2H_Result
  */

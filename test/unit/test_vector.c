@@ -37,7 +37,7 @@ TEST_CASE(vector_ctor_normal) {
     ASSERT_EQ(vec.len, 0, fail);
     ASSERT_EQ(vec.cap, cap, fail);
 
-    M2H_vector_int_dtor(&vec);
+    ASSERT_OK(M2H_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
 fail:
     M2H_vector_int_dtor(&vec);
@@ -47,10 +47,11 @@ fail:
 TEST_CASE(vector_ctor_illegal_arg) {
     M2H_VectorInt vec;
 
+    ASSERT_EQ(M2H_vector_int_ctor(NULL, M2H_DEFAULT_VEC_SIZE),
+              M2H_RESULT_ILLEGAL_ARGUMENT, fail);
     ASSERT_EQ(M2H_vector_int_ctor(&vec, 0), M2H_RESULT_ILLEGAL_ARGUMENT, fail);
     ASSERT_EQ(M2H_vector_int_ctor(&vec, M2H_MAX_VEC_CAP + 1),
               M2H_RESULT_ILLEGAL_ARGUMENT, fail);
-
     return TEST_RESULT_PASS;
 fail:
     return TEST_RESULT_FAIL;
@@ -75,7 +76,7 @@ TEST_CASE(vector_dtor_normal) {
     M2H_VectorInt vec;
 
     ASSERT_OK(M2H_vector_int_ctor(&vec, M2H_DEFAULT_VEC_SIZE), fail);
-    M2H_vector_int_dtor(&vec);
+    ASSERT_OK(M2H_vector_int_dtor(&vec), fail);
     ASSERT_EQ(vec.ptr, NULL, fail);
     ASSERT_EQ(vec.len, 0, fail);
     ASSERT_EQ(vec.cap, 0, fail);
@@ -85,14 +86,27 @@ fail:
     return TEST_RESULT_FAIL;
 }
 
+TEST_CASE(vector_dtor_illegal_arg) {
+    M2H_VectorInt vec;
+
+    ASSERT_OK(M2H_vector_int_ctor(&vec, M2H_DEFAULT_VEC_SIZE), fail);
+    ASSERT_EQ(M2H_vector_int_dtor(NULL), M2H_RESULT_ILLEGAL_ARGUMENT, fail);
+
+    ASSERT_OK(M2H_vector_int_dtor(&vec), fail);
+    return TEST_RESULT_PASS;
+fail:
+    M2H_vector_int_dtor(&vec);
+    return TEST_RESULT_FAIL;
+}
+
 TEST_CASE(vector_dtor_double) {
     M2H_VectorInt vec;
 
     ASSERT_OK(M2H_vector_int_ctor(&vec, M2H_DEFAULT_VEC_SIZE), fail);
-    M2H_vector_int_dtor(&vec);
+    ASSERT_OK(M2H_vector_int_dtor(&vec), fail);
 
     // allow double free
-    M2H_vector_int_dtor(&vec);
+    ASSERT_OK(M2H_vector_int_dtor(&vec), fail);
 
     return TEST_RESULT_PASS;
 fail:
@@ -113,7 +127,24 @@ TEST_CASE(vector_reserve_normal) {
         ASSERT_EQ(vec.ptr[i], (int)i, fail);
     }
 
+    ASSERT_OK(M2H_vector_int_dtor(&vec), fail);
+    return TEST_RESULT_PASS;
+fail:
     M2H_vector_int_dtor(&vec);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(vector_reserve_illegal_arg) {
+    M2H_VectorInt vec;
+    const size_t reserve_cap = 1024;
+
+    ASSERT_OK(M2H_vector_int_ctor(&vec, M2H_DEFAULT_VEC_SIZE), fail);
+    ASSERT_EQ(M2H_vector_int_reserve(NULL, reserve_cap),
+              M2H_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(M2H_vector_int_reserve(&vec, M2H_MAX_VEC_CAP + 1),
+              M2H_RESULT_ILLEGAL_ARGUMENT, fail);
+
+    ASSERT_OK(M2H_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
 fail:
     M2H_vector_int_dtor(&vec);
@@ -137,7 +168,7 @@ TEST_CASE(vector_reserve_realloc_fail) {
         ASSERT_EQ(vec.ptr[i], (int)i, fail);
     }
 
-    M2H_vector_int_dtor(&vec);
+    ASSERT_OK(M2H_vector_int_dtor(&vec), fail);
     TEST_CTX.mock_state.m_realloc = false;
     return TEST_RESULT_PASS;
 fail:
@@ -159,7 +190,7 @@ TEST_CASE(vector_pushback_little) {
         ASSERT_EQ(vec.ptr[i], (int)i, fail);
     }
 
-    M2H_vector_int_dtor(&vec);
+    ASSERT_OK(M2H_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
 fail:
     M2H_vector_int_dtor(&vec);
@@ -180,7 +211,30 @@ TEST_CASE(vector_pushback_bulk) {
         ASSERT_EQ(vec.ptr[i], (int)i, fail);
     }
 
+    ASSERT_OK(M2H_vector_int_dtor(&vec), fail);
+    return TEST_RESULT_PASS;
+fail:
     M2H_vector_int_dtor(&vec);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(vector_pushback_illegal_arg) {
+    ASSERT_EQ(M2H_vector_int_pushback(NULL, 0), M2H_RESULT_ILLEGAL_ARGUMENT,
+              fail);
+    return TEST_RESULT_PASS;
+fail:
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(vector_pushback_maxcap_exceeded) {
+    M2H_VectorInt vec;
+
+    ASSERT_OK(M2H_vector_int_ctor(&vec, M2H_DEFAULT_VEC_SIZE), fail);
+    vec.len = vec.cap = M2H_MAX_VEC_CAP + 1;
+    ASSERT_EQ(M2H_vector_int_pushback(&vec, 0), M2H_RESULT_MAX_CAP_EXCEEDED,
+              fail);
+
+    ASSERT_OK(M2H_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
 fail:
     M2H_vector_int_dtor(&vec);
@@ -200,7 +254,23 @@ TEST_CASE(vector_top_normal) {
         ASSERT_EQ(top, (int)i, fail);
     }
 
+    ASSERT_OK(M2H_vector_int_dtor(&vec), fail);
+    return TEST_RESULT_PASS;
+fail:
     M2H_vector_int_dtor(&vec);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(vector_top_illegal_arg) {
+    M2H_VectorInt vec;
+    int val;
+    ASSERT_OK(M2H_vector_int_ctor(&vec, M2H_DEFAULT_VEC_SIZE), fail);
+    ASSERT_EQ(M2H_vector_int_top(NULL, &val), M2H_RESULT_ILLEGAL_ARGUMENT,
+              fail);
+    ASSERT_EQ(M2H_vector_int_top(&vec, NULL), M2H_RESULT_ILLEGAL_ARGUMENT,
+              fail);
+
+    ASSERT_OK(M2H_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
 fail:
     M2H_vector_int_dtor(&vec);
@@ -210,11 +280,13 @@ fail:
 TEST_CASE(vector_top_empty) {
     const size_t cap = M2H_DEFAULT_VEC_SIZE;
     M2H_VectorInt vec;
+    int top_val;
     ASSERT_OK(M2H_vector_int_ctor(&vec, cap), fail);
 
-    ASSERT_EQ(M2H_vector_int_top(&vec, NULL), M2H_RESULT_EMPTY_VECTOR, fail);
+    ASSERT_EQ(M2H_vector_int_top(&vec, &top_val), M2H_RESULT_EMPTY_VECTOR,
+              fail);
 
-    M2H_vector_int_dtor(&vec);
+    ASSERT_OK(M2H_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
 fail:
     M2H_vector_int_dtor(&vec);
@@ -236,10 +308,17 @@ TEST_CASE(vector_popback_normal) {
     }
     ASSERT_EQ(vec.len, 0, fail);
 
-    M2H_vector_int_dtor(&vec);
+    ASSERT_OK(M2H_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
 fail:
     M2H_vector_int_dtor(&vec);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(vector_popback_illegal_arg) {
+    ASSERT_EQ(M2H_vector_int_popback(NULL), M2H_RESULT_ILLEGAL_ARGUMENT, fail);
+    return TEST_RESULT_PASS;
+fail:
     return TEST_RESULT_FAIL;
 }
 
@@ -250,7 +329,7 @@ TEST_CASE(vector_popback_empty) {
 
     ASSERT_EQ(M2H_vector_int_popback(&vec), M2H_RESULT_EMPTY_VECTOR, fail);
 
-    M2H_vector_int_dtor(&vec);
+    ASSERT_OK(M2H_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
 fail:
     M2H_vector_int_dtor(&vec);
@@ -259,14 +338,14 @@ fail:
 
 TEST_CASE(vector_module_common) {
     M2H_VectorInt vec;
+    int val;
 
     ASSERT_OK(M2H_vector_int_ctor(&vec, M2H_DEFAULT_VEC_SIZE), fail);
     ASSERT_EQ(vec.cap, M2H_DEFAULT_VEC_SIZE, fail);
     ASSERT_EQ(vec.len, 0, fail);
-    ASSERT_EQ(M2H_vector_int_top(&vec, NULL), M2H_RESULT_EMPTY_VECTOR, fail);
+    ASSERT_EQ(M2H_vector_int_top(&vec, &val), M2H_RESULT_EMPTY_VECTOR, fail);
     ASSERT_EQ(M2H_vector_int_popback(&vec), M2H_RESULT_EMPTY_VECTOR, fail);
     ASSERT_OK(M2H_vector_int_pushback(&vec, 3), fail);
-    int val;
     ASSERT_OK(M2H_vector_int_top(&vec, &val), fail);
     ASSERT_EQ(val, 3, fail);
     ASSERT_EQ(vec.len, 1, fail);
@@ -285,7 +364,7 @@ TEST_CASE(vector_module_common) {
     ASSERT_OK(M2H_vector_int_top(&vec, &val), fail);
     ASSERT_EQ(val, 490, fail);
 
-    M2H_vector_int_dtor(&vec);
+    ASSERT_OK(M2H_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
 fail:
     M2H_vector_int_dtor(&vec);
@@ -324,7 +403,7 @@ TEST_CASE(vector_module_pressure) {
     }
     ASSERT_EQ(vec.len, 0, fail);
 
-    M2H_vector_int_dtor(&vec);
+    ASSERT_OK(M2H_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
 fail:
     M2H_vector_int_dtor(&vec);
@@ -338,18 +417,24 @@ TEST_CASE_ADD(vector_ctor_illegal_arg);
 TEST_CASE_ADD(vector_ctor_malloc_fail);
 
 TEST_CASE_ADD(vector_dtor_normal);
+TEST_CASE_ADD(vector_dtor_illegal_arg);
 TEST_CASE_ADD(vector_dtor_double);
 
 TEST_CASE_ADD(vector_reserve_normal);
+TEST_CASE_ADD(vector_reserve_illegal_arg);
 TEST_CASE_ADD(vector_reserve_realloc_fail);
 
 TEST_CASE_ADD(vector_pushback_little);
 TEST_CASE_ADD(vector_pushback_bulk);
+TEST_CASE_ADD(vector_pushback_illegal_arg);
+TEST_CASE_ADD(vector_pushback_maxcap_exceeded);
 
 TEST_CASE_ADD(vector_top_normal);
+TEST_CASE_ADD(vector_top_illegal_arg);
 TEST_CASE_ADD(vector_top_empty);
 
 TEST_CASE_ADD(vector_popback_normal);
+TEST_CASE_ADD(vector_popback_illegal_arg);
 TEST_CASE_ADD(vector_popback_empty);
 
 TEST_CASE_ADD(vector_module_common);

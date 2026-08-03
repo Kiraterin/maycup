@@ -63,12 +63,12 @@ typedef struct {
     TEST_SUITE_DECLARE(name) {                                                 \
         TEST_CTX.suites[TEST_CTX.suite_cnt].suite_name =                       \
             STRINGIFY(TEST_SUITE_NAME(name));
-#define TEST_CASE_ADD(case)                                                         \
+#define TEST_CASE_ADD(case)                                                    \
     do {                                                                       \
         TEST_CTX.suites[TEST_CTX.suite_cnt]                                    \
             .cases[TEST_CTX.suites[TEST_CTX.suite_cnt].case_cnt++] =           \
-            (TestCase){.case_name = STRINGIFY(TEST_CASE_NAME(case)),                \
-                       .case_func = TEST_CASE_NAME(case)};                          \
+            (TestCase){.case_name = STRINGIFY(TEST_CASE_NAME(case)),           \
+                       .case_func = TEST_CASE_NAME(case)};                     \
     } while (false)
 #define TEST_SUITE_END                                                         \
     ++TEST_CTX.suite_cnt;                                                      \
@@ -97,11 +97,8 @@ typedef struct {
     do {                                                                       \
         if ((expr) != (val)) {                                                 \
             printf("assertion failed("__FILE__                                 \
-                   ": "                                                        \
-                   "%d"                                                        \
-                   "):",                                                       \
-                   __LINE__);                                                  \
-            printf(STRINGIFY(expr) " == " STRINGIFY(val) "\n");                \
+                   ":" STRINGIFY(__LINE__) "): ");                             \
+            printf("%s", STRINGIFY(expr) " == " STRINGIFY(val) "\n");          \
             goto fail_label;                                                   \
         }                                                                      \
     } while (false)

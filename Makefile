@@ -1,6 +1,6 @@
 # Tools
 CC := clang
-CFLAGS += -Wall -Wextra -Werror
+CFLAGS += -std=c23 -Wall -Wextra -Werror
 LD_FLAGS +=
 DEPFLAGS += -MMD -MP
 RM := rm -rf
