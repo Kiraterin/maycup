@@ -91,7 +91,7 @@ M2H_Result M2H_render(M2H_INOUT M2H_Renderer *renderer,
                 break;
             case M2H_ASTNODE_TYPE_HEADING:
                 iores = renderer->writer->printf(renderer->writer, "</h%d>",
-                                         cur->heading.level);
+                                                 cur->heading.level);
                 break;
             case M2H_ASTNODE_TYPE_PARAGRAPH:
                 iores = renderer->writer->puts(renderer->writer, "</p>");

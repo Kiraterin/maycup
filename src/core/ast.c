@@ -30,18 +30,11 @@ typedef ssize_t idx;
 #undef M2H_VEC_DISPT
 #undef M2H_VEC_T
 
-M2H_Result M2H_astnode_dtor(M2H_OUT M2H_ASTNode *self) {
-    switch (self->type) {
-    case M2H_ASTNODE_TYPE_TEXT:
-        M2H_RELAY(M2H_astnode_data_text_dtor(&self->text));
-        break;
-    default:
-        break;
+M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *root) {
+    if (self == NULL || root == NULL) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
     }
-    return M2H_RESULT_OK;
-}
 
-M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *head) {
     self->data =
         (M2H_ASTNode *)malloc(M2H_DEFAULT_AST_SIZE * sizeof(M2H_ASTNode));
     self->next_free = (ssize_t *)malloc(M2H_DEFAULT_AST_SIZE * sizeof(ssize_t));
@@ -53,7 +46,7 @@ M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *head) {
 
     self->cap = M2H_DEFAULT_AST_SIZE;
 
-    *head = 1;
+    *root = 1;
     self->data[0] = (M2H_ASTNode){
         .type = M2H_ASTNODE_TYPE_NONE,
         .prev_sibling = -1,
@@ -61,7 +54,7 @@ M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *head) {
         .parent = -1,
         .child = -1,
     };
-    self->data[*head] = (M2H_ASTNode){
+    self->data[*root] = (M2H_ASTNode){
         .type = M2H_ASTNODE_TYPE_ROOT,
         .prev_sibling = -1,
         .next_sibling = -1,
@@ -75,13 +68,17 @@ M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *head) {
     }
     self->next_free[self->cap - 1] = -1;
     self->is_allocated[0] = true;
-    self->is_allocated[*head] = true;
-    self->first_free = *head + 1;
+    self->is_allocated[*root] = true;
+    self->first_free = *root + 1;
 
     return M2H_RESULT_OK;
 }
 
 M2H_Result M2H_ast_dtor(M2H_OUT M2H_AST *self) {
+    if (self == NULL) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
+
     for (size_t i = 0; i < self->cap; ++i) {
         if (self->is_allocated[i]) {
             M2H_ASTNode *cur = &self->data[i];
@@ -110,7 +107,17 @@ M2H_Result M2H_ast_dtor(M2H_OUT M2H_AST *self) {
 M2H_Result M2H_insert_astnode(M2H_OUT ssize_t *insertee, M2H_OUT M2H_AST *ast,
                               M2H_INOUT ssize_t parent,
                               M2H_IN M2H_ASTNodeType type) {
+    if (ast == NULL || parent <= 0 || (size_t)parent >= ast->cap ||
+        !ast->is_allocated[parent]) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
+
     if (ast->first_free == -1) {
+        // use "/ 2" rather than "* 2" to avoid overflow
+        if (ast->cap >= M2H_MAX_AST_CAP / 2) {
+            return M2H_RESULT_MAX_CAP_EXCEEDED;
+        }
+
         M2H_ASTNode *new_data = (M2H_ASTNode *)realloc(
             ast->data, ast->cap * 2 * sizeof(M2H_ASTNode));
         ssize_t *new_next_free =
@@ -161,14 +168,17 @@ M2H_Result M2H_insert_astnode(M2H_OUT ssize_t *insertee, M2H_OUT M2H_AST *ast,
 }
 
 M2H_Result M2H_delete_astnode(M2H_OUT M2H_AST *ast, M2H_INOUT ssize_t dest) {
+    if (ast == NULL || dest <= 0 || (size_t)dest >= ast->cap ||
+        !ast->is_allocated[dest]) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
+
     M2H_ASTNode *const p_dest = &ast->data[dest];
     if (p_dest->next_sibling != -1) {
-        ast->data[p_dest->next_sibling].prev_sibling =
-            p_dest->prev_sibling;
+        ast->data[p_dest->next_sibling].prev_sibling = p_dest->prev_sibling;
     }
     if (p_dest->prev_sibling != -1) {
-        ast->data[p_dest->prev_sibling].next_sibling =
-            p_dest->next_sibling;
+        ast->data[p_dest->prev_sibling].next_sibling = p_dest->next_sibling;
     }
     if (ast->data[p_dest->parent].child == dest) {
         ast->data[p_dest->parent].child = p_dest->prev_sibling;
@@ -211,7 +221,7 @@ M2H_Result M2H_astnode_data_text_ctor(M2H_OUT M2H_ASTNodeDataText *self,
                                       M2H_MOVE char *text,
                                       M2H_IN M2H_TextStyle style,
                                       M2H_IN bool newline_tailed) {
-    if (text == NULL) {
+    if (self == NULL || text == NULL) {
         return M2H_RESULT_ILLEGAL_ARGUMENT;
     }
     self->style = style;
@@ -221,78 +231,26 @@ M2H_Result M2H_astnode_data_text_ctor(M2H_OUT M2H_ASTNodeDataText *self,
 }
 
 M2H_Result M2H_astnode_data_text_dtor(M2H_OUT M2H_ASTNodeDataText *self) {
+    if (self == NULL) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
     free(self->content);
     self->content = NULL;
     return M2H_RESULT_OK;
 }
 
-#ifdef DEBUG
-
-#include <stdio.h>
-
-void M2H_print_ast(M2H_IN M2H_AST *ast, M2H_IN ssize_t root) {
-    M2H_VectorIdx stack;
-    M2H_VectorIdx level;
-    M2H_UNWRAP(M2H_vector_idx_ctor(&stack, M2H_DEFAULT_VEC_SIZE));
-    M2H_UNWRAP(M2H_vector_idx_ctor(&level, M2H_DEFAULT_VEC_SIZE));
-    M2H_UNWRAP(M2H_vector_idx_pushback(&stack, root));
-    M2H_UNWRAP(M2H_vector_idx_pushback(&level, 0));
-    while (stack.len > 0) {
-        ssize_t cur, lvl;
-        M2H_UNWRAP(M2H_vector_idx_top(&stack, &cur));
-        M2H_UNWRAP(M2H_vector_idx_popback(&stack));
-        M2H_UNWRAP(M2H_vector_idx_top(&level, &lvl));
-        M2H_UNWRAP(M2H_vector_idx_popback(&level));
-
-        ssize_t getter = ast->data[cur].child;
-        while (getter != -1) {
-            M2H_UNWRAP(M2H_vector_idx_pushback(&stack, getter));
-            M2H_UNWRAP(M2H_vector_idx_pushback(&level, lvl + 1));
-            getter = ast->data[getter].prev_sibling;
-        }
-
-        for (int i = 1; i <= lvl; ++i) {
-            printf("  ");
-        }
-
-        switch (ast->data[cur].type) {
-        case M2H_ASTNODE_TYPE_ROOT:
-            printf("ROOT");
-            break;
-        case M2H_ASTNODE_TYPE_NONE:
-            printf("NONE");
-            break;
-        case M2H_ASTNODE_TYPE_PARAGRAPH:
-            printf("PARAGRAPH");
-            break;
-        case M2H_ASTNODE_TYPE_HEADING:
-            printf("HEADING level=%d", ast->data[cur].heading.level);
-            break;
-        case M2H_ASTNODE_TYPE_TEXT:
-            printf("TEXT text=\"%s\", style=", ast->data[cur].text.content);
-            switch (ast->data[cur].text.style) {
-            case M2H_TEXTSTYLE_PLAIN:
-                printf("plain");
-                break;
-            case M2H_TEXTSTYLE_BOLD:
-                printf("bold");
-                break;
-            case M2H_TEXTSTYLE_ITALIC:
-                printf("italic");
-                break;
-            case M2H_TEXTSTYLE_BOLDITALIC:
-                printf("bold & italic");
-                break;
-            case M2H_TEXTSTYLE_CODE:
-                printf("code");
-                break;
-            }
-        }
-        putchar('\n');
+M2H_Result M2H_astnode_dtor(M2H_OUT M2H_ASTNode *self) {
+    if (self == NULL) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
     }
 
-    M2H_UNWRAP(M2H_vector_idx_dtor(&stack));
-    M2H_UNWRAP(M2H_vector_idx_dtor(&level));
-}
+    switch (self->type) {
+    case M2H_ASTNODE_TYPE_TEXT:
+        M2H_RELAY(M2H_astnode_data_text_dtor(&self->text));
+        break;
+    default:
+        break;
+    }
 
-#endif // DEBUG
+    return M2H_RESULT_OK;
+}

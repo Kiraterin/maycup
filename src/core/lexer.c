@@ -178,36 +178,3 @@ M2H_Result M2H_lexer_drop_checkpoint(M2H_OUT M2H_Lexer *self) {
     M2H_RELAY(M2H_vector_long_popback(&self->checkpoint));
     return M2H_RESULT_OK;
 }
-
-#ifdef DEBUG
-
-void M2H_print_token(M2H_IN M2H_Token *token) {
-    switch (token->type) {
-    case M2H_TOKENTYPE_TEXT: {
-        printf("(TEXT, %s)\n", token->text);
-        break;
-    }
-    case M2H_TOKENTYPE_LITERAL: {
-        printf("(LITERAL, %c)\n", token->literal);
-        break;
-    }
-    case M2H_TOKENTYPE_EOF: {
-        printf("(EOF)\n");
-        break;
-    }
-    case M2H_TOKENTYPE_NEWLINE: {
-        printf("(NEWLINE)\n");
-        break;
-    }
-    case M2H_TOKENTYPE_NONE: {
-        printf("(NONE)\n");
-        break;
-    }
-    default: {
-        printf("(UNKNOWN TOKEN)\n");
-        break;
-    }
-    }
-}
-
-#endif // DEBUG

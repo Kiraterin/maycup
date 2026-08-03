@@ -1,7 +1,7 @@
 /**
- * @file common.h
- * @brief Common header
- * @date 2026-07-08
+ * @file mock_macros.h
+ * @brief Mock function macro definitions
+ * @date 2026-08-02
  * @copyright GPLv3 License
  * @section LICENSE
  * md2html
@@ -21,21 +21,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef COMMON_H
-#define COMMON_H
+#ifndef MOCK_MACROS_H
+#define MOCK_MACROS_H
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
+#define malloc malloc_mock
+#define realloc realloc_mock
 
-// Parameter ("Read" excludes checking value)
-#define M2H_IN    // Read only
-#define M2H_OUT   // Write only
-#define M2H_INOUT // Read & Write
-#define M2H_MOVE  // Move ownership
-
-#ifdef TEST
-#include "mock_macros.h"
-#endif // TEST
-
-#endif // COMMON_H
+#endif // MOCK_MACROS_H

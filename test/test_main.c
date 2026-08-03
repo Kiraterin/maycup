@@ -1,7 +1,7 @@
 /**
- * @file common.h
- * @brief Common header
- * @date 2026-07-08
+ * @file test_main.c
+ * @brief Test suit entry point
+ * @date 2026-07-22
  * @copyright GPLv3 License
  * @section LICENSE
  * md2html
@@ -21,21 +21,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef COMMON_H
-#define COMMON_H
+ #include "test.h"
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
+TEST_CTX_DEF;
 
-// Parameter ("Read" excludes checking value)
-#define M2H_IN    // Read only
-#define M2H_OUT   // Write only
-#define M2H_INOUT // Read & Write
-#define M2H_MOVE  // Move ownership
-
-#ifdef TEST
-#include "mock_macros.h"
-#endif // TEST
-
-#endif // COMMON_H
+int main() {
+    TEST_SUITE_REG(vector);
+    TEST_SUITE_REG(ast);
+    TEST_RUN;
+    return 0;
+}

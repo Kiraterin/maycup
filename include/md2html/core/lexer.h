@@ -115,14 +115,4 @@ M2H_Result M2H_lexer_restore(M2H_INOUT M2H_Lexer *self);
  */
 M2H_Result M2H_lexer_drop_checkpoint(M2H_OUT M2H_Lexer *self);
 
-#ifdef DEBUG
-
-/**
- * @brief Print a token
- * @param token In, the dest token
- */
-void M2H_print_token(M2H_IN M2H_Token *token);
-
-#endif // DEBUG
-
 #endif // LEXER_H
