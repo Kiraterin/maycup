@@ -39,6 +39,8 @@ md2html input.md -o output.html
 
 ## Build Instructions
 
+Use `make all` to build all target configurations and generate the coverage report.
+
 ### Configurations
 
 There are three build configurations: `release`, `debug` and `test`.
@@ -52,14 +54,8 @@ where `<config>` can be `release`, `debug` or `test`.
 
 Tests will be run automatically after compilation if `<config>` is `test`.
 
-### Make All Configurations and generate coverage report
-
-```bash
-make all
-```
-
-## Generate coverage report
-The report page is at ./bin/test/cov/index.html
+### Generate Test Coverage Report
+The report page is ./bin/test/cov/index.html
 ```bash
 make cov
 ```
