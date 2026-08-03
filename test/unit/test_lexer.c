@@ -1,7 +1,7 @@
 /**
- * @file common.h
- * @brief Common header
- * @date 2026-07-08
+ * @file test_lexer.c
+ * @brief Test for lexer
+ * @date 2026-08-04
  * @copyright GPLv3 License
  * @section LICENSE
  * md2html
@@ -21,17 +21,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef COMMON_H
-#define COMMON_H
+#include "test.h"
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
+TEST_SUITE_BEGIN(lexer)
 
-// Parameter ("Read" excludes checking value)
-#define M2H_IN    // Read only
-#define M2H_OUT   // Write only
-#define M2H_INOUT // Read & Write
-#define M2H_MOVE  // Move ownership
-
-#endif // COMMON_H
+TEST_SUITE_END

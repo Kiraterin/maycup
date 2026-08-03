@@ -21,6 +21,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "mock_macros.h"
 #include "md2html/io/reader.h"
 
 static M2H_Result filereader_get_char(M2H_IN M2H_FileReader *self, M2H_OUT int *res) {

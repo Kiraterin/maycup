@@ -22,6 +22,7 @@
  */
 
 #include "md2html/core/parser.h"
+#include "mock_macros.h"
 #include <ctype.h>
 #include <string.h>
 

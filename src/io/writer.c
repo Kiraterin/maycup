@@ -22,6 +22,7 @@
  */
 
 #include "md2html/io/writer.h"
+#include "mock_macros.h"
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>

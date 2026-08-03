@@ -22,6 +22,7 @@
  */
 
 #include "md2html/base/result.h"
+#include "mock_macros.h"
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>

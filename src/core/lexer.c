@@ -22,6 +22,7 @@
  */
 
 #include "md2html/core/lexer.h"
+#include "mock_macros.h"
 #include <ctype.h>
 #include <errno.h>
 #include <stdlib.h>

@@ -28,6 +28,7 @@
 #if defined(M2H_VEC_T) && defined(M2H_VEC_DISPT)
 
 #include "md2html/base/result.h"
+#include "mock_macros.h"
 #include <stdlib.h>
 
 #define _CONCAT_INNER(a, b) a##b

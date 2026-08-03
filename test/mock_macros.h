@@ -24,7 +24,11 @@
 #ifndef MOCK_MACROS_H
 #define MOCK_MACROS_H
 
+#ifdef TEST
+
 #define malloc malloc_mock
 #define realloc realloc_mock
+
+#endif // TEST
 
 #endif // MOCK_MACROS_H

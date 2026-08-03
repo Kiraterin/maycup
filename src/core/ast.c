@@ -22,6 +22,7 @@
  */
 
 #include "md2html/core/ast.h"
+#include "mock_macros.h"
 
 typedef ssize_t idx;
 #define M2H_VEC_T idx

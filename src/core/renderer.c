@@ -23,6 +23,7 @@
 
 #include "md2html/core/renderer.h"
 #include "md2html/io/writer.h"
+#include "mock_macros.h"
 #include <stdio.h>
 
 typedef ssize_t idx;

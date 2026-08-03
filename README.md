@@ -11,8 +11,8 @@ A tiny Markdown-to-HTML tool written in C.
 - Develop a lightweight md to html tool for my personal website
 - Learn how to maintain an open-source project
 - Learn software engineering practices, including how to write coherent, maintainable and testable code
-- Write all of the code by hand without AI-generation
-- Achieve zero memory leaks under ASan
+- No AI generated code, write all of the code by hand
+- Zero memory leaks under ASan
 
 ## Usage
 

@@ -24,6 +24,7 @@
 #include "md2html.h"
 #include "md2html/core/renderer.h"
 #include "md2html/io/reader.h"
+#include "mock_macros.h"
 
 M2H_Result M2H_convert_file(M2H_IN const char *input_file,
                             M2H_IN const char *output_file) {
