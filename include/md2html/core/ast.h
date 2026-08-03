@@ -95,12 +95,12 @@ M2H_Result M2H_astnode_dtor(M2H_OUT M2H_ASTNode *self);
 
 /**
  * @brief Construct an AST
- * @note The index @c 0 is reserved and the head index will never be it
+ * @note The index @c 0 is reserved and the root index will never be it
  * @param self Out, the AST to construct
  * @param root Out, the root of AST, cannot be @c NULL
  * @return M2H_Result
  */
-M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *head);
+M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *root);
 
 /**
  * @brief Destruct an AST

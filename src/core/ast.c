@@ -45,8 +45,8 @@ M2H_Result M2H_astnode_dtor(M2H_OUT M2H_ASTNode *self) {
     return M2H_RESULT_OK;
 }
 
-M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *head) {
-    if (self == NULL || head == NULL) {
+M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *root) {
+    if (self == NULL || root == NULL) {
         return M2H_RESULT_ILLEGAL_ARGUMENT;
     }
 
@@ -61,7 +61,7 @@ M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *head) {
 
     self->cap = M2H_DEFAULT_AST_SIZE;
 
-    *head = 1;
+    *root = 1;
     self->data[0] = (M2H_ASTNode){
         .type = M2H_ASTNODE_TYPE_NONE,
         .prev_sibling = -1,
@@ -69,7 +69,7 @@ M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *head) {
         .parent = -1,
         .child = -1,
     };
-    self->data[*head] = (M2H_ASTNode){
+    self->data[*root] = (M2H_ASTNode){
         .type = M2H_ASTNODE_TYPE_ROOT,
         .prev_sibling = -1,
         .next_sibling = -1,
@@ -83,8 +83,8 @@ M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *head) {
     }
     self->next_free[self->cap - 1] = -1;
     self->is_allocated[0] = true;
-    self->is_allocated[*head] = true;
-    self->first_free = *head + 1;
+    self->is_allocated[*root] = true;
+    self->first_free = *root + 1;
 
     return M2H_RESULT_OK;
 }

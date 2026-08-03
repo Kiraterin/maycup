@@ -91,11 +91,8 @@ typedef struct {
 [[maybe_unused]] static M2H_Result
 _CONCAT(FUNC_PREF, reserve)(M2H_INOUT VECT *self, M2H_IN size_t cap) {
     if (self == NULL || cap == 0 || cap > M2H_MAX_VEC_CAP ||
-        self->ptr == NULL) {
+        self->ptr == NULL || cap <= self->cap) {
         return M2H_RESULT_ILLEGAL_ARGUMENT;
-    }
-    if (cap <= self->cap) {
-        return M2H_RESULT_OK;
     }
     T *new_ptr = (T *)realloc(self->ptr, cap * sizeof(T));
     if (new_ptr == NULL) {

@@ -96,9 +96,13 @@ typedef struct {
 #define ASSERT_EQ(expr, val, fail_label)                                       \
     do {                                                                       \
         if ((expr) != (val)) {                                                 \
-            printf("assertion failed("__FILE__                                 \
-                   ":" STRINGIFY(__LINE__) "): ");                             \
-            printf("%s", STRINGIFY(expr) " == " STRINGIFY(val) "\n");          \
+            printf("[FAIL] assertion failed("__FILE__                          \
+                   ":" STRINGIFY(__LINE__) " (%s) == (%s)): \n",               \
+                   STRINGIFY(expr), STRINGIFY(val));                           \
+            printf("\tactual:   (%s) == %lld\n", STRINGIFY(expr),                 \
+                   (long long)(expr));                                         \
+            printf("\texpected: (%s) == %lld\n", STRINGIFY(val),                 \
+                   (long long)(val));                                         \
             goto fail_label;                                                   \
         }                                                                      \
     } while (false)

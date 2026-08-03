@@ -141,6 +141,8 @@ TEST_CASE(vector_reserve_illegal_arg) {
     ASSERT_OK(M2H_vector_int_ctor(&vec, M2H_DEFAULT_VEC_SIZE), fail);
     ASSERT_EQ(M2H_vector_int_reserve(NULL, reserve_cap),
               M2H_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(M2H_vector_int_reserve(&vec, vec.cap - 1),
+              M2H_RESULT_ILLEGAL_ARGUMENT, fail);
     ASSERT_EQ(M2H_vector_int_reserve(&vec, M2H_MAX_VEC_CAP + 1),
               M2H_RESULT_ILLEGAL_ARGUMENT, fail);
 
@@ -346,6 +348,7 @@ TEST_CASE(vector_module_common) {
     ASSERT_EQ(M2H_vector_int_top(&vec, &val), M2H_RESULT_EMPTY_VECTOR, fail);
     ASSERT_EQ(M2H_vector_int_popback(&vec), M2H_RESULT_EMPTY_VECTOR, fail);
     ASSERT_OK(M2H_vector_int_pushback(&vec, 3), fail);
+    ASSERT_EQ(vec.ptr[0], 3, fail);
     ASSERT_OK(M2H_vector_int_top(&vec, &val), fail);
     ASSERT_EQ(val, 3, fail);
     ASSERT_EQ(vec.len, 1, fail);
@@ -357,12 +360,20 @@ TEST_CASE(vector_module_common) {
     ASSERT_OK(M2H_vector_int_pushback(&vec, 3), fail);
     ASSERT_OK(M2H_vector_int_pushback(&vec, 37), fail);
     ASSERT_OK(M2H_vector_int_pushback(&vec, 490), fail);
+    ASSERT_EQ(vec.ptr[0], 3, fail);
+    ASSERT_EQ(vec.ptr[1], 37, fail);
+    ASSERT_EQ(vec.ptr[2], 490, fail);
     ASSERT_OK(M2H_vector_int_popback(&vec), fail);
+    ASSERT_EQ(vec.ptr[0], 3, fail);
+    ASSERT_EQ(vec.ptr[1], 37, fail);
     ASSERT_OK(M2H_vector_int_top(&vec, &val), fail);
     ASSERT_EQ(val, 37, fail);
-    ASSERT_OK(M2H_vector_int_pushback(&vec, 490), fail);
+    ASSERT_OK(M2H_vector_int_pushback(&vec, 20), fail);
+    ASSERT_EQ(vec.ptr[0], 3, fail);
+    ASSERT_EQ(vec.ptr[1], 37, fail);
+    ASSERT_EQ(vec.ptr[2], 20, fail);
     ASSERT_OK(M2H_vector_int_top(&vec, &val), fail);
-    ASSERT_EQ(val, 490, fail);
+    ASSERT_EQ(val, 20, fail);
 
     ASSERT_OK(M2H_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
