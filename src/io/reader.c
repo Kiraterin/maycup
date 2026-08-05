@@ -21,10 +21,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "mock_macros.h"
 #include "md2html/io/reader.h"
+#include "mock_macros.h"
 
-static M2H_Result filereader_get_char(M2H_IN M2H_FileReader *self, M2H_OUT int *res) {
+static M2H_Result filereader_get_char(M2H_IN M2H_FileReader *self,
+                                      M2H_OUT int *res) {
+    if (self == NULL) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
     int _res = fgetc(self->fp);
     if (_res == EOF && !feof(self->fp)) {
         return M2H_RESULT_ERRNO;
@@ -35,7 +39,11 @@ static M2H_Result filereader_get_char(M2H_IN M2H_FileReader *self, M2H_OUT int *
     return M2H_RESULT_OK;
 }
 
-static M2H_Result filereader_tell(M2H_IN M2H_FileReader *self, M2H_OUT long *res) {
+static M2H_Result filereader_tell(M2H_IN M2H_FileReader *self,
+                                  M2H_OUT long *res) {
+    if (self == NULL) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
     long _res = ftell(self->fp);
     if (_res == -1L) {
         return M2H_RESULT_ERRNO;
@@ -46,7 +54,11 @@ static M2H_Result filereader_tell(M2H_IN M2H_FileReader *self, M2H_OUT long *res
     return M2H_RESULT_OK;
 }
 
-static M2H_Result filereader_seek(M2H_IN M2H_FileReader *self, M2H_IN long offset) {
+static M2H_Result filereader_seek(M2H_IN M2H_FileReader *self,
+                                  M2H_IN long offset) {
+    if (self == NULL) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
     if (fseek(self->fp, offset, SEEK_SET)) {
         return M2H_RESULT_ERRNO;
     }
@@ -55,6 +67,9 @@ static M2H_Result filereader_seek(M2H_IN M2H_FileReader *self, M2H_IN long offse
 
 M2H_Result M2H_filereader_ctor(M2H_OUT M2H_FileReader *self,
                                M2H_IN const char *path) {
+    if (self == NULL || path == NULL) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
     self->fp = fopen(path, "r");
     if (self->fp == NULL) {
         return M2H_RESULT_ERRNO;
@@ -67,13 +82,14 @@ M2H_Result M2H_filereader_ctor(M2H_OUT M2H_FileReader *self,
 }
 
 M2H_Result M2H_filereader_dtor(M2H_OUT M2H_FileReader *self) {
-    if (self->fp == NULL) {
+    if (self == NULL || self->fp == NULL) {
         return M2H_RESULT_ILLEGAL_ARGUMENT;
     }
     if (fclose(self->fp) == EOF) {
         return M2H_RESULT_ERRNO;
     }
     self->fp = NULL;
+    self->base = (M2H_Reader){};
     return M2H_RESULT_OK;
 }
 
@@ -92,7 +108,8 @@ static M2H_Result stringreader_get_char(M2H_INOUT M2H_StringReader *self,
     return M2H_RESULT_OK;
 }
 
-static M2H_Result stringreader_tell(M2H_IN M2H_StringReader *self, M2H_OUT long *res) {
+static M2H_Result stringreader_tell(M2H_IN M2H_StringReader *self,
+                                    M2H_OUT long *res) {
     long _res = self->iter - self->begin;
     if (res != NULL) {
         *res = _res;

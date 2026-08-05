@@ -99,6 +99,7 @@ test_not_run:
 test_run: build
 	@echo -e '$(C_GREEN)Running test:$(C_RESET)'
 	LLVM_PROFILE_FILE="$(BIN_DIR)/test.profraw" $(TARGET)
+	@echo -e '$(C_GREEN)Saving perfdata:$(C_RESET)'
 	llvm-profdata merge -sparse $(BIN_DIR)/test.profraw -o $(BIN_DIR)/test.profdata
 
 cov:
@@ -110,10 +111,13 @@ cov_inner:
 	fi
 	@echo -e '$(C_GREEN)Test coverage:$(C_RESET)'
 	llvm-cov report $(TARGET) -instr-profile=$(BIN_DIR)/test.profdata \
+		-show-region-summary=false \
+		-show-branch-summary=false \
 		-ignore-filename-regex='(^|/)test/.*|(^|/)src/debug/.*'
 	llvm-cov show $(TARGET) -instr-profile=$(BIN_DIR)/test.profdata \
 		-ignore-filename-regex='(^|/)test/.*|(^|/)src/debug/.*' \
 		-format=html -output-dir=$(BIN_DIR)/cov
+	@echo -e '$(C_GREEN)Coverage report: $(BIN_DIR)/cov/index.html$(C_RESET)'
 
 $(TARGET): $(OBJ)
 	@mkdir -p $(dir $@)

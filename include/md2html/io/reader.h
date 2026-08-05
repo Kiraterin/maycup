@@ -30,8 +30,27 @@
 typedef struct M2H_Reader M2H_Reader;
 
 struct M2H_Reader {
+    /**
+     * @brief Get a char from reader
+     * @note When @p res is @c NULL , the char will be discarded and the cursor
+     *       move to next char
+     * @param self The reader
+     * @param res Out, the char got
+     */
     M2H_Result (*get_char)(M2H_Reader *self, M2H_OUT int *res);
+
+    /**
+     * @brief Get the cursor of a reader
+     * @param self The reader
+     * @param res Out, the offset from beginning got
+     */
     M2H_Result (*tell)(M2H_Reader *self, M2H_OUT long *res);
+
+    /**
+     * @brief Set the cursor of a reader to a given place
+     * @param self The reader
+     * @param offset In, the destined offset from beginning
+     */
     M2H_Result (*seek)(M2H_Reader *self, M2H_IN long offset);
 };
 
@@ -43,7 +62,7 @@ typedef struct {
 /**
  * @brief Construct a file reader
  * @param self Out, the file reader to construct
- * @param path In, the path that the file reader will read
+ * @param path In, the path that the file reader will read, cannot be @c NULL
  * @return M2H_Result
  */
 M2H_Result M2H_filereader_ctor(M2H_OUT M2H_FileReader *self,

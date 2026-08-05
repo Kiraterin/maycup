@@ -63,19 +63,21 @@ void run_all_test_suites() {
         pass_cnt_all += pass_cnt;
         fail_cnt_all += fail_cnt;
     }
-    printf("Summary: ");
+    printf("=====================\n\n");
+    printf("Summary: \n");
     if (pass_cnt_all == 0) {
         printf(COLOR_RESET);
     } else {
         printf(COLOR_LIGHT_GREEN);
     }
-    printf("\n %zu" COLOR_RESET " Passed, ", pass_cnt_all);
+    printf("%zu" COLOR_RESET " Passed, ", pass_cnt_all);
     if (fail_cnt_all == 0) {
         printf(COLOR_RESET);
     } else {
         printf(COLOR_LIGHT_RED);
     }
-    printf("%zu" COLOR_RESET " Failed\n", fail_cnt_all);
+    printf("%zu" COLOR_RESET " Failed\n\n", fail_cnt_all);
+    printf("=====================\n\n\n");
 }
 
 #undef malloc
