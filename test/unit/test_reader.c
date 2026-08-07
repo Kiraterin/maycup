@@ -206,6 +206,28 @@ fail:
     return TEST_RESULT_FAIL;
 }
 
+TEST_CASE(filereader_get_char_feof_fail) {
+    M2H_FileReader fr;
+    const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
+
+    MOCK_ON(feof);
+
+    ASSERT_OK(M2H_filereader_ctor(&fr, filename), fail);
+    for (size_t i = 1; i <= 1610; ++i) {
+        ASSERT_OK(M2H_reader_get_char(&fr, NULL), fail);
+    }
+
+    ASSERT_EQ(M2H_reader_get_char(&fr, NULL), M2H_RESULT_ERRNO, fail);
+
+    MOCK_OFF(feof);
+    ASSERT_OK(M2H_filereader_dtor(&fr), fail);
+    return TEST_RESULT_PASS;
+fail:
+    MOCK_OFF(feof);
+    M2H_filereader_dtor(&fr);
+    return TEST_RESULT_FAIL;
+}
+
 TEST_CASE(filereader_get_char_illegal_arg) {
     M2H_FileReader fr;
     const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
@@ -600,7 +622,13 @@ TEST_CASE(stringreader_seek_illegal_arg) {
 
     ASSERT_OK(M2H_stringreader_ctor(&sr, stringname, stringlen), fail);
     ASSERT_EQ(M2H_reader_seek(NULL, 0), M2H_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(M2H_reader_seek(NULL, -1), M2H_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(M2H_reader_seek(NULL, stringlen + 1), M2H_RESULT_ILLEGAL_ARGUMENT,
+              fail);
     ASSERT_EQ(sr.base.seek(NULL, 0), M2H_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(sr.base.seek(NULL, -1), M2H_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(sr.base.seek(NULL, stringlen + 1), M2H_RESULT_ILLEGAL_ARGUMENT,
+              fail);
 
     ASSERT_OK(M2H_stringreader_dtor(&sr), fail);
     return TEST_RESULT_PASS;
@@ -622,6 +650,7 @@ TEST_CASE_ADD(filereader_dtor_illegal_arg);
 
 TEST_CASE_ADD(filereader_get_char_normal);
 TEST_CASE_ADD(filereader_get_char_bulk);
+TEST_CASE_ADD(filereader_get_char_feof_fail);
 TEST_CASE_ADD(filereader_get_char_illegal_arg);
 
 TEST_CASE_ADD(filereader_tell_normal);

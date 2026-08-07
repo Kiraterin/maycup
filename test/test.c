@@ -115,7 +115,7 @@ int fclose_mock(FILE *p) {
 
 int feof_mock(FILE *p) {
     if (TEST_CTX.mock_state.m_feof) {
-        return -1;
+        return false;
     } else {
         return feof(p);
     }
