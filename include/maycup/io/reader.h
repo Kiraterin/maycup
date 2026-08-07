@@ -34,21 +34,21 @@
  * @param self Pointer to the reader
  * @param res Out, the char got
  */
-MAYCUP_Result MAYCUP_reader_get_char(void *self, MAYCUP_OUT int *res);
+MAYCUP_Result maycup_reader_get_char(void *self, MAYCUP_OUT int *res);
 
 /**
  * @brief Get the cursor of a reader
  * @param self Pointer to the reader
  * @param res Out, the offset from beginning got, cannot be @c NULL
  */
-MAYCUP_Result MAYCUP_reader_tell(void *self, MAYCUP_OUT long *res);
+MAYCUP_Result maycup_reader_tell(void *self, MAYCUP_OUT long *res);
 
 /**
  * @brief Set the cursor of a reader to a given place
  * @param self The reader
  * @param offset In, the destined offset from beginning
  */
-MAYCUP_Result MAYCUP_reader_seek(void *self, MAYCUP_IN long offset);
+MAYCUP_Result maycup_reader_seek(void *self, MAYCUP_IN long offset);
 
 typedef struct MAYCUP_Reader MAYCUP_Reader;
 
@@ -69,15 +69,15 @@ typedef struct {
  * @param path In, the path that the file reader will read, cannot be @c NULL
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_filereader_ctor(MAYCUP_OUT MAYCUP_FileReader *self,
-                               MAYCUP_IN const char *path);
+MAYCUP_Result maycup_filereader_ctor(MAYCUP_OUT MAYCUP_FileReader *self,
+                                     MAYCUP_IN const char *path);
 
 /**
  * @brief Destruct a file reader
  * @param self Out, the file reader to destruct
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_filereader_dtor(MAYCUP_OUT MAYCUP_FileReader *self);
+MAYCUP_Result maycup_filereader_dtor(MAYCUP_OUT MAYCUP_FileReader *self);
 
 typedef struct {
     MAYCUP_Reader base;
@@ -93,15 +93,15 @@ typedef struct {
  * @param len In, the length of the string
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_stringreader_ctor(MAYCUP_OUT MAYCUP_StringReader *self,
-                                 MAYCUP_IN const char *str,
-                                 MAYCUP_IN const size_t len);
+MAYCUP_Result maycup_stringreader_ctor(MAYCUP_OUT MAYCUP_StringReader *self,
+                                       MAYCUP_IN const char *str,
+                                       MAYCUP_IN const size_t len);
 
 /**
  * @brief Destruct a string reader
  * @param self Out, the string reader to destruct
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_stringreader_dtor(MAYCUP_OUT MAYCUP_StringReader *self);
+MAYCUP_Result maycup_stringreader_dtor(MAYCUP_OUT MAYCUP_StringReader *self);
 
 #endif // READER_H

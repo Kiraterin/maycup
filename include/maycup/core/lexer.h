@@ -51,14 +51,15 @@ typedef struct {
  * @param src In, the token to duplicate
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_token_duplicate(MAYCUP_OUT MAYCUP_Token *dest, MAYCUP_IN MAYCUP_Token *src);
+MAYCUP_Result maycup_token_duplicate(MAYCUP_OUT MAYCUP_Token *dest,
+                                     MAYCUP_IN MAYCUP_Token *src);
 
 /**
  * @brief Destruct a token
  * @param self Out, the token to destruct
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_token_dtor(MAYCUP_OUT MAYCUP_Token *self);
+MAYCUP_Result maycup_token_dtor(MAYCUP_OUT MAYCUP_Token *self);
 
 #define MAYCUP_VEC_T long
 #define MAYCUP_VEC_DISPT Long
@@ -77,14 +78,15 @@ typedef struct {
  * @param reader In & out, the reader which lexer will use
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_lexer_ctor(MAYCUP_OUT MAYCUP_Lexer *self, MAYCUP_INOUT MAYCUP_Reader *reader);
+MAYCUP_Result maycup_lexer_ctor(MAYCUP_OUT MAYCUP_Lexer *self,
+                                MAYCUP_INOUT MAYCUP_Reader *reader);
 
 /**
  * @brief Destruct a lexer
  * @param self Out, the lexer to destruct
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_lexer_dtor(MAYCUP_OUT MAYCUP_Lexer *self);
+MAYCUP_Result maycup_lexer_dtor(MAYCUP_OUT MAYCUP_Lexer *self);
 
 /**
  * @brief Construct and return the next token of the given lexer context
@@ -92,27 +94,28 @@ MAYCUP_Result MAYCUP_lexer_dtor(MAYCUP_OUT MAYCUP_Lexer *self);
  * @param lexer In, the context
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_next_token(MAYCUP_OUT MAYCUP_Token *token, MAYCUP_IN MAYCUP_Lexer *lexer);
+MAYCUP_Result maycup_next_token(MAYCUP_OUT MAYCUP_Token *token,
+                                MAYCUP_IN MAYCUP_Lexer *lexer);
 
 /**
  * @brief Set a checkpoint in the file
  * @param self Out, the lexer
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_lexer_checkpoint(MAYCUP_OUT MAYCUP_Lexer *self);
+MAYCUP_Result maycup_lexer_checkpoint(MAYCUP_OUT MAYCUP_Lexer *self);
 
 /**
  * @brief Return to the checkpoint and won't pop out it
  * @param self In & out, the lexer
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_lexer_restore(MAYCUP_INOUT MAYCUP_Lexer *self);
+MAYCUP_Result maycup_lexer_restore(MAYCUP_INOUT MAYCUP_Lexer *self);
 
 /**
  * @brief Drop the top checkpoint
  * @param self Out, the lexer
- * @return MAYCUP_Result 
+ * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_lexer_drop_checkpoint(MAYCUP_OUT MAYCUP_Lexer *self);
+MAYCUP_Result maycup_lexer_drop_checkpoint(MAYCUP_OUT MAYCUP_Lexer *self);
 
 #endif // LEXER_H

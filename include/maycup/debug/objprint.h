@@ -26,21 +26,21 @@
 #ifdef DEBUG
 
 #include "maycup/base/common.h"
-#include "maycup/core/lexer.h"
 #include "maycup/core/ast.h"
+#include "maycup/core/lexer.h"
 
 /**
  * @brief Print a token
  * @param token In, the dest token
  */
-void MAYCUP_print_token(MAYCUP_IN MAYCUP_Token *token);
+void maycup_print_token(MAYCUP_IN MAYCUP_Token *token);
 
 /**
  * @brief Print an AST
  * @param ast In, the ast to print
  * @param root In, the entry point
  */
-void MAYCUP_print_ast(MAYCUP_IN MAYCUP_AST *ast, MAYCUP_IN ssize_t root);
+void maycup_print_ast(MAYCUP_IN MAYCUP_AST *ast, MAYCUP_IN ssize_t root);
 
 #endif // DEBUG
 #endif // OBJPRINT_H

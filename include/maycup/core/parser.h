@@ -36,17 +36,18 @@ typedef struct {
 /**
  * @brief Construct a parser
  * @param self Out, the parser to construct
- * @return MAYCUP_Result 
+ * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_parser_ctor(MAYCUP_OUT MAYCUP_Parser *self);
+MAYCUP_Result maycup_parser_ctor(MAYCUP_OUT MAYCUP_Parser *self);
 
 /**
  * @brief Destruct a parser
  * @param self Out, the parser to destruct
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_parser_dtor(MAYCUP_OUT MAYCUP_Parser *self);
+MAYCUP_Result maycup_parser_dtor(MAYCUP_OUT MAYCUP_Parser *self);
 
-MAYCUP_Result MAYCUP_parse(MAYCUP_INOUT MAYCUP_Parser *parser, MAYCUP_INOUT MAYCUP_Lexer *lexer);
+MAYCUP_Result maycup_parse(MAYCUP_INOUT MAYCUP_Parser *parser,
+                           MAYCUP_INOUT MAYCUP_Lexer *lexer);
 
 #endif // PARSER_H

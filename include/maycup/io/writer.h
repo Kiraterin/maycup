@@ -30,13 +30,15 @@
 
 typedef struct MAYCUP_Writer MAYCUP_Writer;
 
-MAYCUP_Result MAYCUP_writer_puts(void *self, MAYCUP_IN char *str);
+MAYCUP_Result maycup_writer_puts(void *self, MAYCUP_IN char *str);
 
-MAYCUP_Result MAYCUP_writer_printf(void *self, MAYCUP_IN const char *format, ...);
+MAYCUP_Result maycup_writer_printf(void *self, MAYCUP_IN const char *format,
+                                   ...);
 
 struct MAYCUP_Writer {
     MAYCUP_Result (*puts)(MAYCUP_Writer *self, MAYCUP_IN char *str);
-    MAYCUP_Result (*vprintf)(MAYCUP_Writer *self, MAYCUP_IN const char *format, va_list args);
+    MAYCUP_Result (*vprintf)(MAYCUP_Writer *self, MAYCUP_IN const char *format,
+                             va_list args);
 };
 
 typedef struct {
@@ -50,15 +52,15 @@ typedef struct {
  * @param path In, the path that the file writer will read
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_filewriter_ctor(MAYCUP_OUT MAYCUP_FileWriter *self,
-                               MAYCUP_IN const char *path);
+MAYCUP_Result maycup_filewriter_ctor(MAYCUP_OUT MAYCUP_FileWriter *self,
+                                     MAYCUP_IN const char *path);
 
 /**
  * @brief Destruct a file writer
  * @param self Out, the file writer to destruct
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_filewriter_dtor(MAYCUP_OUT MAYCUP_FileWriter *self);
+MAYCUP_Result maycup_filewriter_dtor(MAYCUP_OUT MAYCUP_FileWriter *self);
 
 typedef struct {
     MAYCUP_Writer base;
@@ -75,8 +77,9 @@ typedef struct {
  * @param bufsz In, the length of buffer
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_stringwriter_ctor(MAYCUP_OUT MAYCUP_StringWriter *self,
-                                 MAYCUP_IN char *buf, MAYCUP_IN size_t bufsz);
+MAYCUP_Result maycup_stringwriter_ctor(MAYCUP_OUT MAYCUP_StringWriter *self,
+                                       MAYCUP_IN char *buf,
+                                       MAYCUP_IN size_t bufsz);
 
 #define MAYCUP_DEFAULT_STRWRITER_FLEXBUF_SIZE 128
 
@@ -86,8 +89,9 @@ MAYCUP_Result MAYCUP_stringwriter_ctor(MAYCUP_OUT MAYCUP_StringWriter *self,
  * @param bufsz In, the original length of buffer
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_stringwriter_ctor_flexible(MAYCUP_OUT MAYCUP_StringWriter *self,
-                                          MAYCUP_IN size_t bufsz);
+MAYCUP_Result
+maycup_stringwriter_ctor_flexible(MAYCUP_OUT MAYCUP_StringWriter *self,
+                                  MAYCUP_IN size_t bufsz);
 
 /**
  * @brief Destruct a string writer
@@ -97,7 +101,7 @@ MAYCUP_Result MAYCUP_stringwriter_ctor_flexible(MAYCUP_OUT MAYCUP_StringWriter *
  *            Remember to free it after use.
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_stringwriter_dtor(MAYCUP_OUT MAYCUP_StringWriter *self,
-                                 MAYCUP_OUT char **buf);
+MAYCUP_Result maycup_stringwriter_dtor(MAYCUP_OUT MAYCUP_StringWriter *self,
+                                       MAYCUP_OUT char **buf);
 
 #endif // WRITER_H

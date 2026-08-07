@@ -32,8 +32,8 @@
  * @param output_file In, path to output file
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_convert_file(MAYCUP_IN const char *input_file,
-                            MAYCUP_IN const char *output_file);
+MAYCUP_Result maycup_convert_file(MAYCUP_IN const char *input_file,
+                                  MAYCUP_IN const char *output_file);
 
 /**
  * @brief Convert a Markdown string into an HTML string
@@ -43,9 +43,9 @@ MAYCUP_Result MAYCUP_convert_file(MAYCUP_IN const char *input_file,
  * @param output_len In, the max length of output
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_convert_string(MAYCUP_IN const char *input_string,
-                              MAYCUP_IN const size_t input_len,
-                              MAYCUP_IN char *output_string,
-                              MAYCUP_IN const size_t output_len);
+MAYCUP_Result maycup_convert_string(MAYCUP_IN const char *input_string,
+                                    MAYCUP_IN const size_t input_len,
+                                    MAYCUP_IN char *output_string,
+                                    MAYCUP_IN const size_t output_len);
 
 #endif // MAYCUP_H

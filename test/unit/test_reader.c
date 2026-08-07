@@ -32,16 +32,16 @@ TEST_CASE(filereader_ctor_normal) {
     MAYCUP_FileReader fr;
     const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
 
-    ASSERT_OK(MAYCUP_filereader_ctor(&fr, filename), fail);
+    ASSERT_OK(maycup_filereader_ctor(&fr, filename), fail);
     ASSERT_NEQ(fr.base.get_char, NULL, fail);
     ASSERT_NEQ(fr.base.tell, NULL, fail);
     ASSERT_NEQ(fr.base.seek, NULL, fail);
     ASSERT_NEQ(fr.fp, NULL, fail);
 
-    ASSERT_OK(MAYCUP_filereader_dtor(&fr), fail);
+    ASSERT_OK(maycup_filereader_dtor(&fr), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_filereader_dtor(&fr);
+    maycup_filereader_dtor(&fr);
     return TEST_RESULT_FAIL;
 }
 
@@ -51,22 +51,22 @@ TEST_CASE(filereader_ctor_fopen_fail) {
 
     TEST_CTX.mock_state.m_fopen = true;
 
-    ASSERT_EQ(MAYCUP_filereader_ctor(&fr, filename), MAYCUP_RESULT_ERRNO, fail);
+    ASSERT_EQ(maycup_filereader_ctor(&fr, filename), MAYCUP_RESULT_ERRNO, fail);
 
     TEST_CTX.mock_state.m_fopen = false;
     return TEST_RESULT_PASS;
 fail:
     TEST_CTX.mock_state.m_fopen = false;
-    MAYCUP_filereader_dtor(&fr);
+    maycup_filereader_dtor(&fr);
     return TEST_RESULT_FAIL;
 }
 
 TEST_CASE(filereader_ctor_illegal_arg) {
     MAYCUP_FileReader fr;
     const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
-    ASSERT_EQ(MAYCUP_filereader_ctor(NULL, filename), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+    ASSERT_EQ(maycup_filereader_ctor(NULL, filename), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
               fail);
-    ASSERT_EQ(MAYCUP_filereader_ctor(&fr, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+    ASSERT_EQ(maycup_filereader_ctor(&fr, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
               fail);
 
     return TEST_RESULT_PASS;
@@ -78,8 +78,8 @@ TEST_CASE(filereader_dtor_normal) {
     MAYCUP_FileReader fr;
     const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
 
-    ASSERT_OK(MAYCUP_filereader_ctor(&fr, filename), fail);
-    ASSERT_OK(MAYCUP_filereader_dtor(&fr), fail);
+    ASSERT_OK(maycup_filereader_ctor(&fr, filename), fail);
+    ASSERT_OK(maycup_filereader_dtor(&fr), fail);
     ASSERT_EQ(fr.base.get_char, NULL, fail);
     ASSERT_EQ(fr.base.tell, NULL, fail);
     ASSERT_EQ(fr.base.seek, NULL, fail);
@@ -87,7 +87,7 @@ TEST_CASE(filereader_dtor_normal) {
 
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_filereader_dtor(&fr);
+    maycup_filereader_dtor(&fr);
     return TEST_RESULT_FAIL;
 }
 
@@ -95,13 +95,13 @@ TEST_CASE(filereader_dtor_double) {
     MAYCUP_FileReader fr;
     const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
 
-    ASSERT_OK(MAYCUP_filereader_ctor(&fr, filename), fail);
-    ASSERT_OK(MAYCUP_filereader_dtor(&fr), fail);
-    ASSERT_EQ(MAYCUP_filereader_dtor(&fr), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_OK(maycup_filereader_ctor(&fr, filename), fail);
+    ASSERT_OK(maycup_filereader_dtor(&fr), fail);
+    ASSERT_EQ(maycup_filereader_dtor(&fr), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
 
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_filereader_dtor(&fr);
+    maycup_filereader_dtor(&fr);
     return TEST_RESULT_FAIL;
 }
 
@@ -111,20 +111,20 @@ TEST_CASE(filereader_dtor_fclose_fail) {
 
     MOCK_ON(fclose);
 
-    ASSERT_OK(MAYCUP_filereader_ctor(&fr, filename), fail);
-    ASSERT_EQ(MAYCUP_filereader_dtor(&fr), MAYCUP_RESULT_ERRNO, fail);
+    ASSERT_OK(maycup_filereader_ctor(&fr, filename), fail);
+    ASSERT_EQ(maycup_filereader_dtor(&fr), MAYCUP_RESULT_ERRNO, fail);
 
     MOCK_OFF(fclose);
-    ASSERT_OK(MAYCUP_filereader_dtor(&fr), fail);
+    ASSERT_OK(maycup_filereader_dtor(&fr), fail);
     return TEST_RESULT_PASS;
 fail:
     MOCK_OFF(fclose);
-    MAYCUP_filereader_dtor(&fr);
+    maycup_filereader_dtor(&fr);
     return TEST_RESULT_FAIL;
 }
 
 TEST_CASE(filereader_dtor_illegal_arg) {
-    ASSERT_EQ(MAYCUP_filereader_dtor(NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_filereader_dtor(NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
     return TEST_RESULT_PASS;
 fail:
     return TEST_RESULT_FAIL;
@@ -142,15 +142,15 @@ TEST_CASE(filereader_get_char_normal) {
     int expected;
     bool swc = false;
 
-    ASSERT_OK(MAYCUP_filereader_ctor(&fr, filename_input), fail);
+    ASSERT_OK(maycup_filereader_ctor(&fr, filename_input), fail);
 
     while (true) {
         expected = fgetc(fp);
         if (swc) {
-            ASSERT_OK(MAYCUP_reader_get_char(&fr, &actual), fail);
+            ASSERT_OK(maycup_reader_get_char(&fr, &actual), fail);
             ASSERT_EQ(actual, expected, fail);
         } else {
-            ASSERT_OK(MAYCUP_reader_get_char(&fr, NULL), fail);
+            ASSERT_OK(maycup_reader_get_char(&fr, NULL), fail);
         }
         if (expected == EOF) {
             if (!feof(fp)) {
@@ -163,11 +163,11 @@ TEST_CASE(filereader_get_char_normal) {
     }
 
     fclose(fp);
-    ASSERT_OK(MAYCUP_filereader_dtor(&fr), fail);
+    ASSERT_OK(maycup_filereader_dtor(&fr), fail);
     return TEST_RESULT_PASS;
 fail:
     fclose(fp);
-    MAYCUP_filereader_dtor(&fr);
+    maycup_filereader_dtor(&fr);
     return TEST_RESULT_FAIL;
 }
 
@@ -182,11 +182,11 @@ TEST_CASE(filereader_get_char_bulk) {
     int actual;
     int expected;
 
-    ASSERT_OK(MAYCUP_filereader_ctor(&fr, filename_input), fail);
+    ASSERT_OK(maycup_filereader_ctor(&fr, filename_input), fail);
 
     while (true) {
         expected = fgetc(fp);
-        ASSERT_OK(MAYCUP_reader_get_char(&fr, &actual), fail);
+        ASSERT_OK(maycup_reader_get_char(&fr, &actual), fail);
         ASSERT_EQ(actual, expected, fail);
         if (expected == EOF) {
             if (!feof(fp)) {
@@ -198,11 +198,11 @@ TEST_CASE(filereader_get_char_bulk) {
     }
 
     fclose(fp);
-    ASSERT_OK(MAYCUP_filereader_dtor(&fr), fail);
+    ASSERT_OK(maycup_filereader_dtor(&fr), fail);
     return TEST_RESULT_PASS;
 fail:
     fclose(fp);
-    MAYCUP_filereader_dtor(&fr);
+    maycup_filereader_dtor(&fr);
     return TEST_RESULT_FAIL;
 }
 
@@ -212,19 +212,19 @@ TEST_CASE(filereader_get_char_feof_fail) {
 
     MOCK_ON(feof);
 
-    ASSERT_OK(MAYCUP_filereader_ctor(&fr, filename), fail);
+    ASSERT_OK(maycup_filereader_ctor(&fr, filename), fail);
     for (size_t i = 1; i <= 1610; ++i) {
-        ASSERT_OK(MAYCUP_reader_get_char(&fr, NULL), fail);
+        ASSERT_OK(maycup_reader_get_char(&fr, NULL), fail);
     }
 
-    ASSERT_EQ(MAYCUP_reader_get_char(&fr, NULL), MAYCUP_RESULT_ERRNO, fail);
+    ASSERT_EQ(maycup_reader_get_char(&fr, NULL), MAYCUP_RESULT_ERRNO, fail);
 
     MOCK_OFF(feof);
-    ASSERT_OK(MAYCUP_filereader_dtor(&fr), fail);
+    ASSERT_OK(maycup_filereader_dtor(&fr), fail);
     return TEST_RESULT_PASS;
 fail:
     MOCK_OFF(feof);
-    MAYCUP_filereader_dtor(&fr);
+    maycup_filereader_dtor(&fr);
     return TEST_RESULT_FAIL;
 }
 
@@ -232,15 +232,15 @@ TEST_CASE(filereader_get_char_illegal_arg) {
     MAYCUP_FileReader fr;
     const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
 
-    ASSERT_OK(MAYCUP_filereader_ctor(&fr, filename), fail);
-    ASSERT_EQ(MAYCUP_reader_get_char(NULL, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+    ASSERT_OK(maycup_filereader_ctor(&fr, filename), fail);
+    ASSERT_EQ(maycup_reader_get_char(NULL, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
               fail);
     ASSERT_EQ(fr.base.get_char(NULL, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
 
-    ASSERT_OK(MAYCUP_filereader_dtor(&fr), fail);
+    ASSERT_OK(maycup_filereader_dtor(&fr), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_filereader_dtor(&fr);
+    maycup_filereader_dtor(&fr);
     return TEST_RESULT_FAIL;
 }
 
@@ -249,22 +249,22 @@ TEST_CASE(filereader_tell_normal) {
     const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
     long cur;
 
-    ASSERT_OK(MAYCUP_filereader_ctor(&fr, filename), fail);
-    ASSERT_OK(MAYCUP_reader_tell(&fr, &cur), fail);
+    ASSERT_OK(maycup_filereader_ctor(&fr, filename), fail);
+    ASSERT_OK(maycup_reader_tell(&fr, &cur), fail);
     ASSERT_EQ(cur, 0, fail);
-    ASSERT_OK(MAYCUP_reader_get_char(&fr, NULL), fail);
-    ASSERT_OK(MAYCUP_reader_tell(&fr, &cur), fail);
+    ASSERT_OK(maycup_reader_get_char(&fr, NULL), fail);
+    ASSERT_OK(maycup_reader_tell(&fr, &cur), fail);
     ASSERT_EQ(cur, 1, fail);
     for (size_t i = 1; i <= 10; ++i) {
-        ASSERT_OK(MAYCUP_reader_get_char(&fr, NULL), fail);
+        ASSERT_OK(maycup_reader_get_char(&fr, NULL), fail);
     }
-    ASSERT_OK(MAYCUP_reader_tell(&fr, &cur), fail);
+    ASSERT_OK(maycup_reader_tell(&fr, &cur), fail);
     ASSERT_EQ(cur, 11, fail);
 
-    ASSERT_OK(MAYCUP_filereader_dtor(&fr), fail);
+    ASSERT_OK(maycup_filereader_dtor(&fr), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_filereader_dtor(&fr);
+    maycup_filereader_dtor(&fr);
     return TEST_RESULT_FAIL;
 }
 
@@ -275,15 +275,15 @@ TEST_CASE(filereader_tell_ftell_fail) {
 
     MOCK_ON(ftell);
 
-    ASSERT_OK(MAYCUP_filereader_ctor(&fr, filename), fail);
-    ASSERT_EQ(MAYCUP_reader_tell(&fr, &cur), MAYCUP_RESULT_ERRNO, fail);
+    ASSERT_OK(maycup_filereader_ctor(&fr, filename), fail);
+    ASSERT_EQ(maycup_reader_tell(&fr, &cur), MAYCUP_RESULT_ERRNO, fail);
 
     MOCK_OFF(ftell);
-    ASSERT_OK(MAYCUP_filereader_dtor(&fr), fail);
+    ASSERT_OK(maycup_filereader_dtor(&fr), fail);
     return TEST_RESULT_PASS;
 fail:
     MOCK_OFF(ftell);
-    MAYCUP_filereader_dtor(&fr);
+    maycup_filereader_dtor(&fr);
     return TEST_RESULT_FAIL;
 }
 
@@ -292,17 +292,17 @@ TEST_CASE(filereader_tell_illegal_arg) {
     const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
     long cur;
 
-    ASSERT_OK(MAYCUP_filereader_ctor(&fr, filename), fail);
-    ASSERT_EQ(MAYCUP_reader_tell(NULL, &cur), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
-    ASSERT_EQ(MAYCUP_reader_tell(&fr, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_OK(maycup_filereader_ctor(&fr, filename), fail);
+    ASSERT_EQ(maycup_reader_tell(NULL, &cur), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_reader_tell(&fr, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
     ASSERT_EQ(fr.base.tell(NULL, &cur), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
     ASSERT_EQ(fr.base.tell((MAYCUP_Reader *)&fr, NULL),
               MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
 
-    ASSERT_OK(MAYCUP_filereader_dtor(&fr), fail);
+    ASSERT_OK(maycup_filereader_dtor(&fr), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_filereader_dtor(&fr);
+    maycup_filereader_dtor(&fr);
     return TEST_RESULT_FAIL;
 }
 
@@ -311,18 +311,18 @@ TEST_CASE(filereader_seek_normal) {
     const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
     int cur;
 
-    ASSERT_OK(MAYCUP_filereader_ctor(&fr, filename), fail);
-    ASSERT_OK(MAYCUP_reader_seek(&fr, 384), fail);
-    ASSERT_OK(MAYCUP_reader_get_char(&fr, &cur), fail);
+    ASSERT_OK(maycup_filereader_ctor(&fr, filename), fail);
+    ASSERT_OK(maycup_reader_seek(&fr, 384), fail);
+    ASSERT_OK(maycup_reader_get_char(&fr, &cur), fail);
     ASSERT_EQ(cur, 'u', fail);
-    ASSERT_OK(MAYCUP_reader_seek(&fr, 0), fail);
-    ASSERT_OK(MAYCUP_reader_get_char(&fr, &cur), fail);
+    ASSERT_OK(maycup_reader_seek(&fr, 0), fail);
+    ASSERT_OK(maycup_reader_get_char(&fr, &cur), fail);
     ASSERT_EQ(cur, 'L', fail);
 
-    ASSERT_OK(MAYCUP_filereader_dtor(&fr), fail);
+    ASSERT_OK(maycup_filereader_dtor(&fr), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_filereader_dtor(&fr);
+    maycup_filereader_dtor(&fr);
     return TEST_RESULT_FAIL;
 }
 
@@ -332,15 +332,15 @@ TEST_CASE(filereader_seek_fseek_fail) {
 
     MOCK_ON(fseek);
 
-    ASSERT_OK(MAYCUP_filereader_ctor(&fr, filename), fail);
-    ASSERT_EQ(MAYCUP_reader_seek(&fr, 384), MAYCUP_RESULT_ERRNO, fail);
+    ASSERT_OK(maycup_filereader_ctor(&fr, filename), fail);
+    ASSERT_EQ(maycup_reader_seek(&fr, 384), MAYCUP_RESULT_ERRNO, fail);
 
     MOCK_OFF(fseek);
-    ASSERT_OK(MAYCUP_filereader_dtor(&fr), fail);
+    ASSERT_OK(maycup_filereader_dtor(&fr), fail);
     return TEST_RESULT_PASS;
 fail:
     MOCK_OFF(fseek);
-    MAYCUP_filereader_dtor(&fr);
+    maycup_filereader_dtor(&fr);
     return TEST_RESULT_FAIL;
 }
 
@@ -348,14 +348,14 @@ TEST_CASE(filereader_seek_illegal_arg) {
     MAYCUP_FileReader fr;
     const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
 
-    ASSERT_OK(MAYCUP_filereader_ctor(&fr, filename), fail);
-    ASSERT_EQ(MAYCUP_reader_seek(NULL, 0), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_OK(maycup_filereader_ctor(&fr, filename), fail);
+    ASSERT_EQ(maycup_reader_seek(NULL, 0), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
     ASSERT_EQ(fr.base.seek(NULL, 0), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
 
-    ASSERT_OK(MAYCUP_filereader_dtor(&fr), fail);
+    ASSERT_OK(maycup_filereader_dtor(&fr), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_filereader_dtor(&fr);
+    maycup_filereader_dtor(&fr);
     return TEST_RESULT_FAIL;
 }
 
@@ -364,7 +364,7 @@ TEST_CASE(stringreader_ctor_normal) {
     const char *stringname = reader_str_lipsum_1;
     const size_t stringlen = reader_str_lipsum_1_len;
 
-    ASSERT_OK(MAYCUP_stringreader_ctor(&sr, stringname, stringlen), fail);
+    ASSERT_OK(maycup_stringreader_ctor(&sr, stringname, stringlen), fail);
     ASSERT_NEQ(sr.base.get_char, NULL, fail);
     ASSERT_NEQ(sr.base.tell, NULL, fail);
     ASSERT_NEQ(sr.base.seek, NULL, fail);
@@ -372,10 +372,10 @@ TEST_CASE(stringreader_ctor_normal) {
     ASSERT_NEQ(sr.cur, NULL, fail);
     ASSERT_NEQ(sr.end, NULL, fail);
 
-    ASSERT_OK(MAYCUP_stringreader_dtor(&sr), fail);
+    ASSERT_OK(maycup_stringreader_dtor(&sr), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_stringreader_dtor(&sr);
+    maycup_stringreader_dtor(&sr);
     return TEST_RESULT_FAIL;
 }
 
@@ -384,11 +384,11 @@ TEST_CASE(stringreader_ctor_illegal_arg) {
     const char *stringname = reader_str_lipsum_1;
     const size_t stringlen = reader_str_lipsum_1_len;
 
-    ASSERT_EQ(MAYCUP_stringreader_ctor(NULL, stringname, stringlen),
+    ASSERT_EQ(maycup_stringreader_ctor(NULL, stringname, stringlen),
               MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
-    ASSERT_EQ(MAYCUP_stringreader_ctor(&sr, NULL, stringlen),
+    ASSERT_EQ(maycup_stringreader_ctor(&sr, NULL, stringlen),
               MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
-    ASSERT_EQ(MAYCUP_stringreader_ctor(&sr, stringname, stringlen + 1),
+    ASSERT_EQ(maycup_stringreader_ctor(&sr, stringname, stringlen + 1),
               MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
 
     return TEST_RESULT_PASS;
@@ -401,8 +401,8 @@ TEST_CASE(stringreader_dtor_normal) {
     const char *stringname = reader_str_lipsum_1;
     const size_t stringlen = reader_str_lipsum_1_len;
 
-    ASSERT_OK(MAYCUP_stringreader_ctor(&sr, stringname, stringlen), fail);
-    ASSERT_OK(MAYCUP_stringreader_dtor(&sr), fail);
+    ASSERT_OK(maycup_stringreader_ctor(&sr, stringname, stringlen), fail);
+    ASSERT_OK(maycup_stringreader_dtor(&sr), fail);
     ASSERT_EQ(sr.base.get_char, NULL, fail);
     ASSERT_EQ(sr.base.tell, NULL, fail);
     ASSERT_EQ(sr.base.seek, NULL, fail);
@@ -412,7 +412,7 @@ TEST_CASE(stringreader_dtor_normal) {
 
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_stringreader_dtor(&sr);
+    maycup_stringreader_dtor(&sr);
     return TEST_RESULT_FAIL;
 }
 
@@ -421,18 +421,18 @@ TEST_CASE(stringreader_dtor_double) {
     const char *stringname = reader_str_lipsum_1;
     const size_t stringlen = reader_str_lipsum_1_len;
 
-    ASSERT_OK(MAYCUP_stringreader_ctor(&sr, stringname, stringlen), fail);
-    ASSERT_OK(MAYCUP_stringreader_dtor(&sr), fail);
-    ASSERT_EQ(MAYCUP_stringreader_dtor(&sr), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_OK(maycup_stringreader_ctor(&sr, stringname, stringlen), fail);
+    ASSERT_OK(maycup_stringreader_dtor(&sr), fail);
+    ASSERT_EQ(maycup_stringreader_dtor(&sr), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
 
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_stringreader_dtor(&sr);
+    maycup_stringreader_dtor(&sr);
     return TEST_RESULT_FAIL;
 }
 
 TEST_CASE(stringreader_dtor_illegal_arg) {
-    ASSERT_EQ(MAYCUP_stringreader_dtor(NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_stringreader_dtor(NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
     return TEST_RESULT_PASS;
 fail:
     return TEST_RESULT_FAIL;
@@ -449,16 +449,16 @@ TEST_CASE(stringreader_get_char_normal) {
     bool swc = false;
     const char *ptr = stringname_expected;
 
-    ASSERT_OK(MAYCUP_stringreader_ctor(&sr, stringname_input, stringlen), fail);
+    ASSERT_OK(maycup_stringreader_ctor(&sr, stringname_input, stringlen), fail);
 
     while (true) {
         expected = *ptr;
         ++ptr;
         if (swc) {
-            ASSERT_OK(MAYCUP_reader_get_char(&sr, &actual), fail);
+            ASSERT_OK(maycup_reader_get_char(&sr, &actual), fail);
             ASSERT_EQ(actual, expected, fail);
         } else {
-            ASSERT_OK(MAYCUP_reader_get_char(&sr, NULL), fail);
+            ASSERT_OK(maycup_reader_get_char(&sr, NULL), fail);
         }
         if (expected == '\0') {
             break;
@@ -466,10 +466,10 @@ TEST_CASE(stringreader_get_char_normal) {
         swc = !swc;
     }
 
-    ASSERT_OK(MAYCUP_stringreader_dtor(&sr), fail);
+    ASSERT_OK(maycup_stringreader_dtor(&sr), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_stringreader_dtor(&sr);
+    maycup_stringreader_dtor(&sr);
     return TEST_RESULT_FAIL;
 }
 
@@ -484,16 +484,16 @@ TEST_CASE(stringreader_get_char_bulk) {
     bool swc = false;
     const char *ptr = stringname_expected;
 
-    ASSERT_OK(MAYCUP_stringreader_ctor(&sr, stringname_input, stringlen), fail);
+    ASSERT_OK(maycup_stringreader_ctor(&sr, stringname_input, stringlen), fail);
 
     while (true) {
         expected = *ptr;
         ++ptr;
         if (swc) {
-            ASSERT_OK(MAYCUP_reader_get_char(&sr, &actual), fail);
+            ASSERT_OK(maycup_reader_get_char(&sr, &actual), fail);
             ASSERT_EQ(actual, expected, fail);
         } else {
-            ASSERT_OK(MAYCUP_reader_get_char(&sr, NULL), fail);
+            ASSERT_OK(maycup_reader_get_char(&sr, NULL), fail);
         }
         if (expected == '\0') {
             break;
@@ -501,10 +501,10 @@ TEST_CASE(stringreader_get_char_bulk) {
         swc = !swc;
     }
 
-    ASSERT_OK(MAYCUP_stringreader_dtor(&sr), fail);
+    ASSERT_OK(maycup_stringreader_dtor(&sr), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_stringreader_dtor(&sr);
+    maycup_stringreader_dtor(&sr);
     return TEST_RESULT_FAIL;
 }
 
@@ -513,22 +513,22 @@ TEST_CASE(stringreader_get_char_eof) {
     const char *str = "123";
     int res;
 
-    ASSERT_OK(MAYCUP_stringreader_ctor(&sr, str, 3), fail);
-    ASSERT_OK(MAYCUP_reader_get_char(&sr, &res), fail);
+    ASSERT_OK(maycup_stringreader_ctor(&sr, str, 3), fail);
+    ASSERT_OK(maycup_reader_get_char(&sr, &res), fail);
     ASSERT_NEQ(res, EOF, fail);
-    ASSERT_OK(MAYCUP_reader_get_char(&sr, &res), fail);
+    ASSERT_OK(maycup_reader_get_char(&sr, &res), fail);
     ASSERT_NEQ(res, EOF, fail);
-    ASSERT_OK(MAYCUP_reader_get_char(&sr, &res), fail);
+    ASSERT_OK(maycup_reader_get_char(&sr, &res), fail);
     ASSERT_NEQ(res, EOF, fail);
     for (int i = 1; i <= 10; ++i) {
-        ASSERT_OK(MAYCUP_reader_get_char(&sr, &res), fail);
+        ASSERT_OK(maycup_reader_get_char(&sr, &res), fail);
         ASSERT_EQ(res, EOF, fail);
     }
 
-    ASSERT_OK(MAYCUP_stringreader_dtor(&sr), fail);
+    ASSERT_OK(maycup_stringreader_dtor(&sr), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_stringreader_dtor(&sr);
+    maycup_stringreader_dtor(&sr);
     return TEST_RESULT_FAIL;
 }
 
@@ -537,15 +537,15 @@ TEST_CASE(stringreader_get_char_illegal_arg) {
     const char *stringname = reader_str_lipsum_1;
     const size_t stringlen = reader_str_lipsum_1_len;
 
-    ASSERT_OK(MAYCUP_stringreader_ctor(&sr, stringname, stringlen), fail);
-    ASSERT_EQ(MAYCUP_reader_get_char(NULL, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+    ASSERT_OK(maycup_stringreader_ctor(&sr, stringname, stringlen), fail);
+    ASSERT_EQ(maycup_reader_get_char(NULL, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
               fail);
     ASSERT_EQ(sr.base.get_char(NULL, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
 
-    ASSERT_OK(MAYCUP_stringreader_dtor(&sr), fail);
+    ASSERT_OK(maycup_stringreader_dtor(&sr), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_stringreader_dtor(&sr);
+    maycup_stringreader_dtor(&sr);
     return TEST_RESULT_FAIL;
 }
 
@@ -555,22 +555,22 @@ TEST_CASE(stringreader_tell_normal) {
     const size_t stringlen = reader_str_lipsum_1_len;
     long cur;
 
-    ASSERT_OK(MAYCUP_stringreader_ctor(&sr, stringname, stringlen), fail);
-    ASSERT_OK(MAYCUP_reader_tell(&sr, &cur), fail);
+    ASSERT_OK(maycup_stringreader_ctor(&sr, stringname, stringlen), fail);
+    ASSERT_OK(maycup_reader_tell(&sr, &cur), fail);
     ASSERT_EQ(cur, 0, fail);
-    ASSERT_OK(MAYCUP_reader_get_char(&sr, NULL), fail);
-    ASSERT_OK(MAYCUP_reader_tell(&sr, &cur), fail);
+    ASSERT_OK(maycup_reader_get_char(&sr, NULL), fail);
+    ASSERT_OK(maycup_reader_tell(&sr, &cur), fail);
     ASSERT_EQ(cur, 1, fail);
     for (size_t i = 1; i <= 10; ++i) {
-        ASSERT_OK(MAYCUP_reader_get_char(&sr, NULL), fail);
+        ASSERT_OK(maycup_reader_get_char(&sr, NULL), fail);
     }
-    ASSERT_OK(MAYCUP_reader_tell(&sr, &cur), fail);
+    ASSERT_OK(maycup_reader_tell(&sr, &cur), fail);
     ASSERT_EQ(cur, 11, fail);
 
-    ASSERT_OK(MAYCUP_stringreader_dtor(&sr), fail);
+    ASSERT_OK(maycup_stringreader_dtor(&sr), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_stringreader_dtor(&sr);
+    maycup_stringreader_dtor(&sr);
     return TEST_RESULT_FAIL;
 }
 
@@ -580,17 +580,17 @@ TEST_CASE(stringreader_tell_illegal_arg) {
     const size_t stringlen = reader_str_lipsum_1_len;
     long cur;
 
-    ASSERT_OK(MAYCUP_stringreader_ctor(&sr, stringname, stringlen), fail);
-    ASSERT_EQ(MAYCUP_reader_tell(NULL, &cur), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
-    ASSERT_EQ(MAYCUP_reader_tell(&sr, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_OK(maycup_stringreader_ctor(&sr, stringname, stringlen), fail);
+    ASSERT_EQ(maycup_reader_tell(NULL, &cur), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_reader_tell(&sr, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
     ASSERT_EQ(sr.base.tell(NULL, &cur), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
     ASSERT_EQ(sr.base.tell((MAYCUP_Reader *)&sr, NULL),
               MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
 
-    ASSERT_OK(MAYCUP_stringreader_dtor(&sr), fail);
+    ASSERT_OK(maycup_stringreader_dtor(&sr), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_stringreader_dtor(&sr);
+    maycup_stringreader_dtor(&sr);
     return TEST_RESULT_FAIL;
 }
 
@@ -600,18 +600,18 @@ TEST_CASE(stringreader_seek_normal) {
     const size_t stringlen = reader_str_lipsum_1_len;
     int cur;
 
-    ASSERT_OK(MAYCUP_stringreader_ctor(&sr, stringname, stringlen), fail);
-    ASSERT_OK(MAYCUP_reader_seek(&sr, 384), fail);
-    ASSERT_OK(MAYCUP_reader_get_char(&sr, &cur), fail);
+    ASSERT_OK(maycup_stringreader_ctor(&sr, stringname, stringlen), fail);
+    ASSERT_OK(maycup_reader_seek(&sr, 384), fail);
+    ASSERT_OK(maycup_reader_get_char(&sr, &cur), fail);
     ASSERT_EQ(cur, 'u', fail);
-    ASSERT_OK(MAYCUP_reader_seek(&sr, 0), fail);
-    ASSERT_OK(MAYCUP_reader_get_char(&sr, &cur), fail);
+    ASSERT_OK(maycup_reader_seek(&sr, 0), fail);
+    ASSERT_OK(maycup_reader_get_char(&sr, &cur), fail);
     ASSERT_EQ(cur, 'L', fail);
 
-    ASSERT_OK(MAYCUP_stringreader_dtor(&sr), fail);
+    ASSERT_OK(maycup_stringreader_dtor(&sr), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_stringreader_dtor(&sr);
+    maycup_stringreader_dtor(&sr);
     return TEST_RESULT_FAIL;
 }
 
@@ -620,10 +620,10 @@ TEST_CASE(stringreader_seek_illegal_arg) {
     const char *stringname = reader_str_lipsum_1;
     const size_t stringlen = reader_str_lipsum_1_len;
 
-    ASSERT_OK(MAYCUP_stringreader_ctor(&sr, stringname, stringlen), fail);
-    ASSERT_EQ(MAYCUP_reader_seek(NULL, 0), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
-    ASSERT_EQ(MAYCUP_reader_seek(&sr, -1), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
-    ASSERT_EQ(MAYCUP_reader_seek(&sr, stringlen + 1), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+    ASSERT_OK(maycup_stringreader_ctor(&sr, stringname, stringlen), fail);
+    ASSERT_EQ(maycup_reader_seek(NULL, 0), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_reader_seek(&sr, -1), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_reader_seek(&sr, stringlen + 1), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
               fail);
     ASSERT_EQ(sr.base.seek(NULL, 0), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
     ASSERT_EQ(sr.base.seek((MAYCUP_Reader *)&sr, -1), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
@@ -631,10 +631,10 @@ TEST_CASE(stringreader_seek_illegal_arg) {
     ASSERT_EQ(sr.base.seek((MAYCUP_Reader *)&sr, stringlen + 1),
               MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
 
-    ASSERT_OK(MAYCUP_stringreader_dtor(&sr), fail);
+    ASSERT_OK(maycup_stringreader_dtor(&sr), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_stringreader_dtor(&sr);
+    maycup_stringreader_dtor(&sr);
     return TEST_RESULT_FAIL;
 }
 

@@ -34,7 +34,7 @@ typedef ssize_t idx;
 #undef MAYCUP_VEC_DISPT
 #undef MAYCUP_VEC_T
 
-void MAYCUP_print_token(MAYCUP_IN MAYCUP_Token *token) {
+void maycup_print_token(MAYCUP_IN MAYCUP_Token *token) {
     switch (token->type) {
     case MAYCUP_TOKENTYPE_TEXT: {
         printf("(TEXT, %s)\n", token->text);
@@ -63,24 +63,24 @@ void MAYCUP_print_token(MAYCUP_IN MAYCUP_Token *token) {
     }
 }
 
-void MAYCUP_print_ast(MAYCUP_IN MAYCUP_AST *ast, MAYCUP_IN ssize_t root) {
+void maycup_print_ast(MAYCUP_IN MAYCUP_AST *ast, MAYCUP_IN ssize_t root) {
     MAYCUP_VectorIdx stack;
     MAYCUP_VectorIdx level;
-    MAYCUP_UNWRAP(MAYCUP_vector_idx_ctor(&stack, MAYCUP_DEFAULT_VEC_SIZE));
-    MAYCUP_UNWRAP(MAYCUP_vector_idx_ctor(&level, MAYCUP_DEFAULT_VEC_SIZE));
-    MAYCUP_UNWRAP(MAYCUP_vector_idx_pushback(&stack, root));
-    MAYCUP_UNWRAP(MAYCUP_vector_idx_pushback(&level, 0));
+    MAYCUP_UNWRAP(maycup_vector_idx_ctor(&stack, MAYCUP_DEFAULT_VEC_SIZE));
+    MAYCUP_UNWRAP(maycup_vector_idx_ctor(&level, MAYCUP_DEFAULT_VEC_SIZE));
+    MAYCUP_UNWRAP(maycup_vector_idx_pushback(&stack, root));
+    MAYCUP_UNWRAP(maycup_vector_idx_pushback(&level, 0));
     while (stack.len > 0) {
         ssize_t cur, lvl;
-        MAYCUP_UNWRAP(MAYCUP_vector_idx_top(&stack, &cur));
-        MAYCUP_UNWRAP(MAYCUP_vector_idx_popback(&stack));
-        MAYCUP_UNWRAP(MAYCUP_vector_idx_top(&level, &lvl));
-        MAYCUP_UNWRAP(MAYCUP_vector_idx_popback(&level));
+        MAYCUP_UNWRAP(maycup_vector_idx_top(&stack, &cur));
+        MAYCUP_UNWRAP(maycup_vector_idx_popback(&stack));
+        MAYCUP_UNWRAP(maycup_vector_idx_top(&level, &lvl));
+        MAYCUP_UNWRAP(maycup_vector_idx_popback(&level));
 
         ssize_t getter = ast->data[cur].child;
         while (getter != -1) {
-            MAYCUP_UNWRAP(MAYCUP_vector_idx_pushback(&stack, getter));
-            MAYCUP_UNWRAP(MAYCUP_vector_idx_pushback(&level, lvl + 1));
+            MAYCUP_UNWRAP(maycup_vector_idx_pushback(&stack, getter));
+            MAYCUP_UNWRAP(maycup_vector_idx_pushback(&level, lvl + 1));
             getter = ast->data[getter].prev_sibling;
         }
 
@@ -124,8 +124,8 @@ void MAYCUP_print_ast(MAYCUP_IN MAYCUP_AST *ast, MAYCUP_IN ssize_t root) {
         putchar('\n');
     }
 
-    MAYCUP_UNWRAP(MAYCUP_vector_idx_dtor(&stack));
-    MAYCUP_UNWRAP(MAYCUP_vector_idx_dtor(&level));
+    MAYCUP_UNWRAP(maycup_vector_idx_dtor(&stack));
+    MAYCUP_UNWRAP(maycup_vector_idx_dtor(&level));
 }
 
 #endif // DEBUG

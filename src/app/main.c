@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
         goto err_msg;
     }
 
-    MAYCUP_UNWRAP(MAYCUP_convert_file(input, output));
+    MAYCUP_UNWRAP(maycup_convert_file(input, output));
 
     return EXIT_SUCCESS;
 

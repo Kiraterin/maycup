@@ -40,15 +40,15 @@ typedef struct {
  * @param writer In, the writer which the renderer will use
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_renderer_ctor(MAYCUP_OUT MAYCUP_Renderer *self,
-                             MAYCUP_IN MAYCUP_Writer *writer);
+MAYCUP_Result maycup_renderer_ctor(MAYCUP_OUT MAYCUP_Renderer *self,
+                                   MAYCUP_IN MAYCUP_Writer *writer);
 
 /**
  * @brief Destruct a renderer
  * @param self Out, the renderer to destruct
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_renderer_dtor(MAYCUP_OUT MAYCUP_Renderer *self);
+MAYCUP_Result maycup_renderer_dtor(MAYCUP_OUT MAYCUP_Renderer *self);
 
 /**
  * @brief Render HTML file from AST
@@ -56,7 +56,7 @@ MAYCUP_Result MAYCUP_renderer_dtor(MAYCUP_OUT MAYCUP_Renderer *self);
  * @param parser In, the parser which provides AST
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_render(MAYCUP_INOUT MAYCUP_Renderer *renderer,
-                      MAYCUP_IN MAYCUP_Parser *parser);
+MAYCUP_Result maycup_render(MAYCUP_INOUT MAYCUP_Renderer *renderer,
+                            MAYCUP_IN MAYCUP_Parser *parser);
 
 #endif // RENDERER_H

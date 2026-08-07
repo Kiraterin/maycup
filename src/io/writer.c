@@ -29,13 +29,14 @@
 // mock def
 #include "mock_funcs.h"
 
-MAYCUP_Result MAYCUP_writer_puts(void *self, MAYCUP_IN char *str) {
+MAYCUP_Result maycup_writer_puts(void *self, MAYCUP_IN char *str) {
     if (self == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
     return ((MAYCUP_Writer *)self)->puts(self, str);
 }
-MAYCUP_Result MAYCUP_writer_printf(void *self, MAYCUP_IN const char *format, ...) {
+MAYCUP_Result maycup_writer_printf(void *self, MAYCUP_IN const char *format,
+                                   ...) {
     if (self == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -47,7 +48,7 @@ MAYCUP_Result MAYCUP_writer_printf(void *self, MAYCUP_IN const char *format, ...
 }
 
 static MAYCUP_Result filewriter_puts(MAYCUP_IN MAYCUP_FileWriter *self,
-                                  MAYCUP_IN char *str) {
+                                     MAYCUP_IN char *str) {
     if (fputs(str, self->fp) < 0) {
         return MAYCUP_RESULT_ERRNO;
     }
@@ -55,26 +56,28 @@ static MAYCUP_Result filewriter_puts(MAYCUP_IN MAYCUP_FileWriter *self,
 }
 
 static MAYCUP_Result filewriter_vprintf(MAYCUP_IN MAYCUP_FileWriter *self,
-                                     MAYCUP_IN const char *format, va_list args) {
+                                        MAYCUP_IN const char *format,
+                                        va_list args) {
     if (vfprintf(self->fp, format, args) < 0) {
         return MAYCUP_RESULT_ERRNO;
     }
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result MAYCUP_filewriter_ctor(MAYCUP_OUT MAYCUP_FileWriter *self,
-                               MAYCUP_IN const char *path) {
+MAYCUP_Result maycup_filewriter_ctor(MAYCUP_OUT MAYCUP_FileWriter *self,
+                                     MAYCUP_IN const char *path) {
     self->fp = fopen(path, "w");
     if (self->fp == NULL) {
         return MAYCUP_RESULT_ERRNO;
     }
-    self->base.puts = (MAYCUP_Result (*)(MAYCUP_Writer *, char *))filewriter_puts;
-    self->base.vprintf =
-        (MAYCUP_Result (*)(MAYCUP_Writer *, const char *, va_list))filewriter_vprintf;
+    self->base.puts =
+        (MAYCUP_Result (*)(MAYCUP_Writer *, char *))filewriter_puts;
+    self->base.vprintf = (MAYCUP_Result (*)(MAYCUP_Writer *, const char *,
+                                            va_list))filewriter_vprintf;
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result MAYCUP_filewriter_dtor(MAYCUP_OUT MAYCUP_FileWriter *self) {
+MAYCUP_Result maycup_filewriter_dtor(MAYCUP_OUT MAYCUP_FileWriter *self) {
     if (self->fp == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -86,7 +89,7 @@ MAYCUP_Result MAYCUP_filewriter_dtor(MAYCUP_OUT MAYCUP_FileWriter *self) {
 }
 
 static MAYCUP_Result string_writer_flexible_reserve(MAYCUP_StringWriter *self,
-                                                 size_t cap) {
+                                                    size_t cap) {
     if (cap == 0) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -103,7 +106,7 @@ static MAYCUP_Result string_writer_flexible_reserve(MAYCUP_StringWriter *self,
 }
 
 static MAYCUP_Result stringwriter_puts(MAYCUP_INOUT MAYCUP_StringWriter *self,
-                                    MAYCUP_IN char *str) {
+                                       MAYCUP_IN char *str) {
     size_t dest_size = self->size + strlen(str);
     if (self->cap < dest_size) {
         if (self->flexible) {
@@ -120,8 +123,8 @@ static MAYCUP_Result stringwriter_puts(MAYCUP_INOUT MAYCUP_StringWriter *self,
 }
 
 static MAYCUP_Result stringwriter_vprintf(MAYCUP_IN MAYCUP_StringWriter *self,
-                                       MAYCUP_IN const char *format,
-                                       va_list args) {
+                                          MAYCUP_IN const char *format,
+                                          va_list args) {
     va_list args_fmt;
     va_copy(args_fmt, args);
 
@@ -149,21 +152,24 @@ static MAYCUP_Result stringwriter_vprintf(MAYCUP_IN MAYCUP_StringWriter *self,
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result MAYCUP_stringwriter_ctor(MAYCUP_OUT MAYCUP_StringWriter *self,
-                                 MAYCUP_IN char *buf, MAYCUP_IN size_t bufsz) {
+MAYCUP_Result maycup_stringwriter_ctor(MAYCUP_OUT MAYCUP_StringWriter *self,
+                                       MAYCUP_IN char *buf,
+                                       MAYCUP_IN size_t bufsz) {
     self->buf = buf;
     self->buf[0] = '\0';
     self->size = 1;
     self->cap = bufsz;
     self->flexible = false;
-    self->base.puts = (MAYCUP_Result (*)(MAYCUP_Writer *, char *))stringwriter_puts;
+    self->base.puts =
+        (MAYCUP_Result (*)(MAYCUP_Writer *, char *))stringwriter_puts;
     self->base.vprintf = (MAYCUP_Result (*)(MAYCUP_Writer *, const char *,
-                                         va_list))stringwriter_vprintf;
+                                            va_list))stringwriter_vprintf;
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result MAYCUP_stringwriter_ctor_flexible(MAYCUP_OUT MAYCUP_StringWriter *self,
-                                          MAYCUP_IN size_t bufsz) {
+MAYCUP_Result
+maycup_stringwriter_ctor_flexible(MAYCUP_OUT MAYCUP_StringWriter *self,
+                                  MAYCUP_IN size_t bufsz) {
     if (bufsz == 0) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -175,14 +181,15 @@ MAYCUP_Result MAYCUP_stringwriter_ctor_flexible(MAYCUP_OUT MAYCUP_StringWriter *
     }
     self->buf[0] = '\0';
     self->flexible = true;
-    self->base.puts = (MAYCUP_Result (*)(MAYCUP_Writer *, char *))stringwriter_puts;
+    self->base.puts =
+        (MAYCUP_Result (*)(MAYCUP_Writer *, char *))stringwriter_puts;
     self->base.vprintf = (MAYCUP_Result (*)(MAYCUP_Writer *, const char *,
-                                         va_list))stringwriter_vprintf;
+                                            va_list))stringwriter_vprintf;
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result MAYCUP_stringwriter_dtor(MAYCUP_OUT MAYCUP_StringWriter *self,
-                                 MAYCUP_OUT char **buf) {
+MAYCUP_Result maycup_stringwriter_dtor(MAYCUP_OUT MAYCUP_StringWriter *self,
+                                       MAYCUP_OUT char **buf) {
     if (buf == NULL) {
         if (self->flexible) {
             free(self->buf);

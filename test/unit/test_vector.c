@@ -33,24 +33,24 @@ TEST_CASE(vector_ctor_normal) {
     const size_t cap = MAYCUP_DEFAULT_VEC_SIZE;
     MAYCUP_VectorInt vec;
 
-    ASSERT_OK(MAYCUP_vector_int_ctor(&vec, cap), fail);
+    ASSERT_OK(maycup_vector_int_ctor(&vec, cap), fail);
     ASSERT_EQ(vec.len, 0, fail);
     ASSERT_EQ(vec.cap, cap, fail);
 
-    ASSERT_OK(MAYCUP_vector_int_dtor(&vec), fail);
+    ASSERT_OK(maycup_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_vector_int_dtor(&vec);
+    maycup_vector_int_dtor(&vec);
     return TEST_RESULT_FAIL;
 }
 
 TEST_CASE(vector_ctor_illegal_arg) {
     MAYCUP_VectorInt vec;
 
-    ASSERT_EQ(MAYCUP_vector_int_ctor(NULL, MAYCUP_DEFAULT_VEC_SIZE),
+    ASSERT_EQ(maycup_vector_int_ctor(NULL, MAYCUP_DEFAULT_VEC_SIZE),
               MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
-    ASSERT_EQ(MAYCUP_vector_int_ctor(&vec, 0), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
-    ASSERT_EQ(MAYCUP_vector_int_ctor(&vec, MAYCUP_MAX_VEC_CAP + 1),
+    ASSERT_EQ(maycup_vector_int_ctor(&vec, 0), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_vector_int_ctor(&vec, MAYCUP_MAX_VEC_CAP + 1),
               MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
     return TEST_RESULT_PASS;
 fail:
@@ -62,7 +62,7 @@ TEST_CASE(vector_ctor_malloc_fail) {
 
     MOCK_ON(malloc);
 
-    ASSERT_EQ(MAYCUP_vector_int_ctor(&vec, MAYCUP_DEFAULT_VEC_SIZE),
+    ASSERT_EQ(maycup_vector_int_ctor(&vec, MAYCUP_DEFAULT_VEC_SIZE),
               MAYCUP_RESULT_MALLOC_FAIL, fail);
 
     MOCK_OFF(malloc);
@@ -75,8 +75,8 @@ fail:
 TEST_CASE(vector_dtor_normal) {
     MAYCUP_VectorInt vec;
 
-    ASSERT_OK(MAYCUP_vector_int_ctor(&vec, MAYCUP_DEFAULT_VEC_SIZE), fail);
-    ASSERT_OK(MAYCUP_vector_int_dtor(&vec), fail);
+    ASSERT_OK(maycup_vector_int_ctor(&vec, MAYCUP_DEFAULT_VEC_SIZE), fail);
+    ASSERT_OK(maycup_vector_int_dtor(&vec), fail);
     ASSERT_EQ(vec.ptr, NULL, fail);
     ASSERT_EQ(vec.len, 0, fail);
     ASSERT_EQ(vec.cap, 0, fail);
@@ -89,24 +89,24 @@ fail:
 TEST_CASE(vector_dtor_illegal_arg) {
     MAYCUP_VectorInt vec;
 
-    ASSERT_OK(MAYCUP_vector_int_ctor(&vec, MAYCUP_DEFAULT_VEC_SIZE), fail);
-    ASSERT_EQ(MAYCUP_vector_int_dtor(NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_OK(maycup_vector_int_ctor(&vec, MAYCUP_DEFAULT_VEC_SIZE), fail);
+    ASSERT_EQ(maycup_vector_int_dtor(NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
 
-    ASSERT_OK(MAYCUP_vector_int_dtor(&vec), fail);
+    ASSERT_OK(maycup_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_vector_int_dtor(&vec);
+    maycup_vector_int_dtor(&vec);
     return TEST_RESULT_FAIL;
 }
 
 TEST_CASE(vector_dtor_double) {
     MAYCUP_VectorInt vec;
 
-    ASSERT_OK(MAYCUP_vector_int_ctor(&vec, MAYCUP_DEFAULT_VEC_SIZE), fail);
-    ASSERT_OK(MAYCUP_vector_int_dtor(&vec), fail);
+    ASSERT_OK(maycup_vector_int_ctor(&vec, MAYCUP_DEFAULT_VEC_SIZE), fail);
+    ASSERT_OK(maycup_vector_int_dtor(&vec), fail);
 
     // allow double free
-    ASSERT_OK(MAYCUP_vector_int_dtor(&vec), fail);
+    ASSERT_OK(maycup_vector_int_dtor(&vec), fail);
 
     return TEST_RESULT_PASS;
 fail:
@@ -117,8 +117,8 @@ TEST_CASE(vector_reserve_normal) {
     MAYCUP_VectorInt vec;
     const size_t reserve_cap = 1024;
 
-    ASSERT_OK(MAYCUP_vector_int_ctor(&vec, MAYCUP_DEFAULT_VEC_SIZE), fail);
-    ASSERT_OK(MAYCUP_vector_int_reserve(&vec, reserve_cap), fail);
+    ASSERT_OK(maycup_vector_int_ctor(&vec, MAYCUP_DEFAULT_VEC_SIZE), fail);
+    ASSERT_OK(maycup_vector_int_reserve(&vec, reserve_cap), fail);
     ASSERT_EQ(vec.cap, reserve_cap, fail);
     for (size_t i = 0; i < reserve_cap; ++i) {
         vec.ptr[i] = (int)i;
@@ -127,10 +127,10 @@ TEST_CASE(vector_reserve_normal) {
         ASSERT_EQ(vec.ptr[i], (int)i, fail);
     }
 
-    ASSERT_OK(MAYCUP_vector_int_dtor(&vec), fail);
+    ASSERT_OK(maycup_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_vector_int_dtor(&vec);
+    maycup_vector_int_dtor(&vec);
     return TEST_RESULT_FAIL;
 }
 
@@ -138,18 +138,18 @@ TEST_CASE(vector_reserve_illegal_arg) {
     MAYCUP_VectorInt vec;
     const size_t reserve_cap = 1024;
 
-    ASSERT_OK(MAYCUP_vector_int_ctor(&vec, MAYCUP_DEFAULT_VEC_SIZE), fail);
-    ASSERT_EQ(MAYCUP_vector_int_reserve(NULL, reserve_cap),
+    ASSERT_OK(maycup_vector_int_ctor(&vec, MAYCUP_DEFAULT_VEC_SIZE), fail);
+    ASSERT_EQ(maycup_vector_int_reserve(NULL, reserve_cap),
               MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
-    ASSERT_EQ(MAYCUP_vector_int_reserve(&vec, vec.cap - 1),
+    ASSERT_EQ(maycup_vector_int_reserve(&vec, vec.cap - 1),
               MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
-    ASSERT_EQ(MAYCUP_vector_int_reserve(&vec, MAYCUP_MAX_VEC_CAP + 1),
+    ASSERT_EQ(maycup_vector_int_reserve(&vec, MAYCUP_MAX_VEC_CAP + 1),
               MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
 
-    ASSERT_OK(MAYCUP_vector_int_dtor(&vec), fail);
+    ASSERT_OK(maycup_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_vector_int_dtor(&vec);
+    maycup_vector_int_dtor(&vec);
     return TEST_RESULT_FAIL;
 }
 
@@ -160,8 +160,8 @@ TEST_CASE(vector_reserve_realloc_fail) {
 
     MOCK_ON(realloc);
 
-    ASSERT_OK(MAYCUP_vector_int_ctor(&vec, cap), fail);
-    ASSERT_EQ(MAYCUP_vector_int_reserve(&vec, reserve_cap), MAYCUP_RESULT_MALLOC_FAIL,
+    ASSERT_OK(maycup_vector_int_ctor(&vec, cap), fail);
+    ASSERT_EQ(maycup_vector_int_reserve(&vec, reserve_cap), MAYCUP_RESULT_MALLOC_FAIL,
               fail);
     for (size_t i = 0; i < cap; ++i) {
         vec.ptr[i] = (int)i;
@@ -170,11 +170,11 @@ TEST_CASE(vector_reserve_realloc_fail) {
         ASSERT_EQ(vec.ptr[i], (int)i, fail);
     }
 
-    ASSERT_OK(MAYCUP_vector_int_dtor(&vec), fail);
+    ASSERT_OK(maycup_vector_int_dtor(&vec), fail);
     MOCK_OFF(realloc);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_vector_int_dtor(&vec);
+    maycup_vector_int_dtor(&vec);
     MOCK_OFF(realloc);
     return TEST_RESULT_FAIL;
 }
@@ -182,20 +182,20 @@ fail:
 TEST_CASE(vector_pushback_little) {
     const size_t cap = MAYCUP_DEFAULT_VEC_SIZE;
     MAYCUP_VectorInt vec;
-    ASSERT_OK(MAYCUP_vector_int_ctor(&vec, cap), fail);
+    ASSERT_OK(maycup_vector_int_ctor(&vec, cap), fail);
 
     for (size_t i = 0; i < cap; ++i) {
-        ASSERT_OK(MAYCUP_vector_int_pushback(&vec, (int)i), fail);
+        ASSERT_OK(maycup_vector_int_pushback(&vec, (int)i), fail);
     }
     ASSERT_EQ(vec.len, cap, fail);
     for (size_t i = 0; i < cap; ++i) {
         ASSERT_EQ(vec.ptr[i], (int)i, fail);
     }
 
-    ASSERT_OK(MAYCUP_vector_int_dtor(&vec), fail);
+    ASSERT_OK(maycup_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_vector_int_dtor(&vec);
+    maycup_vector_int_dtor(&vec);
     return TEST_RESULT_FAIL;
 }
 
@@ -203,25 +203,25 @@ TEST_CASE(vector_pushback_bulk) {
     const size_t cap = MAYCUP_DEFAULT_VEC_SIZE;
     const size_t ratio = 1 << 16;
     MAYCUP_VectorInt vec;
-    ASSERT_OK(MAYCUP_vector_int_ctor(&vec, cap), fail);
+    ASSERT_OK(maycup_vector_int_ctor(&vec, cap), fail);
 
     for (size_t i = 0; i < cap * ratio; ++i) {
-        ASSERT_OK(MAYCUP_vector_int_pushback(&vec, (int)i), fail);
+        ASSERT_OK(maycup_vector_int_pushback(&vec, (int)i), fail);
         ASSERT_EQ(vec.len, i + 1, fail);
     }
     for (size_t i = 0; i < cap * ratio; ++i) {
         ASSERT_EQ(vec.ptr[i], (int)i, fail);
     }
 
-    ASSERT_OK(MAYCUP_vector_int_dtor(&vec), fail);
+    ASSERT_OK(maycup_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_vector_int_dtor(&vec);
+    maycup_vector_int_dtor(&vec);
     return TEST_RESULT_FAIL;
 }
 
 TEST_CASE(vector_pushback_illegal_arg) {
-    ASSERT_EQ(MAYCUP_vector_int_pushback(NULL, 0), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+    ASSERT_EQ(maycup_vector_int_pushback(NULL, 0), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
               fail);
     return TEST_RESULT_PASS;
 fail:
@@ -231,15 +231,15 @@ fail:
 TEST_CASE(vector_pushback_maxcap_exceeded) {
     MAYCUP_VectorInt vec;
 
-    ASSERT_OK(MAYCUP_vector_int_ctor(&vec, MAYCUP_DEFAULT_VEC_SIZE), fail);
+    ASSERT_OK(maycup_vector_int_ctor(&vec, MAYCUP_DEFAULT_VEC_SIZE), fail);
     vec.len = vec.cap = MAYCUP_MAX_VEC_CAP + 1;
-    ASSERT_EQ(MAYCUP_vector_int_pushback(&vec, 0), MAYCUP_RESULT_MAX_CAP_EXCEEDED,
+    ASSERT_EQ(maycup_vector_int_pushback(&vec, 0), MAYCUP_RESULT_MAX_CAP_EXCEEDED,
               fail);
 
-    ASSERT_OK(MAYCUP_vector_int_dtor(&vec), fail);
+    ASSERT_OK(maycup_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_vector_int_dtor(&vec);
+    maycup_vector_int_dtor(&vec);
     return TEST_RESULT_FAIL;
 }
 
@@ -247,35 +247,35 @@ TEST_CASE(vector_top_normal) {
     const size_t cap = MAYCUP_DEFAULT_VEC_SIZE;
     const size_t ratio = 1 << 8;
     MAYCUP_VectorInt vec;
-    ASSERT_OK(MAYCUP_vector_int_ctor(&vec, cap), fail);
+    ASSERT_OK(maycup_vector_int_ctor(&vec, cap), fail);
 
     for (size_t i = 0; i < cap * ratio; ++i) {
-        ASSERT_OK(MAYCUP_vector_int_pushback(&vec, (int)i), fail);
+        ASSERT_OK(maycup_vector_int_pushback(&vec, (int)i), fail);
         int top;
-        ASSERT_OK(MAYCUP_vector_int_top(&vec, &top), fail);
+        ASSERT_OK(maycup_vector_int_top(&vec, &top), fail);
         ASSERT_EQ(top, (int)i, fail);
     }
 
-    ASSERT_OK(MAYCUP_vector_int_dtor(&vec), fail);
+    ASSERT_OK(maycup_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_vector_int_dtor(&vec);
+    maycup_vector_int_dtor(&vec);
     return TEST_RESULT_FAIL;
 }
 
 TEST_CASE(vector_top_illegal_arg) {
     MAYCUP_VectorInt vec;
     int val;
-    ASSERT_OK(MAYCUP_vector_int_ctor(&vec, MAYCUP_DEFAULT_VEC_SIZE), fail);
-    ASSERT_EQ(MAYCUP_vector_int_top(NULL, &val), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+    ASSERT_OK(maycup_vector_int_ctor(&vec, MAYCUP_DEFAULT_VEC_SIZE), fail);
+    ASSERT_EQ(maycup_vector_int_top(NULL, &val), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
               fail);
-    ASSERT_EQ(MAYCUP_vector_int_top(&vec, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+    ASSERT_EQ(maycup_vector_int_top(&vec, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
               fail);
 
-    ASSERT_OK(MAYCUP_vector_int_dtor(&vec), fail);
+    ASSERT_OK(maycup_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_vector_int_dtor(&vec);
+    maycup_vector_int_dtor(&vec);
     return TEST_RESULT_FAIL;
 }
 
@@ -283,15 +283,15 @@ TEST_CASE(vector_top_empty) {
     const size_t cap = MAYCUP_DEFAULT_VEC_SIZE;
     MAYCUP_VectorInt vec;
     int top_val;
-    ASSERT_OK(MAYCUP_vector_int_ctor(&vec, cap), fail);
+    ASSERT_OK(maycup_vector_int_ctor(&vec, cap), fail);
 
-    ASSERT_EQ(MAYCUP_vector_int_top(&vec, &top_val), MAYCUP_RESULT_EMPTY_VECTOR,
+    ASSERT_EQ(maycup_vector_int_top(&vec, &top_val), MAYCUP_RESULT_EMPTY_VECTOR,
               fail);
 
-    ASSERT_OK(MAYCUP_vector_int_dtor(&vec), fail);
+    ASSERT_OK(maycup_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_vector_int_dtor(&vec);
+    maycup_vector_int_dtor(&vec);
     return TEST_RESULT_FAIL;
 }
 
@@ -299,26 +299,26 @@ TEST_CASE(vector_popback_normal) {
     const size_t cap = MAYCUP_DEFAULT_VEC_SIZE;
     const size_t ratio = 1 << 8;
     MAYCUP_VectorInt vec;
-    ASSERT_OK(MAYCUP_vector_int_ctor(&vec, cap), fail);
+    ASSERT_OK(maycup_vector_int_ctor(&vec, cap), fail);
 
     for (size_t i = 0; i < cap * ratio; ++i) {
-        ASSERT_OK(MAYCUP_vector_int_pushback(&vec, (int)i), fail);
+        ASSERT_OK(maycup_vector_int_pushback(&vec, (int)i), fail);
     }
     for (size_t i = vec.len; i > 0; --i) {
         ASSERT_EQ(vec.len, i, fail);
-        ASSERT_OK(MAYCUP_vector_int_popback(&vec), fail);
+        ASSERT_OK(maycup_vector_int_popback(&vec), fail);
     }
     ASSERT_EQ(vec.len, 0, fail);
 
-    ASSERT_OK(MAYCUP_vector_int_dtor(&vec), fail);
+    ASSERT_OK(maycup_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_vector_int_dtor(&vec);
+    maycup_vector_int_dtor(&vec);
     return TEST_RESULT_FAIL;
 }
 
 TEST_CASE(vector_popback_illegal_arg) {
-    ASSERT_EQ(MAYCUP_vector_int_popback(NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_vector_int_popback(NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
     return TEST_RESULT_PASS;
 fail:
     return TEST_RESULT_FAIL;
@@ -327,14 +327,14 @@ fail:
 TEST_CASE(vector_popback_empty) {
     const size_t cap = MAYCUP_DEFAULT_VEC_SIZE;
     MAYCUP_VectorInt vec;
-    ASSERT_OK(MAYCUP_vector_int_ctor(&vec, cap), fail);
+    ASSERT_OK(maycup_vector_int_ctor(&vec, cap), fail);
 
-    ASSERT_EQ(MAYCUP_vector_int_popback(&vec), MAYCUP_RESULT_EMPTY_VECTOR, fail);
+    ASSERT_EQ(maycup_vector_int_popback(&vec), MAYCUP_RESULT_EMPTY_VECTOR, fail);
 
-    ASSERT_OK(MAYCUP_vector_int_dtor(&vec), fail);
+    ASSERT_OK(maycup_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_vector_int_dtor(&vec);
+    maycup_vector_int_dtor(&vec);
     return TEST_RESULT_FAIL;
 }
 
@@ -342,43 +342,43 @@ TEST_CASE(vector_module_common) {
     MAYCUP_VectorInt vec;
     int val;
 
-    ASSERT_OK(MAYCUP_vector_int_ctor(&vec, MAYCUP_DEFAULT_VEC_SIZE), fail);
+    ASSERT_OK(maycup_vector_int_ctor(&vec, MAYCUP_DEFAULT_VEC_SIZE), fail);
     ASSERT_EQ(vec.cap, MAYCUP_DEFAULT_VEC_SIZE, fail);
     ASSERT_EQ(vec.len, 0, fail);
-    ASSERT_EQ(MAYCUP_vector_int_top(&vec, &val), MAYCUP_RESULT_EMPTY_VECTOR, fail);
-    ASSERT_EQ(MAYCUP_vector_int_popback(&vec), MAYCUP_RESULT_EMPTY_VECTOR, fail);
-    ASSERT_OK(MAYCUP_vector_int_pushback(&vec, 3), fail);
+    ASSERT_EQ(maycup_vector_int_top(&vec, &val), MAYCUP_RESULT_EMPTY_VECTOR, fail);
+    ASSERT_EQ(maycup_vector_int_popback(&vec), MAYCUP_RESULT_EMPTY_VECTOR, fail);
+    ASSERT_OK(maycup_vector_int_pushback(&vec, 3), fail);
     ASSERT_EQ(vec.ptr[0], 3, fail);
-    ASSERT_OK(MAYCUP_vector_int_top(&vec, &val), fail);
+    ASSERT_OK(maycup_vector_int_top(&vec, &val), fail);
     ASSERT_EQ(val, 3, fail);
     ASSERT_EQ(vec.len, 1, fail);
     vec.ptr[vec.len - 1] = 2;
-    ASSERT_OK(MAYCUP_vector_int_top(&vec, &val), fail);
+    ASSERT_OK(maycup_vector_int_top(&vec, &val), fail);
     ASSERT_EQ(val, 2, fail);
-    ASSERT_OK(MAYCUP_vector_int_popback(&vec), fail);
+    ASSERT_OK(maycup_vector_int_popback(&vec), fail);
     ASSERT_EQ(vec.len, 0, fail);
-    ASSERT_OK(MAYCUP_vector_int_pushback(&vec, 3), fail);
-    ASSERT_OK(MAYCUP_vector_int_pushback(&vec, 37), fail);
-    ASSERT_OK(MAYCUP_vector_int_pushback(&vec, 490), fail);
+    ASSERT_OK(maycup_vector_int_pushback(&vec, 3), fail);
+    ASSERT_OK(maycup_vector_int_pushback(&vec, 37), fail);
+    ASSERT_OK(maycup_vector_int_pushback(&vec, 490), fail);
     ASSERT_EQ(vec.ptr[0], 3, fail);
     ASSERT_EQ(vec.ptr[1], 37, fail);
     ASSERT_EQ(vec.ptr[2], 490, fail);
-    ASSERT_OK(MAYCUP_vector_int_popback(&vec), fail);
+    ASSERT_OK(maycup_vector_int_popback(&vec), fail);
     ASSERT_EQ(vec.ptr[0], 3, fail);
     ASSERT_EQ(vec.ptr[1], 37, fail);
-    ASSERT_OK(MAYCUP_vector_int_top(&vec, &val), fail);
+    ASSERT_OK(maycup_vector_int_top(&vec, &val), fail);
     ASSERT_EQ(val, 37, fail);
-    ASSERT_OK(MAYCUP_vector_int_pushback(&vec, 20), fail);
+    ASSERT_OK(maycup_vector_int_pushback(&vec, 20), fail);
     ASSERT_EQ(vec.ptr[0], 3, fail);
     ASSERT_EQ(vec.ptr[1], 37, fail);
     ASSERT_EQ(vec.ptr[2], 20, fail);
-    ASSERT_OK(MAYCUP_vector_int_top(&vec, &val), fail);
+    ASSERT_OK(maycup_vector_int_top(&vec, &val), fail);
     ASSERT_EQ(val, 20, fail);
 
-    ASSERT_OK(MAYCUP_vector_int_dtor(&vec), fail);
+    ASSERT_OK(maycup_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_vector_int_dtor(&vec);
+    maycup_vector_int_dtor(&vec);
     return TEST_RESULT_FAIL;
 }
 
@@ -386,20 +386,20 @@ TEST_CASE(vector_module_pressure) {
     MAYCUP_VectorInt vec;
     const size_t n = 2000000 * 2;
 
-    ASSERT_OK(MAYCUP_vector_int_ctor(&vec, MAYCUP_DEFAULT_VEC_SIZE), fail);
+    ASSERT_OK(maycup_vector_int_ctor(&vec, MAYCUP_DEFAULT_VEC_SIZE), fail);
 
     for (size_t i = 0; i < n; ++i) {
-        ASSERT_OK(MAYCUP_vector_int_pushback(&vec, (int)(i * 48271u + 12345u)),
+        ASSERT_OK(maycup_vector_int_pushback(&vec, (int)(i * 48271u + 12345u)),
                   fail);
     }
     for (size_t i = 0; i < n; ++i) {
         ASSERT_EQ(vec.ptr[i], (int)(i * 48271u + 12345u), fail);
     }
     for (size_t i = 1; i <= n / 2; ++i) {
-        ASSERT_OK(MAYCUP_vector_int_popback(&vec), fail);
+        ASSERT_OK(maycup_vector_int_popback(&vec), fail);
     }
     for (size_t i = n / 2; i < n; ++i) {
-        ASSERT_OK(MAYCUP_vector_int_pushback(&vec, (int)(i * 23371u + 54321u)),
+        ASSERT_OK(maycup_vector_int_pushback(&vec, (int)(i * 23371u + 54321u)),
                   fail);
     }
     for (size_t i = 0; i < n; ++i) {
@@ -410,14 +410,14 @@ TEST_CASE(vector_module_pressure) {
         }
     }
     for (size_t i = 1; i <= n; ++i) {
-        ASSERT_OK(MAYCUP_vector_int_popback(&vec), fail);
+        ASSERT_OK(maycup_vector_int_popback(&vec), fail);
     }
     ASSERT_EQ(vec.len, 0, fail);
 
-    ASSERT_OK(MAYCUP_vector_int_dtor(&vec), fail);
+    ASSERT_OK(maycup_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
 fail:
-    MAYCUP_vector_int_dtor(&vec);
+    maycup_vector_int_dtor(&vec);
     return TEST_RESULT_FAIL;
 }
 

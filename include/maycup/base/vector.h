@@ -42,7 +42,7 @@
 #define T MAYCUP_VEC_T
 #define DT MAYCUP_VEC_DISPT
 #define VECT _CONCAT(MAYCUP_Vector, DT)
-#define FUNC_PREF _CONCAT(_CONCAT(MAYCUP_vector_, T), _)
+#define FUNC_PREF _CONCAT(_CONCAT(maycup_vector_, T), _)
 
 typedef struct {
     T *ptr;
@@ -55,8 +55,8 @@ typedef struct {
  * @param self Out, the vector to construct
  * @param cap In, the initial capacity of vector
  */
-[[maybe_unused]] static MAYCUP_Result _CONCAT(FUNC_PREF, ctor)(MAYCUP_OUT VECT *self,
-                                                            MAYCUP_IN size_t cap) {
+[[maybe_unused]] static MAYCUP_Result
+_CONCAT(FUNC_PREF, ctor)(MAYCUP_OUT VECT *self, MAYCUP_IN size_t cap) {
     if (self == NULL || cap == 0 || cap > MAYCUP_MAX_VEC_CAP) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -75,7 +75,7 @@ typedef struct {
  * @param self Out, the vector to destruct
  */
 [[maybe_unused]] static MAYCUP_Result _CONCAT(FUNC_PREF,
-                                           dtor)(MAYCUP_OUT VECT *self) {
+                                              dtor)(MAYCUP_OUT VECT *self) {
     if (self == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -139,8 +139,8 @@ _CONCAT(FUNC_PREF, pushback)(MAYCUP_INOUT VECT *self, MAYCUP_IN T elem) {
  * @param self In, the vector
  * @param value Out, the space where the result will be return
  */
-[[maybe_unused]] static MAYCUP_Result _CONCAT(FUNC_PREF, top)(MAYCUP_IN VECT *self,
-                                                           MAYCUP_OUT T *value) {
+[[maybe_unused]] static MAYCUP_Result
+_CONCAT(FUNC_PREF, top)(MAYCUP_IN VECT *self, MAYCUP_OUT T *value) {
     if (self == NULL || self->ptr == NULL || value == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -158,7 +158,7 @@ _CONCAT(FUNC_PREF, pushback)(MAYCUP_INOUT VECT *self, MAYCUP_IN T elem) {
  * @param self Out, the vector
  */
 [[maybe_unused]] static MAYCUP_Result _CONCAT(FUNC_PREF,
-                                           popback)(MAYCUP_OUT VECT *self) {
+                                              popback)(MAYCUP_OUT VECT *self) {
     if (self == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }

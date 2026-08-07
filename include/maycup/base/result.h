@@ -43,16 +43,16 @@ typedef enum {
  * @brief Print error message
  * @param _res_ In, the type of result
  */
-void MAYCUP_error_printmsg(MAYCUP_IN MAYCUP_Result _res_);
+void maycup_error_printmsg(MAYCUP_IN MAYCUP_Result _res_);
 
 /**
- * @brief Do something when @c expr is not @c MAYCUP_RESULT_OK ; The error type is
- *        @c _res_
+ * @brief Do something when @c expr is not @c MAYCUP_RESULT_OK ; The error type
+ *        is @c _res_
  */
-#define MAYCUP_HANDLE(expr, handler)                                              \
+#define MAYCUP_HANDLE(expr, handler)                                           \
     do {                                                                       \
-        MAYCUP_Result _res_ = (expr);                                               \
-        if (_res_ != MAYCUP_RESULT_OK) {                                            \
+        MAYCUP_Result _res_ = (expr);                                          \
+        if (_res_ != MAYCUP_RESULT_OK) {                                       \
             handler;                                                           \
         }                                                                      \
     } while (false)
@@ -63,17 +63,17 @@ void MAYCUP_error_printmsg(MAYCUP_IN MAYCUP_Result _res_);
 #define MAYCUP_RELAY(expr) MAYCUP_HANDLE(expr, return _res_)
 
 /**
- * @brief Relay error or ok to caller, but if the _res_ is @c when , continue; if
- *        the _res_ is @c act_res , do action
+ * @brief Relay error or ok to caller, but if the _res_ is @c when , continue;
+ *        if the _res_ is @c act_res , do action
  */
-#define MAYCUP_RELAY_UNLESS_DO(expr, when, act_res, action)                       \
+#define MAYCUP_RELAY_UNLESS_DO(expr, when, act_res, action)                    \
     if (true) {                                                                \
-        MAYCUP_Result _res_ = (expr);                                               \
-        if (_res_ == act_res) {                                                  \
+        MAYCUP_Result _res_ = (expr);                                          \
+        if (_res_ == act_res) {                                                \
             action;                                                            \
         }                                                                      \
-        if (_res_ != (when)) {                                                   \
-            return _res_;                                                        \
+        if (_res_ != (when)) {                                                 \
+            return _res_;                                                      \
         }                                                                      \
     } else                                                                     \
         (void)0
@@ -82,18 +82,18 @@ void MAYCUP_error_printmsg(MAYCUP_IN MAYCUP_Result _res_);
  * @brief Relay error to caller or do action if it's ok, but if the _res_ is
  *        @c err , continue
  */
-#define MAYCUP_RELAY_UNLESSOK_DO(expr, err, ok)                                   \
+#define MAYCUP_RELAY_UNLESSOK_DO(expr, err, ok)                                \
     MAYCUP_RELAY_UNLESS_DO(expr, err, MAYCUP_RESULT_OK, ok)
 
 /**
  * @brief Abort and print error message if the result of expr is not @c
  *        MAYCUP_RESULT_OK
  */
-#define MAYCUP_UNWRAP(expr)                                                       \
+#define MAYCUP_UNWRAP(expr)                                                    \
     do {                                                                       \
-        MAYCUP_Result _res_ = (expr);                                               \
-        if (_res_ != MAYCUP_RESULT_OK) {                                            \
-            MAYCUP_error_printmsg(_res_);                                           \
+        MAYCUP_Result _res_ = (expr);                                          \
+        if (_res_ != MAYCUP_RESULT_OK) {                                       \
+            maycup_error_printmsg(_res_);                                      \
             abort();                                                           \
         }                                                                      \
     } while (false)

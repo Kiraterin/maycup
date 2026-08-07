@@ -35,53 +35,53 @@ typedef ssize_t idx;
 // mock def
 #include "mock_funcs.h"
 
-MAYCUP_Result MAYCUP_renderer_ctor(MAYCUP_OUT MAYCUP_Renderer *self,
-                             MAYCUP_IN MAYCUP_Writer *writer) {
+MAYCUP_Result maycup_renderer_ctor(MAYCUP_OUT MAYCUP_Renderer *self,
+                                   MAYCUP_IN MAYCUP_Writer *writer) {
     self->writer = writer;
     return MAYCUP_RESULT_OK;
 }
-MAYCUP_Result MAYCUP_renderer_dtor(MAYCUP_OUT MAYCUP_Renderer *self) {
+MAYCUP_Result maycup_renderer_dtor(MAYCUP_OUT MAYCUP_Renderer *self) {
     (void)self;
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result MAYCUP_render(MAYCUP_INOUT MAYCUP_Renderer *renderer,
-                      MAYCUP_IN MAYCUP_Parser *parser) {
-    MAYCUP_writer_puts(renderer->writer, "<!DOCTYPE html>");
+MAYCUP_Result maycup_render(MAYCUP_INOUT MAYCUP_Renderer *renderer,
+                            MAYCUP_IN MAYCUP_Parser *parser) {
+    maycup_writer_puts(renderer->writer, "<!DOCTYPE html>");
     MAYCUP_VectorIdx stack;
-    MAYCUP_RELAY(MAYCUP_vector_idx_ctor(&stack, MAYCUP_DEFAULT_VEC_SIZE));
-    MAYCUP_RELAY(MAYCUP_vector_idx_pushback(&stack, parser->root_astnode));
+    MAYCUP_RELAY(maycup_vector_idx_ctor(&stack, MAYCUP_DEFAULT_VEC_SIZE));
+    MAYCUP_RELAY(maycup_vector_idx_pushback(&stack, parser->root_astnode));
     MAYCUP_Result iores = 0;
     while (stack.len > 0) {
         ssize_t curidx;
-        MAYCUP_RELAY(MAYCUP_vector_idx_top(&stack, &curidx));
-        MAYCUP_RELAY(MAYCUP_vector_idx_popback(&stack));
+        MAYCUP_RELAY(maycup_vector_idx_top(&stack, &curidx));
+        MAYCUP_RELAY(maycup_vector_idx_popback(&stack));
         MAYCUP_ASTNode *const cur =
             &parser->ast.data[(curidx > 0 ? curidx : -curidx)];
 
         if (curidx > 0) {
             // close mark
-            MAYCUP_RELAY(MAYCUP_vector_idx_pushback(&stack, -curidx));
+            MAYCUP_RELAY(maycup_vector_idx_pushback(&stack, -curidx));
             ssize_t getter = cur->child;
             while (getter != -1) {
-                MAYCUP_RELAY(MAYCUP_vector_idx_pushback(&stack, getter));
+                MAYCUP_RELAY(maycup_vector_idx_pushback(&stack, getter));
                 getter = parser->ast.data[getter].prev_sibling;
             }
             switch (cur->type) {
             case MAYCUP_ASTNODE_TYPE_NONE:
                 return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
             case MAYCUP_ASTNODE_TYPE_ROOT:
-                iores = MAYCUP_writer_puts(renderer->writer, "<body>");
+                iores = maycup_writer_puts(renderer->writer, "<body>");
                 break;
             case MAYCUP_ASTNODE_TYPE_HEADING:
-                iores = MAYCUP_writer_printf(renderer->writer, "<h%d>",
-                                          cur->heading.level);
+                iores = maycup_writer_printf(renderer->writer, "<h%d>",
+                                             cur->heading.level);
                 break;
             case MAYCUP_ASTNODE_TYPE_PARAGRAPH:
-                iores = MAYCUP_writer_puts(renderer->writer, "<p>");
+                iores = maycup_writer_puts(renderer->writer, "<p>");
                 break;
             case MAYCUP_ASTNODE_TYPE_TEXT:
-                iores = MAYCUP_writer_puts(renderer->writer, cur->text.content);
+                iores = maycup_writer_puts(renderer->writer, cur->text.content);
                 break;
             }
         } else if (curidx < 0) {
@@ -89,29 +89,29 @@ MAYCUP_Result MAYCUP_render(MAYCUP_INOUT MAYCUP_Renderer *renderer,
             case MAYCUP_ASTNODE_TYPE_NONE:
                 return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
             case MAYCUP_ASTNODE_TYPE_ROOT:
-                iores = MAYCUP_writer_puts(renderer->writer, "</body>");
+                iores = maycup_writer_puts(renderer->writer, "</body>");
                 break;
             case MAYCUP_ASTNODE_TYPE_HEADING:
-                iores = MAYCUP_writer_printf(renderer->writer, "</h%d>",
-                                          cur->heading.level);
+                iores = maycup_writer_printf(renderer->writer, "</h%d>",
+                                             cur->heading.level);
                 break;
             case MAYCUP_ASTNODE_TYPE_PARAGRAPH:
-                iores = MAYCUP_writer_puts(renderer->writer, "</p>");
+                iores = maycup_writer_puts(renderer->writer, "</p>");
                 break;
             case MAYCUP_ASTNODE_TYPE_TEXT:
                 if (cur->text.newline_tailed) {
-                    iores = MAYCUP_writer_puts(renderer->writer, "<br>");
+                    iores = maycup_writer_puts(renderer->writer, "<br>");
                 }
                 break;
             }
         }
 
         if (iores != MAYCUP_RESULT_OK) {
-            MAYCUP_RELAY(MAYCUP_vector_idx_dtor(&stack));
+            MAYCUP_RELAY(maycup_vector_idx_dtor(&stack));
             return iores;
         }
     }
 
-    MAYCUP_RELAY(MAYCUP_vector_idx_dtor(&stack));
+    MAYCUP_RELAY(maycup_vector_idx_dtor(&stack));
     return MAYCUP_RESULT_OK;
 }

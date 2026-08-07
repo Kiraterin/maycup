@@ -35,19 +35,20 @@
 #include "mock_funcs.h"
 
 static MAYCUP_Result advance(MAYCUP_Parser *parser, MAYCUP_Lexer *lexer) {
-    MAYCUP_RELAY(MAYCUP_token_dtor(&parser->cur_token));
-    MAYCUP_RELAY(MAYCUP_next_token(&parser->cur_token, lexer));
+    MAYCUP_RELAY(maycup_token_dtor(&parser->cur_token));
+    MAYCUP_RELAY(maycup_next_token(&parser->cur_token, lexer));
     return MAYCUP_RESULT_OK;
 }
 
-static MAYCUP_Result parse_inline_text(MAYCUP_Parser *parser, MAYCUP_Lexer *lexer,
-                                    ssize_t parent, char *prefix) {
+static MAYCUP_Result parse_inline_text(MAYCUP_Parser *parser,
+                                       MAYCUP_Lexer *lexer, ssize_t parent,
+                                       char *prefix) {
     if (parent == -1) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
 
     MAYCUP_VectorChar buffer;
-    MAYCUP_RELAY(MAYCUP_vector_char_ctor(&buffer, 16));
+    MAYCUP_RELAY(maycup_vector_char_ctor(&buffer, 16));
     char *buffer_end;
     size_t destlen;
 
@@ -55,7 +56,7 @@ static MAYCUP_Result parse_inline_text(MAYCUP_Parser *parser, MAYCUP_Lexer *lexe
         // +1 for '\0'
         destlen = strlen(prefix) + 1;
         if (destlen >= buffer.cap) {
-            MAYCUP_RELAY(MAYCUP_vector_char_reserve(&buffer, destlen * 2));
+            MAYCUP_RELAY(maycup_vector_char_reserve(&buffer, destlen * 2));
         }
         buffer_end = strcpy(buffer.ptr, prefix) + strlen(buffer.ptr);
         // ignore the '\0'
@@ -66,7 +67,7 @@ static MAYCUP_Result parse_inline_text(MAYCUP_Parser *parser, MAYCUP_Lexer *lexe
         buffer_end = buffer.ptr + buffer.len;
         switch (parser->cur_token.type) {
         case MAYCUP_TOKENTYPE_LITERAL: {
-            MAYCUP_RELAY(MAYCUP_vector_char_pushback(
+            MAYCUP_RELAY(maycup_vector_char_pushback(
                 &buffer, (char)parser->cur_token.literal));
             break;
         }
@@ -74,7 +75,7 @@ static MAYCUP_Result parse_inline_text(MAYCUP_Parser *parser, MAYCUP_Lexer *lexe
             // +1 for '\0'
             destlen = strlen(parser->cur_token.text) + 1 + buffer.len;
             if (destlen >= buffer.cap) {
-                MAYCUP_RELAY(MAYCUP_vector_char_reserve(&buffer, destlen * 2));
+                MAYCUP_RELAY(maycup_vector_char_reserve(&buffer, destlen * 2));
                 buffer_end = buffer.ptr + buffer.len;
             }
 
@@ -103,19 +104,19 @@ static MAYCUP_Result parse_inline_text(MAYCUP_Parser *parser, MAYCUP_Lexer *lexe
     }
 
 loop_break: {
-    MAYCUP_RELAY(MAYCUP_vector_char_pushback(&buffer, '\0'));
+    MAYCUP_RELAY(maycup_vector_char_pushback(&buffer, '\0'));
     ssize_t insertee;
-    MAYCUP_RELAY(MAYCUP_insert_astnode(&insertee, &parser->ast, parent,
-                                 MAYCUP_ASTNODE_TYPE_TEXT));
-    MAYCUP_RELAY(MAYCUP_astnode_data_text_ctor(&parser->ast.data[insertee].text,
-                                         buffer.ptr, MAYCUP_TEXTSTYLE_PLAIN,
-                                         true));
+    MAYCUP_RELAY(maycup_insert_astnode(&insertee, &parser->ast, parent,
+                                       MAYCUP_ASTNODE_TYPE_TEXT));
+    MAYCUP_RELAY(maycup_astnode_data_text_ctor(&parser->ast.data[insertee].text,
+                                               buffer.ptr,
+                                               MAYCUP_TEXTSTYLE_PLAIN, true));
     return MAYCUP_RESULT_OK;
 }
 }
 
-static MAYCUP_Result parse_heading_mark(MAYCUP_Parser *parser, MAYCUP_Lexer *lexer,
-                                     uint8_t *level) {
+static MAYCUP_Result parse_heading_mark(MAYCUP_Parser *parser,
+                                        MAYCUP_Lexer *lexer, uint8_t *level) {
     if (parser->cur_token.type != MAYCUP_TOKENTYPE_LITERAL ||
         parser->cur_token.literal != '#') {
         return MAYCUP_RESULT_PARSE_MISMATCH;
@@ -141,8 +142,8 @@ static MAYCUP_Result parse_heading_mark(MAYCUP_Parser *parser, MAYCUP_Lexer *lex
 }
 
 static MAYCUP_Result parse_heading_mark_textbegin(MAYCUP_Parser *parser,
-                                               MAYCUP_Lexer *lexer,
-                                               uint8_t *level) {
+                                                  MAYCUP_Lexer *lexer,
+                                                  uint8_t *level) {
     MAYCUP_RELAY(parse_heading_mark(parser, lexer, level));
 
     if (parser->cur_token.type != MAYCUP_TOKENTYPE_TEXT ||
@@ -174,8 +175,9 @@ static MAYCUP_Result parse_blank(MAYCUP_Parser *parser, MAYCUP_Lexer *lexer) {
     return MAYCUP_RESULT_OK;
 }
 
-static MAYCUP_Result parse_paragraph_section(MAYCUP_Parser *parser, MAYCUP_Lexer *lexer,
-                                          ssize_t paranode) {
+static MAYCUP_Result parse_paragraph_section(MAYCUP_Parser *parser,
+                                             MAYCUP_Lexer *lexer,
+                                             ssize_t paranode) {
     if (parser->cur_token.type == MAYCUP_TOKENTYPE_NEWLINE) {
         return MAYCUP_RESULT_PARSE_MISMATCH;
     }
@@ -185,23 +187,24 @@ static MAYCUP_Result parse_paragraph_section(MAYCUP_Parser *parser, MAYCUP_Lexer
     {
         MAYCUP_Token tmp = (MAYCUP_Token){.type = MAYCUP_TOKENTYPE_NONE};
 
-        MAYCUP_RELAY(MAYCUP_lexer_checkpoint(lexer));
-        MAYCUP_RELAY(MAYCUP_token_duplicate(&tmp, &parser->cur_token));
+        MAYCUP_RELAY(maycup_lexer_checkpoint(lexer));
+        MAYCUP_RELAY(maycup_token_duplicate(&tmp, &parser->cur_token));
         MAYCUP_RELAY_UNLESSOK_DO(
             parse_heading_mark_textbegin(parser, lexer, &level),
             MAYCUP_RESULT_PARSE_MISMATCH, goto drop_checkpoint);
 
-        MAYCUP_RELAY(MAYCUP_lexer_restore(lexer));
-        MAYCUP_RELAY(MAYCUP_token_dtor(&parser->cur_token));
-        MAYCUP_RELAY(MAYCUP_token_duplicate(&parser->cur_token, &tmp));
+        MAYCUP_RELAY(maycup_lexer_restore(lexer));
+        MAYCUP_RELAY(maycup_token_dtor(&parser->cur_token));
+        MAYCUP_RELAY(maycup_token_duplicate(&parser->cur_token, &tmp));
         MAYCUP_RELAY_UNLESSOK_DO(parse_para_begin_char(parser),
-                              MAYCUP_RESULT_PARSE_MISMATCH, goto drop_checkpoint);
+                                 MAYCUP_RESULT_PARSE_MISMATCH,
+                                 goto drop_checkpoint);
 
         return MAYCUP_RESULT_PARSE_MISMATCH;
 
     drop_checkpoint:
-        MAYCUP_RELAY(MAYCUP_token_dtor(&tmp));
-        MAYCUP_lexer_drop_checkpoint(lexer);
+        MAYCUP_RELAY(maycup_token_dtor(&tmp));
+        maycup_lexer_drop_checkpoint(lexer);
     }
 
     if (level != 0) {
@@ -211,7 +214,7 @@ static MAYCUP_Result parse_paragraph_section(MAYCUP_Parser *parser, MAYCUP_Lexer
     }
 
     MAYCUP_RELAY(parse_inline_text(parser, lexer, paranode,
-                                level == 0 ? NULL : heading_marker));
+                                   level == 0 ? NULL : heading_marker));
 
     if (parser->cur_token.type != MAYCUP_TOKENTYPE_NEWLINE) {
         return MAYCUP_RESULT_PARSE_MISMATCH;
@@ -222,15 +225,15 @@ static MAYCUP_Result parse_paragraph_section(MAYCUP_Parser *parser, MAYCUP_Lexer
 }
 
 static MAYCUP_Result parse_heading(MAYCUP_Parser *parser, MAYCUP_Lexer *lexer,
-                                ssize_t parent) {
+                                   ssize_t parent) {
     ssize_t heading_node;
-    MAYCUP_RELAY(MAYCUP_insert_astnode(&heading_node, &parser->ast, parent,
-                                 MAYCUP_ASTNODE_TYPE_HEADING));
+    MAYCUP_RELAY(maycup_insert_astnode(&heading_node, &parser->ast, parent,
+                                       MAYCUP_ASTNODE_TYPE_HEADING));
 
     uint8_t level;
     MAYCUP_RELAY_UNLESS_DO(parse_heading_mark(parser, lexer, &level),
-                        MAYCUP_RESULT_OK, MAYCUP_RESULT_PARSE_MISMATCH,
-                        goto mismatch);
+                           MAYCUP_RESULT_OK, MAYCUP_RESULT_PARSE_MISMATCH,
+                           goto mismatch);
 
     parser->ast.data[heading_node].heading.level = level;
 
@@ -240,8 +243,8 @@ static MAYCUP_Result parse_heading(MAYCUP_Parser *parser, MAYCUP_Lexer *lexer,
     }
 
     MAYCUP_RELAY_UNLESS_DO(parse_inline_text(parser, lexer, heading_node, NULL),
-                        MAYCUP_RESULT_OK, MAYCUP_RESULT_PARSE_MISMATCH,
-                        goto mismatch);
+                           MAYCUP_RESULT_OK, MAYCUP_RESULT_PARSE_MISMATCH,
+                           goto mismatch);
 
     if (parser->cur_token.type != MAYCUP_TOKENTYPE_NEWLINE) {
         goto mismatch;
@@ -251,19 +254,19 @@ static MAYCUP_Result parse_heading(MAYCUP_Parser *parser, MAYCUP_Lexer *lexer,
     return MAYCUP_RESULT_OK;
 
 mismatch:
-    MAYCUP_RELAY(MAYCUP_delete_astnode(&parser->ast, heading_node));
+    MAYCUP_RELAY(maycup_delete_astnode(&parser->ast, heading_node));
     return MAYCUP_RESULT_PARSE_MISMATCH;
 }
 
 static MAYCUP_Result parse_paragraph(MAYCUP_Parser *parser, MAYCUP_Lexer *lexer,
-                                  ssize_t parent) {
+                                     ssize_t parent) {
     ssize_t paranode;
-    MAYCUP_RELAY(MAYCUP_insert_astnode(&paranode, &parser->ast, parent,
-                                 MAYCUP_ASTNODE_TYPE_PARAGRAPH));
+    MAYCUP_RELAY(maycup_insert_astnode(&paranode, &parser->ast, parent,
+                                       MAYCUP_ASTNODE_TYPE_PARAGRAPH));
 
     MAYCUP_RELAY_UNLESS_DO(parse_paragraph_section(parser, lexer, paranode),
-                        MAYCUP_RESULT_OK, MAYCUP_RESULT_PARSE_MISMATCH,
-                        goto mismatch);
+                           MAYCUP_RESULT_OK, MAYCUP_RESULT_PARSE_MISMATCH,
+                           goto mismatch);
 
     while (true) {
         MAYCUP_Result res = parse_paragraph_section(parser, lexer, paranode);
@@ -281,7 +284,7 @@ loop_break:
     return MAYCUP_RESULT_OK;
 
 mismatch:
-    MAYCUP_RELAY(MAYCUP_delete_astnode(&parser->ast, paranode));
+    MAYCUP_RELAY(maycup_delete_astnode(&parser->ast, paranode));
     return MAYCUP_RESULT_PARSE_MISMATCH;
 }
 
@@ -297,56 +300,59 @@ static MAYCUP_Result parse_blocks(MAYCUP_Parser *parser, MAYCUP_Lexer *lexer) {
     while (parser->cur_token.type != MAYCUP_TOKENTYPE_EOF) {
         MAYCUP_Token tmp = (MAYCUP_Token){.type = MAYCUP_TOKENTYPE_NONE};
 
-        MAYCUP_RELAY(MAYCUP_lexer_checkpoint(lexer));
-        MAYCUP_RELAY(MAYCUP_token_duplicate(&tmp, &parser->cur_token));
+        MAYCUP_RELAY(maycup_lexer_checkpoint(lexer));
+        MAYCUP_RELAY(maycup_token_duplicate(&tmp, &parser->cur_token));
         MAYCUP_RELAY_UNLESSOK_DO(
             parse_heading(parser, lexer, parser->root_astnode),
             MAYCUP_RESULT_PARSE_MISMATCH, goto drop_checkpoint);
 
-        MAYCUP_RELAY(MAYCUP_lexer_restore(lexer));
-        MAYCUP_RELAY(MAYCUP_token_dtor(&parser->cur_token));
-        MAYCUP_RELAY(MAYCUP_token_duplicate(&parser->cur_token, &tmp));
+        MAYCUP_RELAY(maycup_lexer_restore(lexer));
+        MAYCUP_RELAY(maycup_token_dtor(&parser->cur_token));
+        MAYCUP_RELAY(maycup_token_duplicate(&parser->cur_token, &tmp));
         MAYCUP_RELAY_UNLESSOK_DO(
             parse_paragraph(parser, lexer, parser->root_astnode),
             MAYCUP_RESULT_PARSE_MISMATCH, goto drop_checkpoint);
 
-        MAYCUP_RELAY(MAYCUP_lexer_restore(lexer));
-        MAYCUP_RELAY(MAYCUP_token_dtor(&parser->cur_token));
-        MAYCUP_RELAY(MAYCUP_token_duplicate(&parser->cur_token, &tmp));
+        MAYCUP_RELAY(maycup_lexer_restore(lexer));
+        MAYCUP_RELAY(maycup_token_dtor(&parser->cur_token));
+        MAYCUP_RELAY(maycup_token_duplicate(&parser->cur_token, &tmp));
         MAYCUP_RELAY_UNLESSOK_DO(parse_blank(parser, lexer),
-                              MAYCUP_RESULT_PARSE_MISMATCH, goto drop_checkpoint);
+                                 MAYCUP_RESULT_PARSE_MISMATCH,
+                                 goto drop_checkpoint);
 
-        MAYCUP_RELAY(MAYCUP_lexer_restore(lexer));
-        MAYCUP_RELAY(MAYCUP_token_dtor(&parser->cur_token));
-        MAYCUP_RELAY(MAYCUP_token_duplicate(&parser->cur_token, &tmp));
-        MAYCUP_RELAY_UNLESSOK_DO(parse_eof(parser), MAYCUP_RESULT_PARSE_MISMATCH, {
-            MAYCUP_lexer_drop_checkpoint(lexer);
-            MAYCUP_RELAY(MAYCUP_token_dtor(&tmp));
-            break;
-        });
+        MAYCUP_RELAY(maycup_lexer_restore(lexer));
+        MAYCUP_RELAY(maycup_token_dtor(&parser->cur_token));
+        MAYCUP_RELAY(maycup_token_duplicate(&parser->cur_token, &tmp));
+        MAYCUP_RELAY_UNLESSOK_DO(parse_eof(parser),
+                                 MAYCUP_RESULT_PARSE_MISMATCH, {
+                                     maycup_lexer_drop_checkpoint(lexer);
+                                     MAYCUP_RELAY(maycup_token_dtor(&tmp));
+                                     break;
+                                 });
 
         return MAYCUP_RESULT_PARSE_MISMATCH;
 
     drop_checkpoint:
-        MAYCUP_RELAY(MAYCUP_token_dtor(&tmp));
-        MAYCUP_lexer_drop_checkpoint(lexer);
+        MAYCUP_RELAY(maycup_token_dtor(&tmp));
+        maycup_lexer_drop_checkpoint(lexer);
         continue;
     }
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result MAYCUP_parser_ctor(MAYCUP_OUT MAYCUP_Parser *self) {
-    MAYCUP_RELAY(MAYCUP_ast_ctor(&self->ast, &self->root_astnode));
+MAYCUP_Result maycup_parser_ctor(MAYCUP_OUT MAYCUP_Parser *self) {
+    MAYCUP_RELAY(maycup_ast_ctor(&self->ast, &self->root_astnode));
     self->cur_token = (MAYCUP_Token){.type = MAYCUP_TOKENTYPE_NONE};
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result MAYCUP_parser_dtor(MAYCUP_OUT MAYCUP_Parser *self) {
-    MAYCUP_RELAY(MAYCUP_ast_dtor(&self->ast));
+MAYCUP_Result maycup_parser_dtor(MAYCUP_OUT MAYCUP_Parser *self) {
+    MAYCUP_RELAY(maycup_ast_dtor(&self->ast));
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result MAYCUP_parse(MAYCUP_INOUT MAYCUP_Parser *parser, MAYCUP_INOUT MAYCUP_Lexer *lexer) {
+MAYCUP_Result maycup_parse(MAYCUP_INOUT MAYCUP_Parser *parser,
+                           MAYCUP_INOUT MAYCUP_Lexer *lexer) {
     if (parser->cur_token.type == MAYCUP_TOKENTYPE_NONE) {
         MAYCUP_RELAY(advance(parser, lexer));
     }

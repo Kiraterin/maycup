@@ -27,21 +27,21 @@
 // mock def
 #include "mock_funcs.h"
 
-MAYCUP_Result MAYCUP_reader_get_char(void *self, MAYCUP_OUT int *res) {
+MAYCUP_Result maycup_reader_get_char(void *self, MAYCUP_OUT int *res) {
     if (self == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
     return ((MAYCUP_Reader *)self)->get_char(self, res);
 }
 
-MAYCUP_Result MAYCUP_reader_tell(void *self, MAYCUP_OUT long *res) {
+MAYCUP_Result maycup_reader_tell(void *self, MAYCUP_OUT long *res) {
     if (self == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
     return ((MAYCUP_Reader *)self)->tell(self, res);
 }
 
-MAYCUP_Result MAYCUP_reader_seek(void *self, MAYCUP_IN long offset) {
+MAYCUP_Result maycup_reader_seek(void *self, MAYCUP_IN long offset) {
     if (self == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -49,7 +49,7 @@ MAYCUP_Result MAYCUP_reader_seek(void *self, MAYCUP_IN long offset) {
 }
 
 static MAYCUP_Result filereader_get_char(MAYCUP_IN MAYCUP_FileReader *self,
-                                      MAYCUP_OUT int *res) {
+                                         MAYCUP_OUT int *res) {
     if (self == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -64,7 +64,7 @@ static MAYCUP_Result filereader_get_char(MAYCUP_IN MAYCUP_FileReader *self,
 }
 
 static MAYCUP_Result filereader_tell(MAYCUP_IN MAYCUP_FileReader *self,
-                                  MAYCUP_OUT long *res) {
+                                     MAYCUP_OUT long *res) {
     if (self == NULL || res == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -76,7 +76,7 @@ static MAYCUP_Result filereader_tell(MAYCUP_IN MAYCUP_FileReader *self,
 }
 
 static MAYCUP_Result filereader_seek(MAYCUP_IN MAYCUP_FileReader *self,
-                                  MAYCUP_IN long offset) {
+                                     MAYCUP_IN long offset) {
     if (self == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -86,8 +86,8 @@ static MAYCUP_Result filereader_seek(MAYCUP_IN MAYCUP_FileReader *self,
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result MAYCUP_filereader_ctor(MAYCUP_OUT MAYCUP_FileReader *self,
-                               MAYCUP_IN const char *path) {
+MAYCUP_Result maycup_filereader_ctor(MAYCUP_OUT MAYCUP_FileReader *self,
+                                     MAYCUP_IN const char *path) {
     if (self == NULL || path == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -97,12 +97,13 @@ MAYCUP_Result MAYCUP_filereader_ctor(MAYCUP_OUT MAYCUP_FileReader *self,
     }
     self->base.get_char =
         (MAYCUP_Result (*)(MAYCUP_Reader *, int *))filereader_get_char;
-    self->base.tell = (MAYCUP_Result (*)(MAYCUP_Reader *, long *))filereader_tell;
+    self->base.tell =
+        (MAYCUP_Result (*)(MAYCUP_Reader *, long *))filereader_tell;
     self->base.seek = (MAYCUP_Result (*)(MAYCUP_Reader *, long))filereader_seek;
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result MAYCUP_filereader_dtor(MAYCUP_OUT MAYCUP_FileReader *self) {
+MAYCUP_Result maycup_filereader_dtor(MAYCUP_OUT MAYCUP_FileReader *self) {
     if (self == NULL || self->fp == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -114,8 +115,9 @@ MAYCUP_Result MAYCUP_filereader_dtor(MAYCUP_OUT MAYCUP_FileReader *self) {
     return MAYCUP_RESULT_OK;
 }
 
-static MAYCUP_Result stringreader_get_char(MAYCUP_INOUT MAYCUP_StringReader *self,
-                                        MAYCUP_OUT int *res) {
+static MAYCUP_Result
+stringreader_get_char(MAYCUP_INOUT MAYCUP_StringReader *self,
+                      MAYCUP_OUT int *res) {
     if (self == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -133,7 +135,7 @@ static MAYCUP_Result stringreader_get_char(MAYCUP_INOUT MAYCUP_StringReader *sel
 }
 
 static MAYCUP_Result stringreader_tell(MAYCUP_IN MAYCUP_StringReader *self,
-                                    MAYCUP_OUT long *res) {
+                                       MAYCUP_OUT long *res) {
     if (self == NULL || res == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -142,7 +144,7 @@ static MAYCUP_Result stringreader_tell(MAYCUP_IN MAYCUP_StringReader *self,
 }
 
 static MAYCUP_Result string_reader_seek(MAYCUP_OUT MAYCUP_StringReader *self,
-                                     MAYCUP_IN long offset) {
+                                        MAYCUP_IN long offset) {
     if (self == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -156,9 +158,9 @@ static MAYCUP_Result string_reader_seek(MAYCUP_OUT MAYCUP_StringReader *self,
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result MAYCUP_stringreader_ctor(MAYCUP_OUT MAYCUP_StringReader *self,
-                                 MAYCUP_IN const char *str,
-                                 MAYCUP_IN const size_t len) {
+MAYCUP_Result maycup_stringreader_ctor(MAYCUP_OUT MAYCUP_StringReader *self,
+                                       MAYCUP_IN const char *str,
+                                       MAYCUP_IN const size_t len) {
     if (self == NULL || str == NULL || strlen(str) < len) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -166,12 +168,14 @@ MAYCUP_Result MAYCUP_stringreader_ctor(MAYCUP_OUT MAYCUP_StringReader *self,
     self->end = str + len;
     self->base.get_char =
         (MAYCUP_Result (*)(MAYCUP_Reader *, int *))stringreader_get_char;
-    self->base.tell = (MAYCUP_Result (*)(MAYCUP_Reader *, long *))stringreader_tell;
-    self->base.seek = (MAYCUP_Result (*)(MAYCUP_Reader *, long))string_reader_seek;
+    self->base.tell =
+        (MAYCUP_Result (*)(MAYCUP_Reader *, long *))stringreader_tell;
+    self->base.seek =
+        (MAYCUP_Result (*)(MAYCUP_Reader *, long))string_reader_seek;
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result MAYCUP_stringreader_dtor(MAYCUP_OUT MAYCUP_StringReader *self) {
+MAYCUP_Result maycup_stringreader_dtor(MAYCUP_OUT MAYCUP_StringReader *self) {
     if (self == NULL || self->begin == NULL || self->cur == NULL ||
         self->end == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;

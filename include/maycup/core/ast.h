@@ -93,7 +93,8 @@ typedef struct {
  * @param root Out, the root of AST, cannot be @c NULL
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_ast_ctor(MAYCUP_OUT MAYCUP_AST *self, MAYCUP_OUT ssize_t *root);
+MAYCUP_Result maycup_ast_ctor(MAYCUP_OUT MAYCUP_AST *self,
+                              MAYCUP_OUT ssize_t *root);
 
 /**
  * @brief Destruct an AST
@@ -103,7 +104,7 @@ MAYCUP_Result MAYCUP_ast_ctor(MAYCUP_OUT MAYCUP_AST *self, MAYCUP_OUT ssize_t *r
  * @param self Out, the AST to destruct
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_ast_dtor(MAYCUP_OUT MAYCUP_AST *self);
+MAYCUP_Result maycup_ast_dtor(MAYCUP_OUT MAYCUP_AST *self);
 
 /**
  * @brief Insert an AST node after a given node
@@ -120,9 +121,10 @@ MAYCUP_Result MAYCUP_ast_dtor(MAYCUP_OUT MAYCUP_AST *self);
  * @param type In, the type of node to insert
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_insert_astnode(MAYCUP_OUT ssize_t *insertee, MAYCUP_OUT MAYCUP_AST *ast,
-                              MAYCUP_INOUT ssize_t parent,
-                              MAYCUP_IN MAYCUP_ASTNodeType type);
+MAYCUP_Result maycup_insert_astnode(MAYCUP_OUT ssize_t *insertee,
+                                    MAYCUP_OUT MAYCUP_AST *ast,
+                                    MAYCUP_INOUT ssize_t parent,
+                                    MAYCUP_IN MAYCUP_ASTNodeType type);
 
 /**
  * @brief Delete an given ast node and all of its children
@@ -132,7 +134,8 @@ MAYCUP_Result MAYCUP_insert_astnode(MAYCUP_OUT ssize_t *insertee, MAYCUP_OUT MAY
  * @param dest In & out, the node to delete
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_delete_astnode(MAYCUP_OUT MAYCUP_AST *ast, MAYCUP_INOUT ssize_t dest);
+MAYCUP_Result maycup_delete_astnode(MAYCUP_OUT MAYCUP_AST *ast,
+                                    MAYCUP_INOUT ssize_t dest);
 
 /**
  * @brief Construct a text AST node data
@@ -143,10 +146,9 @@ MAYCUP_Result MAYCUP_delete_astnode(MAYCUP_OUT MAYCUP_AST *ast, MAYCUP_INOUT ssi
  * @param newline_tailed In, whether the text tailed with newline
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_astnode_data_text_ctor(MAYCUP_OUT MAYCUP_ASTNodeDataText *self,
-                                      MAYCUP_MOVE char *text,
-                                      MAYCUP_IN MAYCUP_TextStyle style,
-                                      MAYCUP_IN bool newline_tailed);
+MAYCUP_Result maycup_astnode_data_text_ctor(
+    MAYCUP_OUT MAYCUP_ASTNodeDataText *self, MAYCUP_MOVE char *text,
+    MAYCUP_IN MAYCUP_TextStyle style, MAYCUP_IN bool newline_tailed);
 
 /**
  * @brief Destruct a text AST node data
@@ -154,13 +156,14 @@ MAYCUP_Result MAYCUP_astnode_data_text_ctor(MAYCUP_OUT MAYCUP_ASTNodeDataText *s
  * @param self Out, the data to destruct
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_astnode_data_text_dtor(MAYCUP_OUT MAYCUP_ASTNodeDataText *self);
+MAYCUP_Result
+maycup_astnode_data_text_dtor(MAYCUP_OUT MAYCUP_ASTNodeDataText *self);
 
 /**
  * @brief Destruct a AST node
  * @param self Out, the node to destruct
  * @return MAYCUP_Result
  */
-MAYCUP_Result MAYCUP_astnode_dtor(MAYCUP_OUT MAYCUP_ASTNode *self);
+MAYCUP_Result maycup_astnode_dtor(MAYCUP_OUT MAYCUP_ASTNode *self);
 
 #endif // AST_H

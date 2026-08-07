@@ -29,7 +29,7 @@
 // mock def
 #include "mock_funcs.h"
 
-void MAYCUP_error_printmsg(MAYCUP_IN MAYCUP_Result res) {
+void maycup_error_printmsg(MAYCUP_IN MAYCUP_Result res) {
     switch (res) {
     case MAYCUP_RESULT_OK:
         return;

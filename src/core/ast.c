@@ -33,14 +33,16 @@ typedef ssize_t idx;
 // mock def
 #include "mock_funcs.h"
 
-MAYCUP_Result MAYCUP_ast_ctor(MAYCUP_OUT MAYCUP_AST *self, MAYCUP_OUT ssize_t *root) {
+MAYCUP_Result maycup_ast_ctor(MAYCUP_OUT MAYCUP_AST *self,
+                              MAYCUP_OUT ssize_t *root) {
     if (self == NULL || root == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
 
-    self->data =
-        (MAYCUP_ASTNode *)malloc(MAYCUP_DEFAULT_AST_SIZE * sizeof(MAYCUP_ASTNode));
-    self->next_free = (ssize_t *)malloc(MAYCUP_DEFAULT_AST_SIZE * sizeof(ssize_t));
+    self->data = (MAYCUP_ASTNode *)malloc(MAYCUP_DEFAULT_AST_SIZE *
+                                          sizeof(MAYCUP_ASTNode));
+    self->next_free =
+        (ssize_t *)malloc(MAYCUP_DEFAULT_AST_SIZE * sizeof(ssize_t));
     self->is_allocated = (bool *)malloc(MAYCUP_DEFAULT_AST_SIZE * sizeof(bool));
     if (self->data == NULL || self->next_free == NULL ||
         self->is_allocated == NULL) {
@@ -77,7 +79,7 @@ MAYCUP_Result MAYCUP_ast_ctor(MAYCUP_OUT MAYCUP_AST *self, MAYCUP_OUT ssize_t *r
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result MAYCUP_ast_dtor(MAYCUP_OUT MAYCUP_AST *self) {
+MAYCUP_Result maycup_ast_dtor(MAYCUP_OUT MAYCUP_AST *self) {
     if (self == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -87,7 +89,7 @@ MAYCUP_Result MAYCUP_ast_dtor(MAYCUP_OUT MAYCUP_AST *self) {
             MAYCUP_ASTNode *cur = &self->data[i];
             switch (cur->type) {
             case MAYCUP_ASTNODE_TYPE_TEXT:
-                MAYCUP_astnode_data_text_dtor(&cur->text);
+                maycup_astnode_data_text_dtor(&cur->text);
                 break;
             default:
                 break;
@@ -107,9 +109,10 @@ MAYCUP_Result MAYCUP_ast_dtor(MAYCUP_OUT MAYCUP_AST *self) {
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result MAYCUP_insert_astnode(MAYCUP_OUT ssize_t *insertee, MAYCUP_OUT MAYCUP_AST *ast,
-                              MAYCUP_INOUT ssize_t parent,
-                              MAYCUP_IN MAYCUP_ASTNodeType type) {
+MAYCUP_Result maycup_insert_astnode(MAYCUP_OUT ssize_t *insertee,
+                                    MAYCUP_OUT MAYCUP_AST *ast,
+                                    MAYCUP_INOUT ssize_t parent,
+                                    MAYCUP_IN MAYCUP_ASTNodeType type) {
     if (ast == NULL || parent <= 0 || (size_t)parent >= ast->cap ||
         !ast->is_allocated[parent]) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
@@ -158,10 +161,10 @@ MAYCUP_Result MAYCUP_insert_astnode(MAYCUP_OUT ssize_t *insertee, MAYCUP_OUT MAY
     }
     ast->data[parent].child = _insertee;
     ast->data[_insertee] = (MAYCUP_ASTNode){.type = type,
-                                         .prev_sibling = old_child,
-                                         .next_sibling = -1,
-                                         .parent = parent,
-                                         .child = -1};
+                                            .prev_sibling = old_child,
+                                            .next_sibling = -1,
+                                            .parent = parent,
+                                            .child = -1};
 
     if (insertee != NULL) {
         *insertee = _insertee;
@@ -170,7 +173,8 @@ MAYCUP_Result MAYCUP_insert_astnode(MAYCUP_OUT ssize_t *insertee, MAYCUP_OUT MAY
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result MAYCUP_delete_astnode(MAYCUP_OUT MAYCUP_AST *ast, MAYCUP_INOUT ssize_t dest) {
+MAYCUP_Result maycup_delete_astnode(MAYCUP_OUT MAYCUP_AST *ast,
+                                    MAYCUP_INOUT ssize_t dest) {
     if (ast == NULL || dest <= 0 || (size_t)dest >= ast->cap ||
         !ast->is_allocated[dest]) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
@@ -188,42 +192,41 @@ MAYCUP_Result MAYCUP_delete_astnode(MAYCUP_OUT MAYCUP_AST *ast, MAYCUP_INOUT ssi
     }
 
     MAYCUP_VectorIdx stack;
-    MAYCUP_RELAY(MAYCUP_vector_idx_ctor(&stack, MAYCUP_DEFAULT_VEC_SIZE));
+    MAYCUP_RELAY(maycup_vector_idx_ctor(&stack, MAYCUP_DEFAULT_VEC_SIZE));
     if (p_dest->child != -1) {
-        MAYCUP_RELAY(MAYCUP_vector_idx_pushback(&stack, p_dest->child));
+        MAYCUP_RELAY(maycup_vector_idx_pushback(&stack, p_dest->child));
     }
-    MAYCUP_RELAY(MAYCUP_astnode_dtor(p_dest));
+    MAYCUP_RELAY(maycup_astnode_dtor(p_dest));
     ast->next_free[dest] = ast->first_free;
     ast->is_allocated[dest] = false;
     ast->first_free = dest;
 
     while (stack.len > 0) {
         ssize_t curidx;
-        MAYCUP_RELAY(MAYCUP_vector_idx_top(&stack, &curidx));
-        MAYCUP_RELAY(MAYCUP_vector_idx_popback(&stack));
+        MAYCUP_RELAY(maycup_vector_idx_top(&stack, &curidx));
+        MAYCUP_RELAY(maycup_vector_idx_popback(&stack));
         MAYCUP_ASTNode *const cur = &ast->data[curidx];
 
         if (cur->prev_sibling != -1) {
-            MAYCUP_RELAY(MAYCUP_vector_idx_pushback(&stack, cur->prev_sibling));
+            MAYCUP_RELAY(maycup_vector_idx_pushback(&stack, cur->prev_sibling));
         }
         if (cur->child != -1) {
-            MAYCUP_RELAY(MAYCUP_vector_idx_pushback(&stack, cur->child));
+            MAYCUP_RELAY(maycup_vector_idx_pushback(&stack, cur->child));
         }
 
-        MAYCUP_RELAY(MAYCUP_astnode_dtor(&ast->data[curidx]));
+        MAYCUP_RELAY(maycup_astnode_dtor(&ast->data[curidx]));
         ast->next_free[curidx] = ast->first_free;
         ast->is_allocated[curidx] = false;
         ast->first_free = curidx;
     }
 
-    MAYCUP_RELAY(MAYCUP_vector_idx_dtor(&stack));
+    MAYCUP_RELAY(maycup_vector_idx_dtor(&stack));
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result MAYCUP_astnode_data_text_ctor(MAYCUP_OUT MAYCUP_ASTNodeDataText *self,
-                                      MAYCUP_MOVE char *text,
-                                      MAYCUP_IN MAYCUP_TextStyle style,
-                                      MAYCUP_IN bool newline_tailed) {
+MAYCUP_Result maycup_astnode_data_text_ctor(
+    MAYCUP_OUT MAYCUP_ASTNodeDataText *self, MAYCUP_MOVE char *text,
+    MAYCUP_IN MAYCUP_TextStyle style, MAYCUP_IN bool newline_tailed) {
     if (self == NULL || text == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -233,7 +236,8 @@ MAYCUP_Result MAYCUP_astnode_data_text_ctor(MAYCUP_OUT MAYCUP_ASTNodeDataText *s
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result MAYCUP_astnode_data_text_dtor(MAYCUP_OUT MAYCUP_ASTNodeDataText *self) {
+MAYCUP_Result
+maycup_astnode_data_text_dtor(MAYCUP_OUT MAYCUP_ASTNodeDataText *self) {
     if (self == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -242,14 +246,14 @@ MAYCUP_Result MAYCUP_astnode_data_text_dtor(MAYCUP_OUT MAYCUP_ASTNodeDataText *s
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result MAYCUP_astnode_dtor(MAYCUP_OUT MAYCUP_ASTNode *self) {
+MAYCUP_Result maycup_astnode_dtor(MAYCUP_OUT MAYCUP_ASTNode *self) {
     if (self == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
 
     switch (self->type) {
     case MAYCUP_ASTNODE_TYPE_TEXT:
-        MAYCUP_RELAY(MAYCUP_astnode_data_text_dtor(&self->text));
+        MAYCUP_RELAY(maycup_astnode_data_text_dtor(&self->text));
         break;
     default:
         break;
