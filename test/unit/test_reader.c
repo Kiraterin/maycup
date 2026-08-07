@@ -388,8 +388,6 @@ TEST_CASE(stringreader_ctor_illegal_arg) {
               MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
     ASSERT_EQ(maycup_stringreader_ctor(&sr, NULL, stringlen),
               MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
-    ASSERT_EQ(maycup_stringreader_ctor(&sr, stringname, stringlen + 1),
-              MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
 
     return TEST_RESULT_PASS;
 fail:

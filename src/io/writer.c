@@ -128,7 +128,7 @@ static MAYCUP_Result stringwriter_vprintf(MAYCUP_IN MAYCUP_StringWriter *self,
     va_list args_fmt;
     va_copy(args_fmt, args);
 
-    int fmt_size = vsnprintf(NULL, 0, format, args);
+    int fmt_size = vsnprintf(NULL, 0, format, args_fmt);
     va_end(args_fmt);
     if (fmt_size < 0) {
         return MAYCUP_RESULT_ERRNO;
