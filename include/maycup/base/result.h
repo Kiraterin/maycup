@@ -4,7 +4,7 @@
  * @date 2026-07-08
  * @copyright GPLv3 License
  * @section LICENSE
- * md2html
+ * maycup
  * Copyright (C) 2026 Kiraterin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,35 +24,35 @@
 #ifndef RESULT_H
 #define RESULT_H
 
-#include "md2html/base/common.h"
+#include "maycup/base/common.h"
 
 typedef enum {
-    M2H_RESULT_OK = 0,
-    M2H_RESULT_ERRNO = 1,
-    M2H_RESULT_MALLOC_FAIL,
-    M2H_RESULT_UNKNOWN_TOKENTYPE,
-    M2H_RESULT_ILLEGAL_ARGUMENT,
-    M2H_RESULT_EMPTY_VECTOR,
-    M2H_RESULT_ARENA_ERROR,
-    M2H_RESULT_MAX_CAP_EXCEEDED,
+    MAYCUP_RESULT_OK = 0,
+    MAYCUP_RESULT_ERRNO = 1,
+    MAYCUP_RESULT_MALLOC_FAIL,
+    MAYCUP_RESULT_UNKNOWN_TOKENTYPE,
+    MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+    MAYCUP_RESULT_EMPTY_VECTOR,
+    MAYCUP_RESULT_ARENA_ERROR,
+    MAYCUP_RESULT_MAX_CAP_EXCEEDED,
 
-    M2H_RESULT_PARSE_MISMATCH
-} M2H_Result;
+    MAYCUP_RESULT_PARSE_MISMATCH
+} MAYCUP_Result;
 
 /**
  * @brief Print error message
  * @param _res_ In, the type of result
  */
-void M2H_error_printmsg(M2H_IN M2H_Result _res_);
+void maycup_error_printmsg(MAYCUP_IN MAYCUP_Result _res_);
 
 /**
- * @brief Do something when @c expr is not @c M2H_RESULT_OK ; The error type is
- *        @c _res_
+ * @brief Do something when @c expr is not @c MAYCUP_RESULT_OK ; The error type
+ *        is @c _res_
  */
-#define M2H_HANDLE(expr, handler)                                              \
+#define MAYCUP_HANDLE(expr, handler)                                           \
     do {                                                                       \
-        M2H_Result _res_ = (expr);                                               \
-        if (_res_ != M2H_RESULT_OK) {                                            \
+        MAYCUP_Result _res_ = (expr);                                          \
+        if (_res_ != MAYCUP_RESULT_OK) {                                       \
             handler;                                                           \
         }                                                                      \
     } while (false)
@@ -60,20 +60,20 @@ void M2H_error_printmsg(M2H_IN M2H_Result _res_);
 /**
  * @brief Relay error to caller
  */
-#define M2H_RELAY(expr) M2H_HANDLE(expr, return _res_)
+#define MAYCUP_RELAY(expr) MAYCUP_HANDLE(expr, return _res_)
 
 /**
- * @brief Relay error or ok to caller, but if the _res_ is @c when , continue; if
- *        the _res_ is @c act_res , do action
+ * @brief Relay error or ok to caller, but if the _res_ is @c when , continue;
+ *        if the _res_ is @c act_res , do action
  */
-#define M2H_RELAY_UNLESS_DO(expr, when, act_res, action)                       \
+#define MAYCUP_RELAY_UNLESS_DO(expr, when, act_res, action)                    \
     if (true) {                                                                \
-        M2H_Result _res_ = (expr);                                               \
-        if (_res_ == act_res) {                                                  \
+        MAYCUP_Result _res_ = (expr);                                          \
+        if (_res_ == act_res) {                                                \
             action;                                                            \
         }                                                                      \
-        if (_res_ != (when)) {                                                   \
-            return _res_;                                                        \
+        if (_res_ != (when)) {                                                 \
+            return _res_;                                                      \
         }                                                                      \
     } else                                                                     \
         (void)0
@@ -82,18 +82,18 @@ void M2H_error_printmsg(M2H_IN M2H_Result _res_);
  * @brief Relay error to caller or do action if it's ok, but if the _res_ is
  *        @c err , continue
  */
-#define M2H_RELAY_UNLESSOK_DO(expr, err, ok)                                   \
-    M2H_RELAY_UNLESS_DO(expr, err, M2H_RESULT_OK, ok)
+#define MAYCUP_RELAY_UNLESSOK_DO(expr, err, ok)                                \
+    MAYCUP_RELAY_UNLESS_DO(expr, err, MAYCUP_RESULT_OK, ok)
 
 /**
  * @brief Abort and print error message if the result of expr is not @c
- *        M2H_RESULT_OK
+ *        MAYCUP_RESULT_OK
  */
-#define M2H_UNWRAP(expr)                                                       \
+#define MAYCUP_UNWRAP(expr)                                                    \
     do {                                                                       \
-        M2H_Result _res_ = (expr);                                               \
-        if (_res_ != M2H_RESULT_OK) {                                            \
-            M2H_error_printmsg(_res_);                                           \
+        MAYCUP_Result _res_ = (expr);                                          \
+        if (_res_ != MAYCUP_RESULT_OK) {                                       \
+            maycup_error_printmsg(_res_);                                      \
             abort();                                                           \
         }                                                                      \
     } while (false)

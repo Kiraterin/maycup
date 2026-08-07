@@ -4,7 +4,7 @@
  * @date 2026-07-12
  * @copyright GPLv3 License
  * @section LICENSE
- * md2html
+ * maycup
  * Copyright (C) 2026 Kiraterin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,44 +21,46 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "md2html/core/ast.h"
+#include "maycup/core/ast.h"
 
 typedef ssize_t idx;
-#define M2H_VEC_T idx
-#define M2H_VEC_DISPT Idx
-#include "md2html/base/vector.h"
-#undef M2H_VEC_DISPT
-#undef M2H_VEC_T
+#define MAYCUP_VEC_T idx
+#define MAYCUP_VEC_DISPT Idx
+#include "maycup/base/vector.h"
+#undef MAYCUP_VEC_DISPT
+#undef MAYCUP_VEC_T
 
 // mock def
 #include "mock_funcs.h"
 
-M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *root) {
+MAYCUP_Result maycup_ast_ctor(MAYCUP_OUT MAYCUP_AST *self,
+                              MAYCUP_OUT ssize_t *root) {
     if (self == NULL || root == NULL) {
-        return M2H_RESULT_ILLEGAL_ARGUMENT;
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
 
-    self->data =
-        (M2H_ASTNode *)malloc(M2H_DEFAULT_AST_SIZE * sizeof(M2H_ASTNode));
-    self->next_free = (ssize_t *)malloc(M2H_DEFAULT_AST_SIZE * sizeof(ssize_t));
-    self->is_allocated = (bool *)malloc(M2H_DEFAULT_AST_SIZE * sizeof(bool));
+    self->data = (MAYCUP_ASTNode *)malloc(MAYCUP_DEFAULT_AST_SIZE *
+                                          sizeof(MAYCUP_ASTNode));
+    self->next_free =
+        (ssize_t *)malloc(MAYCUP_DEFAULT_AST_SIZE * sizeof(ssize_t));
+    self->is_allocated = (bool *)malloc(MAYCUP_DEFAULT_AST_SIZE * sizeof(bool));
     if (self->data == NULL || self->next_free == NULL ||
         self->is_allocated == NULL) {
-        return M2H_RESULT_MALLOC_FAIL;
+        return MAYCUP_RESULT_MALLOC_FAIL;
     }
 
-    self->cap = M2H_DEFAULT_AST_SIZE;
+    self->cap = MAYCUP_DEFAULT_AST_SIZE;
 
     *root = 1;
-    self->data[0] = (M2H_ASTNode){
-        .type = M2H_ASTNODE_TYPE_NONE,
+    self->data[0] = (MAYCUP_ASTNode){
+        .type = MAYCUP_ASTNODE_TYPE_NONE,
         .prev_sibling = -1,
         .next_sibling = -1,
         .parent = -1,
         .child = -1,
     };
-    self->data[*root] = (M2H_ASTNode){
-        .type = M2H_ASTNODE_TYPE_ROOT,
+    self->data[*root] = (MAYCUP_ASTNode){
+        .type = MAYCUP_ASTNODE_TYPE_ROOT,
         .prev_sibling = -1,
         .next_sibling = -1,
         .parent = -1,
@@ -74,20 +76,20 @@ M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *root) {
     self->is_allocated[*root] = true;
     self->first_free = *root + 1;
 
-    return M2H_RESULT_OK;
+    return MAYCUP_RESULT_OK;
 }
 
-M2H_Result M2H_ast_dtor(M2H_OUT M2H_AST *self) {
+MAYCUP_Result maycup_ast_dtor(MAYCUP_OUT MAYCUP_AST *self) {
     if (self == NULL) {
-        return M2H_RESULT_ILLEGAL_ARGUMENT;
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
 
     for (size_t i = 0; i < self->cap; ++i) {
         if (self->is_allocated[i]) {
-            M2H_ASTNode *cur = &self->data[i];
+            MAYCUP_ASTNode *cur = &self->data[i];
             switch (cur->type) {
-            case M2H_ASTNODE_TYPE_TEXT:
-                M2H_astnode_data_text_dtor(&cur->text);
+            case MAYCUP_ASTNODE_TYPE_TEXT:
+                maycup_astnode_data_text_dtor(&cur->text);
                 break;
             default:
                 break;
@@ -104,32 +106,33 @@ M2H_Result M2H_ast_dtor(M2H_OUT M2H_AST *self) {
     self->cap = 0;
     self->first_free = -1;
 
-    return M2H_RESULT_OK;
+    return MAYCUP_RESULT_OK;
 }
 
-M2H_Result M2H_insert_astnode(M2H_OUT ssize_t *insertee, M2H_OUT M2H_AST *ast,
-                              M2H_INOUT ssize_t parent,
-                              M2H_IN M2H_ASTNodeType type) {
+MAYCUP_Result maycup_insert_astnode(MAYCUP_OUT ssize_t *insertee,
+                                    MAYCUP_OUT MAYCUP_AST *ast,
+                                    MAYCUP_INOUT ssize_t parent,
+                                    MAYCUP_IN MAYCUP_ASTNodeType type) {
     if (ast == NULL || parent <= 0 || (size_t)parent >= ast->cap ||
         !ast->is_allocated[parent]) {
-        return M2H_RESULT_ILLEGAL_ARGUMENT;
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
 
     if (ast->first_free == -1) {
         // use "/ 2" rather than "* 2" to avoid overflow
-        if (ast->cap >= M2H_MAX_AST_CAP / 2) {
-            return M2H_RESULT_MAX_CAP_EXCEEDED;
+        if (ast->cap >= MAYCUP_MAX_AST_CAP / 2) {
+            return MAYCUP_RESULT_MAX_CAP_EXCEEDED;
         }
 
-        M2H_ASTNode *new_data = (M2H_ASTNode *)realloc(
-            ast->data, ast->cap * 2 * sizeof(M2H_ASTNode));
+        MAYCUP_ASTNode *new_data = (MAYCUP_ASTNode *)realloc(
+            ast->data, ast->cap * 2 * sizeof(MAYCUP_ASTNode));
         ssize_t *new_next_free =
             (ssize_t *)realloc(ast->next_free, ast->cap * 2 * sizeof(ssize_t));
         bool *new_is_allocated =
             (bool *)realloc(ast->is_allocated, ast->cap * 2 * sizeof(bool));
         if (new_data == NULL || new_next_free == NULL ||
             new_is_allocated == NULL) {
-            return M2H_RESULT_MALLOC_FAIL;
+            return MAYCUP_RESULT_MALLOC_FAIL;
         }
         ast->data = new_data;
         ast->next_free = new_next_free;
@@ -146,7 +149,7 @@ M2H_Result M2H_insert_astnode(M2H_OUT ssize_t *insertee, M2H_OUT M2H_AST *ast,
     }
 
     if (ast->is_allocated[ast->first_free]) {
-        return M2H_RESULT_ARENA_ERROR;
+        return MAYCUP_RESULT_ARENA_ERROR;
     }
     ssize_t _insertee = ast->first_free;
     ast->is_allocated[ast->first_free] = true;
@@ -157,26 +160,27 @@ M2H_Result M2H_insert_astnode(M2H_OUT ssize_t *insertee, M2H_OUT M2H_AST *ast,
         ast->data[old_child].next_sibling = _insertee;
     }
     ast->data[parent].child = _insertee;
-    ast->data[_insertee] = (M2H_ASTNode){.type = type,
-                                         .prev_sibling = old_child,
-                                         .next_sibling = -1,
-                                         .parent = parent,
-                                         .child = -1};
+    ast->data[_insertee] = (MAYCUP_ASTNode){.type = type,
+                                            .prev_sibling = old_child,
+                                            .next_sibling = -1,
+                                            .parent = parent,
+                                            .child = -1};
 
     if (insertee != NULL) {
         *insertee = _insertee;
     }
 
-    return M2H_RESULT_OK;
+    return MAYCUP_RESULT_OK;
 }
 
-M2H_Result M2H_delete_astnode(M2H_OUT M2H_AST *ast, M2H_INOUT ssize_t dest) {
+MAYCUP_Result maycup_delete_astnode(MAYCUP_OUT MAYCUP_AST *ast,
+                                    MAYCUP_INOUT ssize_t dest) {
     if (ast == NULL || dest <= 0 || (size_t)dest >= ast->cap ||
         !ast->is_allocated[dest]) {
-        return M2H_RESULT_ILLEGAL_ARGUMENT;
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
 
-    M2H_ASTNode *const p_dest = &ast->data[dest];
+    MAYCUP_ASTNode *const p_dest = &ast->data[dest];
     if (p_dest->next_sibling != -1) {
         ast->data[p_dest->next_sibling].prev_sibling = p_dest->prev_sibling;
     }
@@ -187,73 +191,73 @@ M2H_Result M2H_delete_astnode(M2H_OUT M2H_AST *ast, M2H_INOUT ssize_t dest) {
         ast->data[p_dest->parent].child = p_dest->prev_sibling;
     }
 
-    M2H_VectorIdx stack;
-    M2H_RELAY(M2H_vector_idx_ctor(&stack, M2H_DEFAULT_VEC_SIZE));
+    MAYCUP_VectorIdx stack;
+    MAYCUP_RELAY(maycup_vector_idx_ctor(&stack, MAYCUP_DEFAULT_VEC_SIZE));
     if (p_dest->child != -1) {
-        M2H_RELAY(M2H_vector_idx_pushback(&stack, p_dest->child));
+        MAYCUP_RELAY(maycup_vector_idx_pushback(&stack, p_dest->child));
     }
-    M2H_RELAY(M2H_astnode_dtor(p_dest));
+    MAYCUP_RELAY(maycup_astnode_dtor(p_dest));
     ast->next_free[dest] = ast->first_free;
     ast->is_allocated[dest] = false;
     ast->first_free = dest;
 
     while (stack.len > 0) {
         ssize_t curidx;
-        M2H_RELAY(M2H_vector_idx_top(&stack, &curidx));
-        M2H_RELAY(M2H_vector_idx_popback(&stack));
-        M2H_ASTNode *const cur = &ast->data[curidx];
+        MAYCUP_RELAY(maycup_vector_idx_top(&stack, &curidx));
+        MAYCUP_RELAY(maycup_vector_idx_popback(&stack));
+        MAYCUP_ASTNode *const cur = &ast->data[curidx];
 
         if (cur->prev_sibling != -1) {
-            M2H_RELAY(M2H_vector_idx_pushback(&stack, cur->prev_sibling));
+            MAYCUP_RELAY(maycup_vector_idx_pushback(&stack, cur->prev_sibling));
         }
         if (cur->child != -1) {
-            M2H_RELAY(M2H_vector_idx_pushback(&stack, cur->child));
+            MAYCUP_RELAY(maycup_vector_idx_pushback(&stack, cur->child));
         }
 
-        M2H_RELAY(M2H_astnode_dtor(&ast->data[curidx]));
+        MAYCUP_RELAY(maycup_astnode_dtor(&ast->data[curidx]));
         ast->next_free[curidx] = ast->first_free;
         ast->is_allocated[curidx] = false;
         ast->first_free = curidx;
     }
 
-    M2H_RELAY(M2H_vector_idx_dtor(&stack));
-    return M2H_RESULT_OK;
+    MAYCUP_RELAY(maycup_vector_idx_dtor(&stack));
+    return MAYCUP_RESULT_OK;
 }
 
-M2H_Result M2H_astnode_data_text_ctor(M2H_OUT M2H_ASTNodeDataText *self,
-                                      M2H_MOVE char *text,
-                                      M2H_IN M2H_TextStyle style,
-                                      M2H_IN bool newline_tailed) {
+MAYCUP_Result maycup_astnode_data_text_ctor(
+    MAYCUP_OUT MAYCUP_ASTNodeDataText *self, MAYCUP_MOVE char *text,
+    MAYCUP_IN MAYCUP_TextStyle style, MAYCUP_IN bool newline_tailed) {
     if (self == NULL || text == NULL) {
-        return M2H_RESULT_ILLEGAL_ARGUMENT;
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
     self->style = style;
     self->content = text;
     self->newline_tailed = newline_tailed;
-    return M2H_RESULT_OK;
+    return MAYCUP_RESULT_OK;
 }
 
-M2H_Result M2H_astnode_data_text_dtor(M2H_OUT M2H_ASTNodeDataText *self) {
+MAYCUP_Result
+maycup_astnode_data_text_dtor(MAYCUP_OUT MAYCUP_ASTNodeDataText *self) {
     if (self == NULL) {
-        return M2H_RESULT_ILLEGAL_ARGUMENT;
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
     free(self->content);
     self->content = NULL;
-    return M2H_RESULT_OK;
+    return MAYCUP_RESULT_OK;
 }
 
-M2H_Result M2H_astnode_dtor(M2H_OUT M2H_ASTNode *self) {
+MAYCUP_Result maycup_astnode_dtor(MAYCUP_OUT MAYCUP_ASTNode *self) {
     if (self == NULL) {
-        return M2H_RESULT_ILLEGAL_ARGUMENT;
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
 
     switch (self->type) {
-    case M2H_ASTNODE_TYPE_TEXT:
-        M2H_RELAY(M2H_astnode_data_text_dtor(&self->text));
+    case MAYCUP_ASTNODE_TYPE_TEXT:
+        MAYCUP_RELAY(maycup_astnode_data_text_dtor(&self->text));
         break;
     default:
         break;
     }
 
-    return M2H_RESULT_OK;
+    return MAYCUP_RESULT_OK;
 }

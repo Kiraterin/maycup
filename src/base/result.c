@@ -4,7 +4,7 @@
  * @date 2026-07-09
  * @copyright GPLv3 License
  * @section LICENSE
- * md2html
+ * maycup
  * Copyright (C) 2026 Kiraterin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "md2html/base/result.h"
+#include "maycup/base/result.h"
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
@@ -29,32 +29,32 @@
 // mock def
 #include "mock_funcs.h"
 
-void M2H_error_printmsg(M2H_IN M2H_Result res) {
+void maycup_error_printmsg(MAYCUP_IN MAYCUP_Result res) {
     switch (res) {
-    case M2H_RESULT_OK:
+    case MAYCUP_RESULT_OK:
         return;
-    case M2H_RESULT_ERRNO:
+    case MAYCUP_RESULT_ERRNO:
         fprintf(stderr, "Error: %s (%d)\n", strerror(errno), errno);
         break;
     default: {
         fprintf(stderr, "Error: ");
         switch (res) {
-        case M2H_RESULT_ILLEGAL_ARGUMENT:
+        case MAYCUP_RESULT_ILLEGAL_ARGUMENT:
             puts("illegal argument");
             break;
-        case M2H_RESULT_MALLOC_FAIL:
+        case MAYCUP_RESULT_MALLOC_FAIL:
             puts("failed when allocating memory");
             break;
-        case M2H_RESULT_EMPTY_VECTOR:
+        case MAYCUP_RESULT_EMPTY_VECTOR:
             puts("vector operated is empty");
             break;
-        case M2H_RESULT_UNKNOWN_TOKENTYPE:
+        case MAYCUP_RESULT_UNKNOWN_TOKENTYPE:
             puts("unknown token type");
             break;
-        case M2H_RESULT_ARENA_ERROR:
+        case MAYCUP_RESULT_ARENA_ERROR:
             puts("arena error");
             break;
-        case M2H_RESULT_PARSE_MISMATCH:
+        case MAYCUP_RESULT_PARSE_MISMATCH:
             puts("parsing mismatched");
         default:
             break;

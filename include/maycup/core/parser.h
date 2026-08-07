@@ -1,10 +1,10 @@
 /**
- * @file objprint.h
- * @brief Print human-readable structures
- * @date 2026-08-04
+ * @file parser.h
+ * @brief Parser in maycup
+ * @date 2026-07-12
  * @copyright GPLv3 License
  * @section LICENSE
- * md2html
+ * maycup
  * Copyright (C) 2026 Kiraterin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,26 +21,33 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef OBJPRINT_H
-#define OBJPRINT_H
-#ifdef DEBUG
+#ifndef PARSER_H
+#define PARSER_H
 
-#include "md2html/base/common.h"
-#include "md2html/core/lexer.h"
-#include "md2html/core/ast.h"
+#include "maycup/core/ast.h"
+#include "maycup/core/lexer.h"
 
-/**
- * @brief Print a token
- * @param token In, the dest token
- */
-void M2H_print_token(M2H_IN M2H_Token *token);
+typedef struct {
+    MAYCUP_Token cur_token;
+    MAYCUP_AST ast;
+    ssize_t root_astnode;
+} MAYCUP_Parser;
 
 /**
- * @brief Print an AST
- * @param ast In, the ast to print
- * @param root In, the entry point
+ * @brief Construct a parser
+ * @param self Out, the parser to construct
+ * @return MAYCUP_Result
  */
-void M2H_print_ast(M2H_IN M2H_AST *ast, M2H_IN ssize_t root);
+MAYCUP_Result maycup_parser_ctor(MAYCUP_OUT MAYCUP_Parser *self);
 
-#endif // DEBUG
-#endif // OBJPRINT_H
+/**
+ * @brief Destruct a parser
+ * @param self Out, the parser to destruct
+ * @return MAYCUP_Result
+ */
+MAYCUP_Result maycup_parser_dtor(MAYCUP_OUT MAYCUP_Parser *self);
+
+MAYCUP_Result maycup_parse(MAYCUP_INOUT MAYCUP_Parser *parser,
+                           MAYCUP_INOUT MAYCUP_Lexer *lexer);
+
+#endif // PARSER_H

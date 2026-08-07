@@ -1,10 +1,10 @@
 /**
  * @file lexer.h
- * @brief Lexer in md2html
+ * @brief Lexer in maycup
  * @date 2026-07-08
  * @copyright GPLv3 License
  * @section LICENSE
- * md2html
+ * maycup
  * Copyright (C) 2026 Kiraterin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,95 +24,98 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-#include "md2html/base/common.h"
-#include "md2html/base/result.h"
-#include "md2html/io/reader.h"
+#include "maycup/base/common.h"
+#include "maycup/base/result.h"
+#include "maycup/io/reader.h"
 #include <stdio.h>
 
 typedef enum {
-    M2H_TOKENTYPE_NONE = 0,
-    M2H_TOKENTYPE_EOF,
-    M2H_TOKENTYPE_LITERAL,
-    M2H_TOKENTYPE_TEXT,
-    M2H_TOKENTYPE_NEWLINE
-} M2H_TokenType;
+    MAYCUP_TOKENTYPE_NONE = 0,
+    MAYCUP_TOKENTYPE_EOF,
+    MAYCUP_TOKENTYPE_LITERAL,
+    MAYCUP_TOKENTYPE_TEXT,
+    MAYCUP_TOKENTYPE_NEWLINE
+} MAYCUP_TokenType;
 
 typedef struct {
-    M2H_TokenType type;
+    MAYCUP_TokenType type;
     union {
         char *text;
         int literal;
     };
-} M2H_Token;
+} MAYCUP_Token;
 
 /**
  * @brief Duplicate a token
  * @param dest Out, the destination
  * @param src In, the token to duplicate
- * @return M2H_Result
+ * @return MAYCUP_Result
  */
-M2H_Result M2H_token_duplicate(M2H_OUT M2H_Token *dest, M2H_IN M2H_Token *src);
+MAYCUP_Result maycup_token_duplicate(MAYCUP_OUT MAYCUP_Token *dest,
+                                     MAYCUP_IN MAYCUP_Token *src);
 
 /**
  * @brief Destruct a token
  * @param self Out, the token to destruct
- * @return M2H_Result
+ * @return MAYCUP_Result
  */
-M2H_Result M2H_token_dtor(M2H_OUT M2H_Token *self);
+MAYCUP_Result maycup_token_dtor(MAYCUP_OUT MAYCUP_Token *self);
 
-#define M2H_VEC_T long
-#define M2H_VEC_DISPT Long
-#include "md2html/base/vector.h"
-#undef M2H_VEC_DISPT
-#undef M2H_VEC_T
+#define MAYCUP_VEC_T long
+#define MAYCUP_VEC_DISPT Long
+#include "maycup/base/vector.h"
+#undef MAYCUP_VEC_DISPT
+#undef MAYCUP_VEC_T
 
 typedef struct {
-    M2H_Reader *reader;
-    M2H_VectorLong checkpoint;
-} M2H_Lexer;
+    MAYCUP_Reader *reader;
+    MAYCUP_VectorLong checkpoint;
+} MAYCUP_Lexer;
 
 /**
  * @brief Construct a lexer
  * @param self Out, the lexer to construct
  * @param reader In & out, the reader which lexer will use
- * @return M2H_Result
+ * @return MAYCUP_Result
  */
-M2H_Result M2H_lexer_ctor(M2H_OUT M2H_Lexer *self, M2H_INOUT M2H_Reader *reader);
+MAYCUP_Result maycup_lexer_ctor(MAYCUP_OUT MAYCUP_Lexer *self,
+                                MAYCUP_INOUT MAYCUP_Reader *reader);
 
 /**
  * @brief Destruct a lexer
  * @param self Out, the lexer to destruct
- * @return M2H_Result
+ * @return MAYCUP_Result
  */
-M2H_Result M2H_lexer_dtor(M2H_OUT M2H_Lexer *self);
+MAYCUP_Result maycup_lexer_dtor(MAYCUP_OUT MAYCUP_Lexer *self);
 
 /**
  * @brief Construct and return the next token of the given lexer context
  * @param token Out, dest token
  * @param lexer In, the context
- * @return M2H_Result
+ * @return MAYCUP_Result
  */
-M2H_Result M2H_next_token(M2H_OUT M2H_Token *token, M2H_IN M2H_Lexer *lexer);
+MAYCUP_Result maycup_next_token(MAYCUP_OUT MAYCUP_Token *token,
+                                MAYCUP_IN MAYCUP_Lexer *lexer);
 
 /**
  * @brief Set a checkpoint in the file
  * @param self Out, the lexer
- * @return M2H_Result
+ * @return MAYCUP_Result
  */
-M2H_Result M2H_lexer_checkpoint(M2H_OUT M2H_Lexer *self);
+MAYCUP_Result maycup_lexer_checkpoint(MAYCUP_OUT MAYCUP_Lexer *self);
 
 /**
  * @brief Return to the checkpoint and won't pop out it
  * @param self In & out, the lexer
- * @return M2H_Result
+ * @return MAYCUP_Result
  */
-M2H_Result M2H_lexer_restore(M2H_INOUT M2H_Lexer *self);
+MAYCUP_Result maycup_lexer_restore(MAYCUP_INOUT MAYCUP_Lexer *self);
 
 /**
  * @brief Drop the top checkpoint
  * @param self Out, the lexer
- * @return M2H_Result 
+ * @return MAYCUP_Result
  */
-M2H_Result M2H_lexer_drop_checkpoint(M2H_OUT M2H_Lexer *self);
+MAYCUP_Result maycup_lexer_drop_checkpoint(MAYCUP_OUT MAYCUP_Lexer *self);
 
 #endif // LEXER_H

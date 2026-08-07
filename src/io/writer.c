@@ -4,7 +4,7 @@
  * @date 2026-07-18
  * @copyright GPLv3 License
  * @section LICENSE
- * md2html
+ * maycup
  * Copyright (C) 2026 Kiraterin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "md2html/io/writer.h"
+#include "maycup/io/writer.h"
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,160 +29,167 @@
 // mock def
 #include "mock_funcs.h"
 
-M2H_Result M2H_writer_puts(void *self, M2H_IN char *str) {
+MAYCUP_Result maycup_writer_puts(void *self, MAYCUP_IN char *str) {
     if (self == NULL) {
-        return M2H_RESULT_ILLEGAL_ARGUMENT;
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
-    return ((M2H_Writer *)self)->puts(self, str);
+    return ((MAYCUP_Writer *)self)->puts(self, str);
 }
-M2H_Result M2H_writer_printf(void *self, M2H_IN const char *format, ...) {
+MAYCUP_Result maycup_writer_printf(void *self, MAYCUP_IN const char *format,
+                                   ...) {
     if (self == NULL) {
-        return M2H_RESULT_ILLEGAL_ARGUMENT;
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
     va_list args;
     va_start(args, format);
-    M2H_Result res = ((M2H_Writer *)self)->vprintf(self, format, args);
+    MAYCUP_Result res = ((MAYCUP_Writer *)self)->vprintf(self, format, args);
     va_end(args);
     return res;
 }
 
-static M2H_Result filewriter_puts(M2H_IN M2H_FileWriter *self,
-                                  M2H_IN char *str) {
+static MAYCUP_Result filewriter_puts(MAYCUP_IN MAYCUP_FileWriter *self,
+                                     MAYCUP_IN char *str) {
     if (fputs(str, self->fp) < 0) {
-        return M2H_RESULT_ERRNO;
+        return MAYCUP_RESULT_ERRNO;
     }
-    return M2H_RESULT_OK;
+    return MAYCUP_RESULT_OK;
 }
 
-static M2H_Result filewriter_vprintf(M2H_IN M2H_FileWriter *self,
-                                     M2H_IN const char *format, va_list args) {
+static MAYCUP_Result filewriter_vprintf(MAYCUP_IN MAYCUP_FileWriter *self,
+                                        MAYCUP_IN const char *format,
+                                        va_list args) {
     if (vfprintf(self->fp, format, args) < 0) {
-        return M2H_RESULT_ERRNO;
+        return MAYCUP_RESULT_ERRNO;
     }
-    return M2H_RESULT_OK;
+    return MAYCUP_RESULT_OK;
 }
 
-M2H_Result M2H_filewriter_ctor(M2H_OUT M2H_FileWriter *self,
-                               M2H_IN const char *path) {
+MAYCUP_Result maycup_filewriter_ctor(MAYCUP_OUT MAYCUP_FileWriter *self,
+                                     MAYCUP_IN const char *path) {
     self->fp = fopen(path, "w");
     if (self->fp == NULL) {
-        return M2H_RESULT_ERRNO;
+        return MAYCUP_RESULT_ERRNO;
     }
-    self->base.puts = (M2H_Result (*)(M2H_Writer *, char *))filewriter_puts;
-    self->base.vprintf =
-        (M2H_Result (*)(M2H_Writer *, const char *, va_list))filewriter_vprintf;
-    return M2H_RESULT_OK;
+    self->base.puts =
+        (MAYCUP_Result (*)(MAYCUP_Writer *, char *))filewriter_puts;
+    self->base.vprintf = (MAYCUP_Result (*)(MAYCUP_Writer *, const char *,
+                                            va_list))filewriter_vprintf;
+    return MAYCUP_RESULT_OK;
 }
 
-M2H_Result M2H_filewriter_dtor(M2H_OUT M2H_FileWriter *self) {
+MAYCUP_Result maycup_filewriter_dtor(MAYCUP_OUT MAYCUP_FileWriter *self) {
     if (self->fp == NULL) {
-        return M2H_RESULT_ILLEGAL_ARGUMENT;
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
     if (fclose(self->fp) == EOF) {
-        return M2H_RESULT_ERRNO;
+        return MAYCUP_RESULT_ERRNO;
     }
     self->fp = NULL;
-    return M2H_RESULT_OK;
+    return MAYCUP_RESULT_OK;
 }
 
-static M2H_Result string_writer_flexible_reserve(M2H_StringWriter *self,
-                                                 size_t cap) {
+static MAYCUP_Result string_writer_flexible_reserve(MAYCUP_StringWriter *self,
+                                                    size_t cap) {
     if (cap == 0) {
-        return M2H_RESULT_ILLEGAL_ARGUMENT;
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
     if (cap <= self->cap) {
-        return M2H_RESULT_OK;
+        return MAYCUP_RESULT_OK;
     }
     char *new = realloc(self->buf, cap * sizeof(char));
     if (new == NULL) {
-        return M2H_RESULT_MALLOC_FAIL;
+        return MAYCUP_RESULT_MALLOC_FAIL;
     }
     self->buf = new;
     self->cap = cap;
-    return M2H_RESULT_OK;
+    return MAYCUP_RESULT_OK;
 }
 
-static M2H_Result stringwriter_puts(M2H_INOUT M2H_StringWriter *self,
-                                    M2H_IN char *str) {
+static MAYCUP_Result stringwriter_puts(MAYCUP_INOUT MAYCUP_StringWriter *self,
+                                       MAYCUP_IN char *str) {
     size_t dest_size = self->size + strlen(str);
     if (self->cap < dest_size) {
         if (self->flexible) {
-            M2H_RELAY(string_writer_flexible_reserve(self, dest_size * 2));
+            MAYCUP_RELAY(string_writer_flexible_reserve(self, dest_size * 2));
         } else {
-            return M2H_RESULT_ILLEGAL_ARGUMENT;
+            return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
         }
     }
 
     strncat(self->buf, str, self->cap - self->size);
     self->size = dest_size;
 
-    return M2H_RESULT_OK;
+    return MAYCUP_RESULT_OK;
 }
 
-static M2H_Result stringwriter_vprintf(M2H_IN M2H_StringWriter *self,
-                                       M2H_IN const char *format,
-                                       va_list args) {
+static MAYCUP_Result stringwriter_vprintf(MAYCUP_IN MAYCUP_StringWriter *self,
+                                          MAYCUP_IN const char *format,
+                                          va_list args) {
     va_list args_fmt;
     va_copy(args_fmt, args);
 
     int fmt_size = vsnprintf(NULL, 0, format, args);
     va_end(args_fmt);
     if (fmt_size < 0) {
-        return M2H_RESULT_ERRNO;
+        return MAYCUP_RESULT_ERRNO;
     }
 
     size_t dest_size = self->size + (size_t)fmt_size;
     if (self->cap < dest_size) {
         if (self->flexible) {
-            M2H_RELAY(string_writer_flexible_reserve(self, dest_size * 2));
+            MAYCUP_RELAY(string_writer_flexible_reserve(self, dest_size * 2));
         } else {
-            return M2H_RESULT_ILLEGAL_ARGUMENT;
+            return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
         }
     }
     int printf_res = vsnprintf(self->buf + self->size - 1,
                                self->cap - self->size + 1, format, args);
     if (printf_res < 0) {
-        return M2H_RESULT_ERRNO;
+        return MAYCUP_RESULT_ERRNO;
     }
     self->size = dest_size;
 
-    return M2H_RESULT_OK;
+    return MAYCUP_RESULT_OK;
 }
 
-M2H_Result M2H_stringwriter_ctor(M2H_OUT M2H_StringWriter *self,
-                                 M2H_IN char *buf, M2H_IN size_t bufsz) {
+MAYCUP_Result maycup_stringwriter_ctor(MAYCUP_OUT MAYCUP_StringWriter *self,
+                                       MAYCUP_IN char *buf,
+                                       MAYCUP_IN size_t bufsz) {
     self->buf = buf;
     self->buf[0] = '\0';
     self->size = 1;
     self->cap = bufsz;
     self->flexible = false;
-    self->base.puts = (M2H_Result (*)(M2H_Writer *, char *))stringwriter_puts;
-    self->base.vprintf = (M2H_Result (*)(M2H_Writer *, const char *,
-                                         va_list))stringwriter_vprintf;
-    return M2H_RESULT_OK;
+    self->base.puts =
+        (MAYCUP_Result (*)(MAYCUP_Writer *, char *))stringwriter_puts;
+    self->base.vprintf = (MAYCUP_Result (*)(MAYCUP_Writer *, const char *,
+                                            va_list))stringwriter_vprintf;
+    return MAYCUP_RESULT_OK;
 }
 
-M2H_Result M2H_stringwriter_ctor_flexible(M2H_OUT M2H_StringWriter *self,
-                                          M2H_IN size_t bufsz) {
+MAYCUP_Result
+maycup_stringwriter_ctor_flexible(MAYCUP_OUT MAYCUP_StringWriter *self,
+                                  MAYCUP_IN size_t bufsz) {
     if (bufsz == 0) {
-        return M2H_RESULT_ILLEGAL_ARGUMENT;
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
     self->size = 1;
     self->cap = bufsz;
     self->buf = (char *)malloc(bufsz * sizeof(char));
     if (self->buf == NULL) {
-        return M2H_RESULT_MALLOC_FAIL;
+        return MAYCUP_RESULT_MALLOC_FAIL;
     }
     self->buf[0] = '\0';
     self->flexible = true;
-    self->base.puts = (M2H_Result (*)(M2H_Writer *, char *))stringwriter_puts;
-    self->base.vprintf = (M2H_Result (*)(M2H_Writer *, const char *,
-                                         va_list))stringwriter_vprintf;
-    return M2H_RESULT_OK;
+    self->base.puts =
+        (MAYCUP_Result (*)(MAYCUP_Writer *, char *))stringwriter_puts;
+    self->base.vprintf = (MAYCUP_Result (*)(MAYCUP_Writer *, const char *,
+                                            va_list))stringwriter_vprintf;
+    return MAYCUP_RESULT_OK;
 }
 
-M2H_Result M2H_stringwriter_dtor(M2H_OUT M2H_StringWriter *self,
-                                 M2H_OUT char **buf) {
+MAYCUP_Result maycup_stringwriter_dtor(MAYCUP_OUT MAYCUP_StringWriter *self,
+                                       MAYCUP_OUT char **buf) {
     if (buf == NULL) {
         if (self->flexible) {
             free(self->buf);
@@ -193,5 +200,5 @@ M2H_Result M2H_stringwriter_dtor(M2H_OUT M2H_StringWriter *self,
     }
     self->buf = NULL;
     self->cap = self->size = 0;
-    return M2H_RESULT_OK;
+    return MAYCUP_RESULT_OK;
 }

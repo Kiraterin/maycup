@@ -4,7 +4,7 @@
  * @date 2026-07-22
  * @copyright GPLv3 License
  * @section LICENSE
- * md2html
+ * maycup
  * Copyright (C) 2026 Kiraterin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -117,7 +117,7 @@ typedef struct {
         }                                                                      \
     } while (false)
 
-#define ASSERT_OK(expr, fail_label) ASSERT_EQ((expr), M2H_RESULT_OK, fail_label)
+#define ASSERT_OK(expr, fail_label) ASSERT_EQ((expr), MAYCUP_RESULT_OK, fail_label)
 
 // mock functions
 #define MOCK_ON(func) CONCAT(TEST_CTX.mock_state.m_, func) = true

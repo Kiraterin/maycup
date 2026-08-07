@@ -1,7 +1,7 @@
-# md2html
+# Maycup
 
 [![License](https://img.shields.io/badge/License-GPLv3-bright_green.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Github](https://img.shields.io/badge/Github-repo-white?logo=github)](https://github.com/Kiraterin/md2html)
+[![Github](https://img.shields.io/badge/Github-repo-white?logo=github)](https://github.com/Kiraterin/maycup)
 [![Language](https://img.shields.io/badge/Language-C23-blue)](https://www.c-language.org/)
 
 A tiny Markdown-to-HTML tool written in C.
@@ -19,7 +19,7 @@ A tiny Markdown-to-HTML tool written in C.
 ### Synopsis
 
 ```bash
-md2html <input_file> [options]
+maycup <input_file> [options]
 ```
 
 ### Options
@@ -34,7 +34,7 @@ md2html <input_file> [options]
 Convert markdown file to HTML file:
 
 ```bash
-md2html input.md -o output.html
+maycup input.md -o output.html
 ```
 
 ## Build Instructions

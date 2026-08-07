@@ -1,10 +1,10 @@
 /**
- * @file md2html.h
+ * @file maycup.h
  * @brief A lightweight tool library converts markdown to html
  * @date 2026-07-15
  * @copyright GPLv3 License
  * @section LICENSE
- * md2html
+ * maycup
  * Copyright (C) 2026 Kiraterin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,19 +21,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef MD2HTML_H
-#define MD2HTML_H
+#ifndef MAYCUP_H
+#define MAYCUP_H
 
-#include "md2html/base/result.h"
+#include "maycup/base/result.h"
 
 /**
  * @brief Convert a Markdown file into an HTML file
  * @param input_file In, path to input file
  * @param output_file In, path to output file
- * @return M2H_Result
+ * @return MAYCUP_Result
  */
-M2H_Result M2H_convert_file(M2H_IN const char *input_file,
-                            M2H_IN const char *output_file);
+MAYCUP_Result maycup_convert_file(MAYCUP_IN const char *input_file,
+                                  MAYCUP_IN const char *output_file);
 
 /**
  * @brief Convert a Markdown string into an HTML string
@@ -41,11 +41,11 @@ M2H_Result M2H_convert_file(M2H_IN const char *input_file,
  * @param input_len In, length of input string
  * @param output_string In, the output string buffer
  * @param output_len In, the max length of output
- * @return M2H_Result
+ * @return MAYCUP_Result
  */
-M2H_Result M2H_convert_string(M2H_IN const char *input_string,
-                              M2H_IN const size_t input_len,
-                              M2H_IN char *output_string,
-                              M2H_IN const size_t output_len);
+MAYCUP_Result maycup_convert_string(MAYCUP_IN const char *input_string,
+                                    MAYCUP_IN const size_t input_len,
+                                    MAYCUP_IN char *output_string,
+                                    MAYCUP_IN const size_t output_len);
 
-#endif // MD2HTML_H
+#endif // MAYCUP_H

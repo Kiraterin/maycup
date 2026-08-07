@@ -4,7 +4,7 @@
  * @date 2026-07-08
  * @copyright GPLv3 License
  * @section LICENSE
- * md2html
+ * maycup
  * Copyright (C) 2026 Kiraterin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "md2html.h"
+#include "maycup.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -29,7 +29,7 @@
 // mock def
 #include "mock_funcs.h"
 
-const char *usage = "Usage: md2html input_file -o output_file\n";
+const char *usage = "Usage: maycup input_file -o output_file\n";
 
 int main(int argc, char *argv[]) {
     int opt;
@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
         goto err_msg;
     }
 
-    M2H_UNWRAP(M2H_convert_file(input, output));
+    MAYCUP_UNWRAP(maycup_convert_file(input, output));
 
     return EXIT_SUCCESS;
 

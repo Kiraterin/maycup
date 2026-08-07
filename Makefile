@@ -37,18 +37,18 @@ ifeq ($(CONFIG), release)
 	CFLAGS += -O3 -DNDEBUG -ffunction-sections -fdata-sections
 	LD_FLAGS += -s -Wl,--gc-sections
 	OBJ := $(SRC_OBJ)
-	TARGET := $(BIN_DIR)/md2html
+	TARGET := $(BIN_DIR)/maycup
 else ifeq ($(CONFIG), debug)
 	CFLAGS += -g -O0 -fsanitize=address -DDEBUG
 	LD_FLAGS += -fsanitize=address -fno-omit-frame-pointer
 	OBJ := $(SRC_OBJ)
-	TARGET := $(BIN_DIR)/md2html
+	TARGET := $(BIN_DIR)/maycup
 else ifeq ($(CONFIG), test)
 	CFLAGS += -g -O0 -fsanitize=address -fprofile-instr-generate -fcoverage-mapping -DDEBUG -DTEST
 	LD_FLAGS += -fsanitize=address -fprofile-instr-generate -fno-omit-frame-pointer
 	OBJ := $(SRC_OBJ) $(TEST_OBJ)
 	OBJ := $(filter-out %/main.o, $(OBJ))
-	TARGET := $(BIN_DIR)/md2html_test
+	TARGET := $(BIN_DIR)/maycup_test
 else ifeq ($(CONFIG),)
 else
 $(error Invalid CONFIG type: $(CONFIG))
