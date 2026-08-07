@@ -41,18 +41,18 @@ typedef enum {
 
 /**
  * @brief Print error message
- * @param res In, the type of result
+ * @param _res_ In, the type of result
  */
-void M2H_error_printmsg(M2H_IN M2H_Result res);
+void M2H_error_printmsg(M2H_IN M2H_Result _res_);
 
 /**
  * @brief Do something when @c expr is not @c M2H_RESULT_OK ; The error type is
- *        @c res
+ *        @c _res_
  */
 #define M2H_HANDLE(expr, handler)                                              \
     do {                                                                       \
-        M2H_Result res = (expr);                                               \
-        if (res != M2H_RESULT_OK) {                                            \
+        M2H_Result _res_ = (expr);                                               \
+        if (_res_ != M2H_RESULT_OK) {                                            \
             handler;                                                           \
         }                                                                      \
     } while (false)
@@ -60,26 +60,26 @@ void M2H_error_printmsg(M2H_IN M2H_Result res);
 /**
  * @brief Relay error to caller
  */
-#define M2H_RELAY(expr) M2H_HANDLE(expr, return res)
+#define M2H_RELAY(expr) M2H_HANDLE(expr, return _res_)
 
 /**
- * @brief Relay error or ok to caller, but if the res is @c when , continue; if
- *        the res is @c act_res , do action
+ * @brief Relay error or ok to caller, but if the _res_ is @c when , continue; if
+ *        the _res_ is @c act_res , do action
  */
 #define M2H_RELAY_UNLESS_DO(expr, when, act_res, action)                       \
     if (true) {                                                                \
-        M2H_Result res = (expr);                                               \
-        if (res == act_res) {                                                  \
+        M2H_Result _res_ = (expr);                                               \
+        if (_res_ == act_res) {                                                  \
             action;                                                            \
         }                                                                      \
-        if (res != (when)) {                                                   \
-            return res;                                                        \
+        if (_res_ != (when)) {                                                   \
+            return _res_;                                                        \
         }                                                                      \
     } else                                                                     \
         (void)0
 
 /**
- * @brief Relay error to caller or do action if it's ok, but if the res is
+ * @brief Relay error to caller or do action if it's ok, but if the _res_ is
  *        @c err , continue
  */
 #define M2H_RELAY_UNLESSOK_DO(expr, err, ok)                                   \
@@ -91,9 +91,9 @@ void M2H_error_printmsg(M2H_IN M2H_Result res);
  */
 #define M2H_UNWRAP(expr)                                                       \
     do {                                                                       \
-        M2H_Result res = (expr);                                               \
-        if (res != M2H_RESULT_OK) {                                            \
-            M2H_error_printmsg(res);                                           \
+        M2H_Result _res_ = (expr);                                               \
+        if (_res_ != M2H_RESULT_OK) {                                            \
+            M2H_error_printmsg(_res_);                                           \
             abort();                                                           \
         }                                                                      \
     } while (false)

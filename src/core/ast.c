@@ -22,7 +22,6 @@
  */
 
 #include "md2html/core/ast.h"
-#include "mock_macros.h"
 
 typedef ssize_t idx;
 #define M2H_VEC_T idx
@@ -30,6 +29,9 @@ typedef ssize_t idx;
 #include "md2html/base/vector.h"
 #undef M2H_VEC_DISPT
 #undef M2H_VEC_T
+
+// mock def
+#include "mock_funcs.h"
 
 M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *root) {
     if (self == NULL || root == NULL) {

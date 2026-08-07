@@ -22,10 +22,29 @@
  */
 
 #include "md2html/io/writer.h"
-#include "mock_macros.h"
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+
+// mock def
+#include "mock_funcs.h"
+
+M2H_Result M2H_writer_puts(void *self, M2H_IN char *str) {
+    if (self == NULL) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
+    return ((M2H_Writer *)self)->puts(self, str);
+}
+M2H_Result M2H_writer_printf(void *self, M2H_IN const char *format, ...) {
+    if (self == NULL) {
+        return M2H_RESULT_ILLEGAL_ARGUMENT;
+    }
+    va_list args;
+    va_start(args, format);
+    M2H_Result res = ((M2H_Writer *)self)->vprintf(self, format, args);
+    va_end(args);
+    return res;
+}
 
 static M2H_Result filewriter_puts(M2H_IN M2H_FileWriter *self,
                                   M2H_IN char *str) {
@@ -35,14 +54,11 @@ static M2H_Result filewriter_puts(M2H_IN M2H_FileWriter *self,
     return M2H_RESULT_OK;
 }
 
-static M2H_Result filewriter_printf(M2H_IN M2H_FileWriter *self,
-                                    M2H_IN const char *format, ...) {
-    va_list args;
-    va_start(args, format);
+static M2H_Result filewriter_vprintf(M2H_IN M2H_FileWriter *self,
+                                     M2H_IN const char *format, va_list args) {
     if (vfprintf(self->fp, format, args) < 0) {
         return M2H_RESULT_ERRNO;
     }
-    va_end(args);
     return M2H_RESULT_OK;
 }
 
@@ -53,8 +69,8 @@ M2H_Result M2H_filewriter_ctor(M2H_OUT M2H_FileWriter *self,
         return M2H_RESULT_ERRNO;
     }
     self->base.puts = (M2H_Result (*)(M2H_Writer *, char *))filewriter_puts;
-    self->base.printf =
-        (M2H_Result (*)(M2H_Writer *, const char *, ...))filewriter_printf;
+    self->base.vprintf =
+        (M2H_Result (*)(M2H_Writer *, const char *, va_list))filewriter_vprintf;
     return M2H_RESULT_OK;
 }
 
@@ -103,13 +119,14 @@ static M2H_Result stringwriter_puts(M2H_INOUT M2H_StringWriter *self,
     return M2H_RESULT_OK;
 }
 
-static M2H_Result stringwriter_printf(M2H_IN M2H_StringWriter *self,
-                                      M2H_IN const char *format, ...) {
-    va_list args;
+static M2H_Result stringwriter_vprintf(M2H_IN M2H_StringWriter *self,
+                                       M2H_IN const char *format,
+                                       va_list args) {
+    va_list args_fmt;
+    va_copy(args_fmt, args);
 
-    va_start(args, format);
     int fmt_size = vsnprintf(NULL, 0, format, args);
-    va_end(args);
+    va_end(args_fmt);
     if (fmt_size < 0) {
         return M2H_RESULT_ERRNO;
     }
@@ -122,11 +139,8 @@ static M2H_Result stringwriter_printf(M2H_IN M2H_StringWriter *self,
             return M2H_RESULT_ILLEGAL_ARGUMENT;
         }
     }
-
-    va_start(args, format);
     int printf_res = vsnprintf(self->buf + self->size - 1,
                                self->cap - self->size + 1, format, args);
-    va_end(args);
     if (printf_res < 0) {
         return M2H_RESULT_ERRNO;
     }
@@ -143,8 +157,8 @@ M2H_Result M2H_stringwriter_ctor(M2H_OUT M2H_StringWriter *self,
     self->cap = bufsz;
     self->flexible = false;
     self->base.puts = (M2H_Result (*)(M2H_Writer *, char *))stringwriter_puts;
-    self->base.printf =
-        (M2H_Result (*)(M2H_Writer *, const char *, ...))stringwriter_printf;
+    self->base.vprintf = (M2H_Result (*)(M2H_Writer *, const char *,
+                                         va_list))stringwriter_vprintf;
     return M2H_RESULT_OK;
 }
 
@@ -162,8 +176,8 @@ M2H_Result M2H_stringwriter_ctor_flexible(M2H_OUT M2H_StringWriter *self,
     self->buf[0] = '\0';
     self->flexible = true;
     self->base.puts = (M2H_Result (*)(M2H_Writer *, char *))stringwriter_puts;
-    self->base.printf =
-        (M2H_Result (*)(M2H_Writer *, const char *, ...))stringwriter_printf;
+    self->base.vprintf = (M2H_Result (*)(M2H_Writer *, const char *,
+                                         va_list))stringwriter_vprintf;
     return M2H_RESULT_OK;
 }
 

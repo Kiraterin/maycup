@@ -25,13 +25,18 @@
 #define WRITER_H
 
 #include "md2html/base/result.h"
+#include <stdarg.h>
 #include <stdio.h>
 
 typedef struct M2H_Writer M2H_Writer;
 
+M2H_Result M2H_writer_puts(void *self, M2H_IN char *str);
+
+M2H_Result M2H_writer_printf(void *self, M2H_IN const char *format, ...);
+
 struct M2H_Writer {
     M2H_Result (*puts)(M2H_Writer *self, M2H_IN char *str);
-    M2H_Result (*printf)(M2H_Writer *self, M2H_IN const char *format, ...);
+    M2H_Result (*vprintf)(M2H_Writer *self, M2H_IN const char *format, va_list args);
 };
 
 typedef struct {

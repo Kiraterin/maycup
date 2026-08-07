@@ -22,10 +22,12 @@
  */
 
 #include "md2html.h"
-#include "mock_macros.h"
 #include <stdio.h>
 #include <stdlib.h>
-    #include <unistd.h>
+#include <unistd.h>
+
+// mock def
+#include "mock_funcs.h"
 
 const char *usage = "Usage: md2html input_file -o output_file\n";
 

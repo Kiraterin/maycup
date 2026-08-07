@@ -60,15 +60,15 @@ fail:
 TEST_CASE(vector_ctor_malloc_fail) {
     M2H_VectorInt vec;
 
-    TEST_CTX.mock_state.m_malloc = true;
+    MOCK_ON(malloc);
 
     ASSERT_EQ(M2H_vector_int_ctor(&vec, M2H_DEFAULT_VEC_SIZE),
               M2H_RESULT_MALLOC_FAIL, fail);
 
-    TEST_CTX.mock_state.m_malloc = false;
+    MOCK_OFF(malloc);
     return TEST_RESULT_PASS;
 fail:
-    TEST_CTX.mock_state.m_malloc = false;
+    MOCK_OFF(malloc);
     return TEST_RESULT_FAIL;
 }
 
@@ -158,7 +158,7 @@ TEST_CASE(vector_reserve_realloc_fail) {
     const size_t cap = 512;
     const size_t reserve_cap = 1024;
 
-    TEST_CTX.mock_state.m_realloc = true;
+    MOCK_ON(realloc);
 
     ASSERT_OK(M2H_vector_int_ctor(&vec, cap), fail);
     ASSERT_EQ(M2H_vector_int_reserve(&vec, reserve_cap), M2H_RESULT_MALLOC_FAIL,
@@ -171,11 +171,11 @@ TEST_CASE(vector_reserve_realloc_fail) {
     }
 
     ASSERT_OK(M2H_vector_int_dtor(&vec), fail);
-    TEST_CTX.mock_state.m_realloc = false;
+    MOCK_OFF(realloc);
     return TEST_RESULT_PASS;
 fail:
     M2H_vector_int_dtor(&vec);
-    TEST_CTX.mock_state.m_realloc = false;
+    MOCK_OFF(realloc);
     return TEST_RESULT_FAIL;
 }
 

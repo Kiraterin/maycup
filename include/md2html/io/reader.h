@@ -27,30 +27,34 @@
 #include "md2html/base/result.h"
 #include <stdio.h>
 
+/**
+ * @brief Get a char from reader
+ * @note When @p res is @c NULL , the char will be discarded and the cursor
+ *       move to next char
+ * @param self Pointer to the reader
+ * @param res Out, the char got
+ */
+M2H_Result M2H_reader_get_char(void *self, M2H_OUT int *res);
+
+/**
+ * @brief Get the cursor of a reader
+ * @param self Pointer to the reader
+ * @param res Out, the offset from beginning got, cannot be @c NULL
+ */
+M2H_Result M2H_reader_tell(void *self, M2H_OUT long *res);
+
+/**
+ * @brief Set the cursor of a reader to a given place
+ * @param self The reader
+ * @param offset In, the destined offset from beginning
+ */
+M2H_Result M2H_reader_seek(void *self, M2H_IN long offset);
+
 typedef struct M2H_Reader M2H_Reader;
 
 struct M2H_Reader {
-    /**
-     * @brief Get a char from reader
-     * @note When @p res is @c NULL , the char will be discarded and the cursor
-     *       move to next char
-     * @param self The reader
-     * @param res Out, the char got
-     */
     M2H_Result (*get_char)(M2H_Reader *self, M2H_OUT int *res);
-
-    /**
-     * @brief Get the cursor of a reader
-     * @param self The reader
-     * @param res Out, the offset from beginning got
-     */
     M2H_Result (*tell)(M2H_Reader *self, M2H_OUT long *res);
-
-    /**
-     * @brief Set the cursor of a reader to a given place
-     * @param self The reader
-     * @param offset In, the destined offset from beginning
-     */
     M2H_Result (*seek)(M2H_Reader *self, M2H_IN long offset);
 };
 
@@ -78,14 +82,14 @@ M2H_Result M2H_filereader_dtor(M2H_OUT M2H_FileReader *self);
 typedef struct {
     M2H_Reader base;
     const char *begin;
-    const char *iter;
+    const char *cur;
     const char *end;
 } M2H_StringReader;
 
 /**
  * @brief Construct a string reader
  * @param self Out, the file reader to construct
- * @param path In, the path that the file reader will read
+ * @param path In, the string that the string reader will read
  * @param len In, the length of the string
  * @return M2H_Result
  */

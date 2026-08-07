@@ -27,9 +27,14 @@
 
 #if defined(M2H_VEC_T) && defined(M2H_VEC_DISPT)
 
+// mock undef
+#include "mock_funcs_undef.h"
+
 #include "md2html/base/result.h"
-#include "mock_macros.h"
 #include <stdlib.h>
+
+// mock def
+#include "mock_funcs.h"
 
 #define _CONCAT_INNER(a, b) a##b
 #define _CONCAT(a, b) _CONCAT_INNER(a, b)
@@ -171,5 +176,8 @@ _CONCAT(FUNC_PREF, pushback)(M2H_INOUT VECT *self, M2H_IN T elem) {
 
 #undef _CONCAT
 #undef _CONCAT_INNER
+
+// mock undef
+#include "mock_funcs_undef.h"
 
 #endif // M2H_VEC_T && M2H_VEC_DISPT
