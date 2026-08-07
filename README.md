@@ -6,6 +6,8 @@
 
 A tiny Markdown-to-HTML tool written in C.
 
+The name "Maycup" is a wordplay on "Markdown" ("May c up" and "Mar k down") and a homophone of "make up", which means to "make up" a Markdown file by converting it into HTML.
+
 ## Goals
 
 - Develop a lightweight md to html tool for my personal website
@@ -55,7 +57,9 @@ where `<config>` can be `release`, `debug` or `test`.
 Tests will be run automatically after compilation if `<config>` is `test`.
 
 ### Generate Test Coverage Report
+
 The report page is ./bin/test/cov/index.html
+
 ```bash
 make cov
 ```
