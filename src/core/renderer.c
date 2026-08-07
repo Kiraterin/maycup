@@ -1,10 +1,10 @@
 /**
  * @file renderer.c
- * @brief Renderer in md2html
+ * @brief Renderer in maycup
  * @date 2026-07-15
  * @copyright GPLv3 License
  * @section LICENSE
- * md2html
+ * maycup
  * Copyright (C) 2026 Kiraterin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,97 +21,97 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "md2html/core/renderer.h"
-#include "md2html/io/writer.h"
+#include "maycup/core/renderer.h"
+#include "maycup/io/writer.h"
 #include <stdio.h>
 
 typedef ssize_t idx;
-#define M2H_VEC_T idx
-#define M2H_VEC_DISPT Idx
-#include "md2html/base/vector.h"
-#undef M2H_VEC_DISPT
-#undef M2H_VEC_T
+#define MAYCUP_VEC_T idx
+#define MAYCUP_VEC_DISPT Idx
+#include "maycup/base/vector.h"
+#undef MAYCUP_VEC_DISPT
+#undef MAYCUP_VEC_T
 
 // mock def
 #include "mock_funcs.h"
 
-M2H_Result M2H_renderer_ctor(M2H_OUT M2H_Renderer *self,
-                             M2H_IN M2H_Writer *writer) {
+MAYCUP_Result MAYCUP_renderer_ctor(MAYCUP_OUT MAYCUP_Renderer *self,
+                             MAYCUP_IN MAYCUP_Writer *writer) {
     self->writer = writer;
-    return M2H_RESULT_OK;
+    return MAYCUP_RESULT_OK;
 }
-M2H_Result M2H_renderer_dtor(M2H_OUT M2H_Renderer *self) {
+MAYCUP_Result MAYCUP_renderer_dtor(MAYCUP_OUT MAYCUP_Renderer *self) {
     (void)self;
-    return M2H_RESULT_OK;
+    return MAYCUP_RESULT_OK;
 }
 
-M2H_Result M2H_render(M2H_INOUT M2H_Renderer *renderer,
-                      M2H_IN M2H_Parser *parser) {
-    M2H_writer_puts(renderer->writer, "<!DOCTYPE html>");
-    M2H_VectorIdx stack;
-    M2H_RELAY(M2H_vector_idx_ctor(&stack, M2H_DEFAULT_VEC_SIZE));
-    M2H_RELAY(M2H_vector_idx_pushback(&stack, parser->root_astnode));
-    M2H_Result iores = 0;
+MAYCUP_Result MAYCUP_render(MAYCUP_INOUT MAYCUP_Renderer *renderer,
+                      MAYCUP_IN MAYCUP_Parser *parser) {
+    MAYCUP_writer_puts(renderer->writer, "<!DOCTYPE html>");
+    MAYCUP_VectorIdx stack;
+    MAYCUP_RELAY(MAYCUP_vector_idx_ctor(&stack, MAYCUP_DEFAULT_VEC_SIZE));
+    MAYCUP_RELAY(MAYCUP_vector_idx_pushback(&stack, parser->root_astnode));
+    MAYCUP_Result iores = 0;
     while (stack.len > 0) {
         ssize_t curidx;
-        M2H_RELAY(M2H_vector_idx_top(&stack, &curidx));
-        M2H_RELAY(M2H_vector_idx_popback(&stack));
-        M2H_ASTNode *const cur =
+        MAYCUP_RELAY(MAYCUP_vector_idx_top(&stack, &curidx));
+        MAYCUP_RELAY(MAYCUP_vector_idx_popback(&stack));
+        MAYCUP_ASTNode *const cur =
             &parser->ast.data[(curidx > 0 ? curidx : -curidx)];
 
         if (curidx > 0) {
             // close mark
-            M2H_RELAY(M2H_vector_idx_pushback(&stack, -curidx));
+            MAYCUP_RELAY(MAYCUP_vector_idx_pushback(&stack, -curidx));
             ssize_t getter = cur->child;
             while (getter != -1) {
-                M2H_RELAY(M2H_vector_idx_pushback(&stack, getter));
+                MAYCUP_RELAY(MAYCUP_vector_idx_pushback(&stack, getter));
                 getter = parser->ast.data[getter].prev_sibling;
             }
             switch (cur->type) {
-            case M2H_ASTNODE_TYPE_NONE:
-                return M2H_RESULT_ILLEGAL_ARGUMENT;
-            case M2H_ASTNODE_TYPE_ROOT:
-                iores = M2H_writer_puts(renderer->writer, "<body>");
+            case MAYCUP_ASTNODE_TYPE_NONE:
+                return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
+            case MAYCUP_ASTNODE_TYPE_ROOT:
+                iores = MAYCUP_writer_puts(renderer->writer, "<body>");
                 break;
-            case M2H_ASTNODE_TYPE_HEADING:
-                iores = M2H_writer_printf(renderer->writer, "<h%d>",
+            case MAYCUP_ASTNODE_TYPE_HEADING:
+                iores = MAYCUP_writer_printf(renderer->writer, "<h%d>",
                                           cur->heading.level);
                 break;
-            case M2H_ASTNODE_TYPE_PARAGRAPH:
-                iores = M2H_writer_puts(renderer->writer, "<p>");
+            case MAYCUP_ASTNODE_TYPE_PARAGRAPH:
+                iores = MAYCUP_writer_puts(renderer->writer, "<p>");
                 break;
-            case M2H_ASTNODE_TYPE_TEXT:
-                iores = M2H_writer_puts(renderer->writer, cur->text.content);
+            case MAYCUP_ASTNODE_TYPE_TEXT:
+                iores = MAYCUP_writer_puts(renderer->writer, cur->text.content);
                 break;
             }
         } else if (curidx < 0) {
             switch (cur->type) {
-            case M2H_ASTNODE_TYPE_NONE:
-                return M2H_RESULT_ILLEGAL_ARGUMENT;
-            case M2H_ASTNODE_TYPE_ROOT:
-                iores = M2H_writer_puts(renderer->writer, "</body>");
+            case MAYCUP_ASTNODE_TYPE_NONE:
+                return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
+            case MAYCUP_ASTNODE_TYPE_ROOT:
+                iores = MAYCUP_writer_puts(renderer->writer, "</body>");
                 break;
-            case M2H_ASTNODE_TYPE_HEADING:
-                iores = M2H_writer_printf(renderer->writer, "</h%d>",
+            case MAYCUP_ASTNODE_TYPE_HEADING:
+                iores = MAYCUP_writer_printf(renderer->writer, "</h%d>",
                                           cur->heading.level);
                 break;
-            case M2H_ASTNODE_TYPE_PARAGRAPH:
-                iores = M2H_writer_puts(renderer->writer, "</p>");
+            case MAYCUP_ASTNODE_TYPE_PARAGRAPH:
+                iores = MAYCUP_writer_puts(renderer->writer, "</p>");
                 break;
-            case M2H_ASTNODE_TYPE_TEXT:
+            case MAYCUP_ASTNODE_TYPE_TEXT:
                 if (cur->text.newline_tailed) {
-                    iores = M2H_writer_puts(renderer->writer, "<br>");
+                    iores = MAYCUP_writer_puts(renderer->writer, "<br>");
                 }
                 break;
             }
         }
 
-        if (iores != M2H_RESULT_OK) {
-            M2H_RELAY(M2H_vector_idx_dtor(&stack));
+        if (iores != MAYCUP_RESULT_OK) {
+            MAYCUP_RELAY(MAYCUP_vector_idx_dtor(&stack));
             return iores;
         }
     }
 
-    M2H_RELAY(M2H_vector_idx_dtor(&stack));
-    return M2H_RESULT_OK;
+    MAYCUP_RELAY(MAYCUP_vector_idx_dtor(&stack));
+    return MAYCUP_RESULT_OK;
 }

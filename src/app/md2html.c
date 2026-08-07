@@ -1,10 +1,10 @@
 /**
- * @file md2html.c
+ * @file maycup.c
  * @brief Sealed functions
  * @date 2026-07-15
  * @copyright GPLv3 License
  * @section LICENSE
- * md2html
+ * maycup
  * Copyright (C) 2026 Kiraterin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,63 +21,63 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "md2html.h"
-#include "md2html/core/renderer.h"
-#include "md2html/io/reader.h"
+#include "maycup.h"
+#include "maycup/core/renderer.h"
+#include "maycup/io/reader.h"
 
 // mock def
 #include "mock_funcs.h"
 
-M2H_Result M2H_convert_file(M2H_IN const char *input_file,
-                            M2H_IN const char *output_file) {
-    M2H_FileReader freader;
-    M2H_RELAY(M2H_filereader_ctor(&freader, input_file));
-    M2H_FileWriter fwriter;
-    M2H_RELAY(M2H_filewriter_ctor(&fwriter, output_file));
-    M2H_Lexer lexer;
-    M2H_RELAY(M2H_lexer_ctor(&lexer, (M2H_Reader *)&freader));
-    M2H_Parser parser;
-    M2H_RELAY(M2H_parser_ctor(&parser));
-    M2H_Renderer renderer;
-    M2H_RELAY(M2H_renderer_ctor(&renderer, (M2H_Writer *)&fwriter));
+MAYCUP_Result MAYCUP_convert_file(MAYCUP_IN const char *input_file,
+                            MAYCUP_IN const char *output_file) {
+    MAYCUP_FileReader freader;
+    MAYCUP_RELAY(MAYCUP_filereader_ctor(&freader, input_file));
+    MAYCUP_FileWriter fwriter;
+    MAYCUP_RELAY(MAYCUP_filewriter_ctor(&fwriter, output_file));
+    MAYCUP_Lexer lexer;
+    MAYCUP_RELAY(MAYCUP_lexer_ctor(&lexer, (MAYCUP_Reader *)&freader));
+    MAYCUP_Parser parser;
+    MAYCUP_RELAY(MAYCUP_parser_ctor(&parser));
+    MAYCUP_Renderer renderer;
+    MAYCUP_RELAY(MAYCUP_renderer_ctor(&renderer, (MAYCUP_Writer *)&fwriter));
 
-    M2H_RELAY(M2H_parse(&parser, &lexer));
-    M2H_RELAY(M2H_render(&renderer, &parser));
+    MAYCUP_RELAY(MAYCUP_parse(&parser, &lexer));
+    MAYCUP_RELAY(MAYCUP_render(&renderer, &parser));
 
-    M2H_RELAY(M2H_renderer_dtor(&renderer));
-    M2H_RELAY(M2H_parser_dtor(&parser));
-    M2H_RELAY(M2H_lexer_dtor(&lexer));
-    M2H_RELAY(M2H_filereader_dtor(&freader));
-    return M2H_RESULT_OK;
+    MAYCUP_RELAY(MAYCUP_renderer_dtor(&renderer));
+    MAYCUP_RELAY(MAYCUP_parser_dtor(&parser));
+    MAYCUP_RELAY(MAYCUP_lexer_dtor(&lexer));
+    MAYCUP_RELAY(MAYCUP_filereader_dtor(&freader));
+    return MAYCUP_RESULT_OK;
 }
 
-M2H_Result M2H_convert_string(M2H_IN const char *input_string,
-                              M2H_IN const size_t input_len,
-                              M2H_IN char *output_string,
-                              M2H_IN const size_t output_len) {
-    M2H_StringReader sreader;
-    M2H_RELAY(M2H_stringreader_ctor(&sreader, input_string, input_len));
-    M2H_StringWriter swriter;
+MAYCUP_Result MAYCUP_convert_string(MAYCUP_IN const char *input_string,
+                              MAYCUP_IN const size_t input_len,
+                              MAYCUP_IN char *output_string,
+                              MAYCUP_IN const size_t output_len) {
+    MAYCUP_StringReader sreader;
+    MAYCUP_RELAY(MAYCUP_stringreader_ctor(&sreader, input_string, input_len));
+    MAYCUP_StringWriter swriter;
     if (output_len == 0) {
-        M2H_RELAY(M2H_stringwriter_ctor_flexible(
-            &swriter, M2H_DEFAULT_STRWRITER_FLEXBUF_SIZE));
+        MAYCUP_RELAY(MAYCUP_stringwriter_ctor_flexible(
+            &swriter, MAYCUP_DEFAULT_STRWRITER_FLEXBUF_SIZE));
     } else {
-        M2H_RELAY(M2H_stringwriter_ctor(&swriter, output_string, output_len));
+        MAYCUP_RELAY(MAYCUP_stringwriter_ctor(&swriter, output_string, output_len));
     }
-    M2H_Lexer lexer;
-    M2H_RELAY(M2H_lexer_ctor(&lexer, (M2H_Reader *)&sreader));
-    M2H_Parser parser;
-    M2H_RELAY(M2H_parser_ctor(&parser));
-    M2H_Renderer renderer;
-    M2H_RELAY(M2H_renderer_ctor(&renderer, (M2H_Writer *)&swriter));
+    MAYCUP_Lexer lexer;
+    MAYCUP_RELAY(MAYCUP_lexer_ctor(&lexer, (MAYCUP_Reader *)&sreader));
+    MAYCUP_Parser parser;
+    MAYCUP_RELAY(MAYCUP_parser_ctor(&parser));
+    MAYCUP_Renderer renderer;
+    MAYCUP_RELAY(MAYCUP_renderer_ctor(&renderer, (MAYCUP_Writer *)&swriter));
 
-    M2H_RELAY(M2H_parse(&parser, &lexer));
-    M2H_RELAY(M2H_render(&renderer, &parser));
+    MAYCUP_RELAY(MAYCUP_parse(&parser, &lexer));
+    MAYCUP_RELAY(MAYCUP_render(&renderer, &parser));
 
-    M2H_RELAY(M2H_renderer_dtor(&renderer));
-    M2H_RELAY(M2H_parser_dtor(&parser));
-    M2H_RELAY(M2H_lexer_dtor(&lexer));
-    M2H_RELAY(M2H_stringwriter_dtor(&swriter, NULL));
-    M2H_RELAY(M2H_stringreader_dtor(&sreader));
-    return M2H_RESULT_OK;
+    MAYCUP_RELAY(MAYCUP_renderer_dtor(&renderer));
+    MAYCUP_RELAY(MAYCUP_parser_dtor(&parser));
+    MAYCUP_RELAY(MAYCUP_lexer_dtor(&lexer));
+    MAYCUP_RELAY(MAYCUP_stringwriter_dtor(&swriter, NULL));
+    MAYCUP_RELAY(MAYCUP_stringreader_dtor(&sreader));
+    return MAYCUP_RESULT_OK;
 }

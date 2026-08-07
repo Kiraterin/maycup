@@ -1,10 +1,10 @@
 /**
- * @file common.h
- * @brief Common header
- * @date 2026-07-08
+ * @file parser.h
+ * @brief Parser in maycup
+ * @date 2026-07-12
  * @copyright GPLv3 License
  * @section LICENSE
- * md2html
+ * maycup
  * Copyright (C) 2026 Kiraterin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,17 +21,32 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef COMMON_H
-#define COMMON_H
+#ifndef PARSER_H
+#define PARSER_H
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
+#include "maycup/core/ast.h"
+#include "maycup/core/lexer.h"
 
-// Parameter ("Read" excludes checking value)
-#define M2H_IN    // Read only
-#define M2H_OUT   // Write only
-#define M2H_INOUT // Read & Write
-#define M2H_MOVE  // Move ownership
+typedef struct {
+    MAYCUP_Token cur_token;
+    MAYCUP_AST ast;
+    ssize_t root_astnode;
+} MAYCUP_Parser;
 
-#endif // COMMON_H
+/**
+ * @brief Construct a parser
+ * @param self Out, the parser to construct
+ * @return MAYCUP_Result 
+ */
+MAYCUP_Result MAYCUP_parser_ctor(MAYCUP_OUT MAYCUP_Parser *self);
+
+/**
+ * @brief Destruct a parser
+ * @param self Out, the parser to destruct
+ * @return MAYCUP_Result
+ */
+MAYCUP_Result MAYCUP_parser_dtor(MAYCUP_OUT MAYCUP_Parser *self);
+
+MAYCUP_Result MAYCUP_parse(MAYCUP_INOUT MAYCUP_Parser *parser, MAYCUP_INOUT MAYCUP_Lexer *lexer);
+
+#endif // PARSER_H

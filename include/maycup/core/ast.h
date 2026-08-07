@@ -4,7 +4,7 @@
  * @date 2026-07-12
  * @copyright GPLv3 License
  * @section LICENSE
- * md2html
+ * maycup
  * Copyright (C) 2026 Kiraterin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,45 +24,45 @@
 #ifndef AST_H
 #define AST_H
 
-#include "md2html/base/common.h"
-#include "md2html/base/result.h"
+#include "maycup/base/common.h"
+#include "maycup/base/result.h"
 #include <sys/types.h>
 
 typedef enum {
-    M2H_ASTNODE_TYPE_NONE = 0,
-    M2H_ASTNODE_TYPE_ROOT = 1,
+    MAYCUP_ASTNODE_TYPE_NONE = 0,
+    MAYCUP_ASTNODE_TYPE_ROOT = 1,
 
-    M2H_ASTNODE_TYPE_HEADING,
-    M2H_ASTNODE_TYPE_PARAGRAPH,
+    MAYCUP_ASTNODE_TYPE_HEADING,
+    MAYCUP_ASTNODE_TYPE_PARAGRAPH,
 
-    M2H_ASTNODE_TYPE_TEXT,
-} M2H_ASTNodeType;
+    MAYCUP_ASTNODE_TYPE_TEXT,
+} MAYCUP_ASTNodeType;
 
 typedef enum {
-    M2H_TEXTSTYLE_PLAIN,
-    M2H_TEXTSTYLE_BOLD,
-    M2H_TEXTSTYLE_ITALIC,
-    M2H_TEXTSTYLE_BOLDITALIC,
-    M2H_TEXTSTYLE_CODE,
-} M2H_TextStyle;
+    MAYCUP_TEXTSTYLE_PLAIN,
+    MAYCUP_TEXTSTYLE_BOLD,
+    MAYCUP_TEXTSTYLE_ITALIC,
+    MAYCUP_TEXTSTYLE_BOLDITALIC,
+    MAYCUP_TEXTSTYLE_CODE,
+} MAYCUP_TextStyle;
 
 typedef struct {
-    M2H_TextStyle style;
+    MAYCUP_TextStyle style;
     char *content;
     bool newline_tailed;
-} M2H_ASTNodeDataText;
+} MAYCUP_ASTNodeDataText;
 
 typedef struct {
     uint8_t level;
-} M2H_ASTNodeDataHeading;
+} MAYCUP_ASTNodeDataHeading;
 
-typedef struct M2H_ASTNode M2H_ASTNode;
+typedef struct MAYCUP_ASTNode MAYCUP_ASTNode;
 
-struct M2H_ASTNode {
-    M2H_ASTNodeType type;
+struct MAYCUP_ASTNode {
+    MAYCUP_ASTNodeType type;
     union {
-        M2H_ASTNodeDataHeading heading;
-        M2H_ASTNodeDataText text;
+        MAYCUP_ASTNodeDataHeading heading;
+        MAYCUP_ASTNodeDataText text;
     };
 
     ssize_t prev_sibling;
@@ -76,24 +76,24 @@ struct M2H_ASTNode {
  * @note Use expressions like @c ast.data[index] to get a node
  */
 typedef struct {
-    M2H_ASTNode *data;
+    MAYCUP_ASTNode *data;
     ssize_t *next_free;
     bool *is_allocated;
     ssize_t first_free;
     size_t cap;
-} M2H_AST;
+} MAYCUP_AST;
 
-#define M2H_DEFAULT_AST_SIZE 8
-#define M2H_MAX_AST_CAP (SIZE_MAX / 2)
+#define MAYCUP_DEFAULT_AST_SIZE 8
+#define MAYCUP_MAX_AST_CAP (SIZE_MAX / 2)
 
 /**
  * @brief Construct an AST
  * @note The index @c 0 is reserved and the root index will never be it
  * @param self Out, the AST to construct
  * @param root Out, the root of AST, cannot be @c NULL
- * @return M2H_Result
+ * @return MAYCUP_Result
  */
-M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *root);
+MAYCUP_Result MAYCUP_ast_ctor(MAYCUP_OUT MAYCUP_AST *self, MAYCUP_OUT ssize_t *root);
 
 /**
  * @brief Destruct an AST
@@ -101,9 +101,9 @@ M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *root);
  *          which will be @c -1 )
  *       2. The allocated nodes will be properly destructed
  * @param self Out, the AST to destruct
- * @return M2H_Result
+ * @return MAYCUP_Result
  */
-M2H_Result M2H_ast_dtor(M2H_OUT M2H_AST *self);
+MAYCUP_Result MAYCUP_ast_dtor(MAYCUP_OUT MAYCUP_AST *self);
 
 /**
  * @brief Insert an AST node after a given node
@@ -118,11 +118,11 @@ M2H_Result M2H_ast_dtor(M2H_OUT M2H_AST *self);
  * @param ast Out, the AST where the function inserts
  * @param node In & out, the given node
  * @param type In, the type of node to insert
- * @return M2H_Result
+ * @return MAYCUP_Result
  */
-M2H_Result M2H_insert_astnode(M2H_OUT ssize_t *insertee, M2H_OUT M2H_AST *ast,
-                              M2H_INOUT ssize_t parent,
-                              M2H_IN M2H_ASTNodeType type);
+MAYCUP_Result MAYCUP_insert_astnode(MAYCUP_OUT ssize_t *insertee, MAYCUP_OUT MAYCUP_AST *ast,
+                              MAYCUP_INOUT ssize_t parent,
+                              MAYCUP_IN MAYCUP_ASTNodeType type);
 
 /**
  * @brief Delete an given ast node and all of its children
@@ -130,9 +130,9 @@ M2H_Result M2H_insert_astnode(M2H_OUT ssize_t *insertee, M2H_OUT M2H_AST *ast,
  *       haven't been allocated
  * @param ast Out, the AST where the function deletes
  * @param dest In & out, the node to delete
- * @return M2H_Result
+ * @return MAYCUP_Result
  */
-M2H_Result M2H_delete_astnode(M2H_OUT M2H_AST *ast, M2H_INOUT ssize_t dest);
+MAYCUP_Result MAYCUP_delete_astnode(MAYCUP_OUT MAYCUP_AST *ast, MAYCUP_INOUT ssize_t dest);
 
 /**
  * @brief Construct a text AST node data
@@ -141,26 +141,26 @@ M2H_Result M2H_delete_astnode(M2H_OUT M2H_AST *ast, M2H_INOUT ssize_t dest);
  * @param text Move, the pointer to a string to be moved into the data
  * @param style In, the style of the text
  * @param newline_tailed In, whether the text tailed with newline
- * @return M2H_Result
+ * @return MAYCUP_Result
  */
-M2H_Result M2H_astnode_data_text_ctor(M2H_OUT M2H_ASTNodeDataText *self,
-                                      M2H_MOVE char *text,
-                                      M2H_IN M2H_TextStyle style,
-                                      M2H_IN bool newline_tailed);
+MAYCUP_Result MAYCUP_astnode_data_text_ctor(MAYCUP_OUT MAYCUP_ASTNodeDataText *self,
+                                      MAYCUP_MOVE char *text,
+                                      MAYCUP_IN MAYCUP_TextStyle style,
+                                      MAYCUP_IN bool newline_tailed);
 
 /**
  * @brief Destruct a text AST node data
  * @note The member @c content will be freed and turn to @c NULL
  * @param self Out, the data to destruct
- * @return M2H_Result
+ * @return MAYCUP_Result
  */
-M2H_Result M2H_astnode_data_text_dtor(M2H_OUT M2H_ASTNodeDataText *self);
+MAYCUP_Result MAYCUP_astnode_data_text_dtor(MAYCUP_OUT MAYCUP_ASTNodeDataText *self);
 
 /**
  * @brief Destruct a AST node
  * @param self Out, the node to destruct
- * @return M2H_Result
+ * @return MAYCUP_Result
  */
-M2H_Result M2H_astnode_dtor(M2H_OUT M2H_ASTNode *self);
+MAYCUP_Result MAYCUP_astnode_dtor(MAYCUP_OUT MAYCUP_ASTNode *self);
 
 #endif // AST_H

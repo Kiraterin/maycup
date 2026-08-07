@@ -4,7 +4,7 @@
  * @date 2026-08-04
  * @copyright GPLv3 License
  * @section LICENSE
- * md2html
+ * maycup
  * Copyright (C) 2026 Kiraterin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,36 +23,36 @@
 
 #ifdef DEBUG
 
-#include "md2html/core/ast.h"
-#include "md2html/core/lexer.h"
+#include "maycup/core/ast.h"
+#include "maycup/core/lexer.h"
 #include <stdio.h>
 
 typedef ssize_t idx;
-#define M2H_VEC_T idx
-#define M2H_VEC_DISPT Idx
-#include "md2html/base/vector.h"
-#undef M2H_VEC_DISPT
-#undef M2H_VEC_T
+#define MAYCUP_VEC_T idx
+#define MAYCUP_VEC_DISPT Idx
+#include "maycup/base/vector.h"
+#undef MAYCUP_VEC_DISPT
+#undef MAYCUP_VEC_T
 
-void M2H_print_token(M2H_IN M2H_Token *token) {
+void MAYCUP_print_token(MAYCUP_IN MAYCUP_Token *token) {
     switch (token->type) {
-    case M2H_TOKENTYPE_TEXT: {
+    case MAYCUP_TOKENTYPE_TEXT: {
         printf("(TEXT, %s)\n", token->text);
         break;
     }
-    case M2H_TOKENTYPE_LITERAL: {
+    case MAYCUP_TOKENTYPE_LITERAL: {
         printf("(LITERAL, %c)\n", token->literal);
         break;
     }
-    case M2H_TOKENTYPE_EOF: {
+    case MAYCUP_TOKENTYPE_EOF: {
         printf("(EOF)\n");
         break;
     }
-    case M2H_TOKENTYPE_NEWLINE: {
+    case MAYCUP_TOKENTYPE_NEWLINE: {
         printf("(NEWLINE)\n");
         break;
     }
-    case M2H_TOKENTYPE_NONE: {
+    case MAYCUP_TOKENTYPE_NONE: {
         printf("(NONE)\n");
         break;
     }
@@ -63,24 +63,24 @@ void M2H_print_token(M2H_IN M2H_Token *token) {
     }
 }
 
-void M2H_print_ast(M2H_IN M2H_AST *ast, M2H_IN ssize_t root) {
-    M2H_VectorIdx stack;
-    M2H_VectorIdx level;
-    M2H_UNWRAP(M2H_vector_idx_ctor(&stack, M2H_DEFAULT_VEC_SIZE));
-    M2H_UNWRAP(M2H_vector_idx_ctor(&level, M2H_DEFAULT_VEC_SIZE));
-    M2H_UNWRAP(M2H_vector_idx_pushback(&stack, root));
-    M2H_UNWRAP(M2H_vector_idx_pushback(&level, 0));
+void MAYCUP_print_ast(MAYCUP_IN MAYCUP_AST *ast, MAYCUP_IN ssize_t root) {
+    MAYCUP_VectorIdx stack;
+    MAYCUP_VectorIdx level;
+    MAYCUP_UNWRAP(MAYCUP_vector_idx_ctor(&stack, MAYCUP_DEFAULT_VEC_SIZE));
+    MAYCUP_UNWRAP(MAYCUP_vector_idx_ctor(&level, MAYCUP_DEFAULT_VEC_SIZE));
+    MAYCUP_UNWRAP(MAYCUP_vector_idx_pushback(&stack, root));
+    MAYCUP_UNWRAP(MAYCUP_vector_idx_pushback(&level, 0));
     while (stack.len > 0) {
         ssize_t cur, lvl;
-        M2H_UNWRAP(M2H_vector_idx_top(&stack, &cur));
-        M2H_UNWRAP(M2H_vector_idx_popback(&stack));
-        M2H_UNWRAP(M2H_vector_idx_top(&level, &lvl));
-        M2H_UNWRAP(M2H_vector_idx_popback(&level));
+        MAYCUP_UNWRAP(MAYCUP_vector_idx_top(&stack, &cur));
+        MAYCUP_UNWRAP(MAYCUP_vector_idx_popback(&stack));
+        MAYCUP_UNWRAP(MAYCUP_vector_idx_top(&level, &lvl));
+        MAYCUP_UNWRAP(MAYCUP_vector_idx_popback(&level));
 
         ssize_t getter = ast->data[cur].child;
         while (getter != -1) {
-            M2H_UNWRAP(M2H_vector_idx_pushback(&stack, getter));
-            M2H_UNWRAP(M2H_vector_idx_pushback(&level, lvl + 1));
+            MAYCUP_UNWRAP(MAYCUP_vector_idx_pushback(&stack, getter));
+            MAYCUP_UNWRAP(MAYCUP_vector_idx_pushback(&level, lvl + 1));
             getter = ast->data[getter].prev_sibling;
         }
 
@@ -89,34 +89,34 @@ void M2H_print_ast(M2H_IN M2H_AST *ast, M2H_IN ssize_t root) {
         }
 
         switch (ast->data[cur].type) {
-        case M2H_ASTNODE_TYPE_ROOT:
+        case MAYCUP_ASTNODE_TYPE_ROOT:
             printf("ROOT");
             break;
-        case M2H_ASTNODE_TYPE_NONE:
+        case MAYCUP_ASTNODE_TYPE_NONE:
             printf("NONE");
             break;
-        case M2H_ASTNODE_TYPE_PARAGRAPH:
+        case MAYCUP_ASTNODE_TYPE_PARAGRAPH:
             printf("PARAGRAPH");
             break;
-        case M2H_ASTNODE_TYPE_HEADING:
+        case MAYCUP_ASTNODE_TYPE_HEADING:
             printf("HEADING level=%d", ast->data[cur].heading.level);
             break;
-        case M2H_ASTNODE_TYPE_TEXT:
+        case MAYCUP_ASTNODE_TYPE_TEXT:
             printf("TEXT text=\"%s\", style=", ast->data[cur].text.content);
             switch (ast->data[cur].text.style) {
-            case M2H_TEXTSTYLE_PLAIN:
+            case MAYCUP_TEXTSTYLE_PLAIN:
                 printf("plain");
                 break;
-            case M2H_TEXTSTYLE_BOLD:
+            case MAYCUP_TEXTSTYLE_BOLD:
                 printf("bold");
                 break;
-            case M2H_TEXTSTYLE_ITALIC:
+            case MAYCUP_TEXTSTYLE_ITALIC:
                 printf("italic");
                 break;
-            case M2H_TEXTSTYLE_BOLDITALIC:
+            case MAYCUP_TEXTSTYLE_BOLDITALIC:
                 printf("bold & italic");
                 break;
-            case M2H_TEXTSTYLE_CODE:
+            case MAYCUP_TEXTSTYLE_CODE:
                 printf("code");
                 break;
             }
@@ -124,8 +124,8 @@ void M2H_print_ast(M2H_IN M2H_AST *ast, M2H_IN ssize_t root) {
         putchar('\n');
     }
 
-    M2H_UNWRAP(M2H_vector_idx_dtor(&stack));
-    M2H_UNWRAP(M2H_vector_idx_dtor(&level));
+    MAYCUP_UNWRAP(MAYCUP_vector_idx_dtor(&stack));
+    MAYCUP_UNWRAP(MAYCUP_vector_idx_dtor(&level));
 }
 
 #endif // DEBUG

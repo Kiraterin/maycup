@@ -1,10 +1,10 @@
 /**
  * @file renderer.h
- * @brief Renderer in md2html
+ * @brief Renderer in maycup
  * @date 2026-07-15
  * @copyright GPLv3 License
  * @section LICENSE
- * md2html
+ * maycup
  * Copyright (C) 2026 Kiraterin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,39 +24,39 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include "md2html/base/common.h"
-#include "md2html/base/result.h"
-#include "md2html/core/lexer.h"
-#include "md2html/core/parser.h"
-#include "md2html/io/writer.h"
+#include "maycup/base/common.h"
+#include "maycup/base/result.h"
+#include "maycup/core/lexer.h"
+#include "maycup/core/parser.h"
+#include "maycup/io/writer.h"
 
 typedef struct {
-    M2H_Writer *writer;
-} M2H_Renderer;
+    MAYCUP_Writer *writer;
+} MAYCUP_Renderer;
 
 /**
  * @brief Construct a renderer
  * @param self Out, the renderer to construct
  * @param writer In, the writer which the renderer will use
- * @return M2H_Result
+ * @return MAYCUP_Result
  */
-M2H_Result M2H_renderer_ctor(M2H_OUT M2H_Renderer *self,
-                             M2H_IN M2H_Writer *writer);
+MAYCUP_Result MAYCUP_renderer_ctor(MAYCUP_OUT MAYCUP_Renderer *self,
+                             MAYCUP_IN MAYCUP_Writer *writer);
 
 /**
  * @brief Destruct a renderer
  * @param self Out, the renderer to destruct
- * @return M2H_Result
+ * @return MAYCUP_Result
  */
-M2H_Result M2H_renderer_dtor(M2H_OUT M2H_Renderer *self);
+MAYCUP_Result MAYCUP_renderer_dtor(MAYCUP_OUT MAYCUP_Renderer *self);
 
 /**
  * @brief Render HTML file from AST
  * @param renderer In & out, the renderer which do render
  * @param parser In, the parser which provides AST
- * @return M2H_Result
+ * @return MAYCUP_Result
  */
-M2H_Result M2H_render(M2H_INOUT M2H_Renderer *renderer,
-                      M2H_IN M2H_Parser *parser);
+MAYCUP_Result MAYCUP_render(MAYCUP_INOUT MAYCUP_Renderer *renderer,
+                      MAYCUP_IN MAYCUP_Parser *parser);
 
 #endif // RENDERER_H

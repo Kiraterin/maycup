@@ -1,10 +1,10 @@
 /**
- * @file objprint.h
- * @brief Print human-readable structures
- * @date 2026-08-04
+ * @file common.h
+ * @brief Common header
+ * @date 2026-07-08
  * @copyright GPLv3 License
  * @section LICENSE
- * md2html
+ * maycup
  * Copyright (C) 2026 Kiraterin
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,26 +21,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef OBJPRINT_H
-#define OBJPRINT_H
-#ifdef DEBUG
+#ifndef COMMON_H
+#define COMMON_H
 
-#include "md2html/base/common.h"
-#include "md2html/core/lexer.h"
-#include "md2html/core/ast.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
-/**
- * @brief Print a token
- * @param token In, the dest token
- */
-void M2H_print_token(M2H_IN M2H_Token *token);
+// Parameter ("Read" excludes checking value)
+#define MAYCUP_IN    // Read only
+#define MAYCUP_OUT   // Write only
+#define MAYCUP_INOUT // Read & Write
+#define MAYCUP_MOVE  // Move ownership
 
-/**
- * @brief Print an AST
- * @param ast In, the ast to print
- * @param root In, the entry point
- */
-void M2H_print_ast(M2H_IN M2H_AST *ast, M2H_IN ssize_t root);
-
-#endif // DEBUG
-#endif // OBJPRINT_H
+#endif // COMMON_H
