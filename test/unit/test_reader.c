@@ -622,13 +622,14 @@ TEST_CASE(stringreader_seek_illegal_arg) {
 
     ASSERT_OK(M2H_stringreader_ctor(&sr, stringname, stringlen), fail);
     ASSERT_EQ(M2H_reader_seek(NULL, 0), M2H_RESULT_ILLEGAL_ARGUMENT, fail);
-    ASSERT_EQ(M2H_reader_seek(NULL, -1), M2H_RESULT_ILLEGAL_ARGUMENT, fail);
-    ASSERT_EQ(M2H_reader_seek(NULL, stringlen + 1), M2H_RESULT_ILLEGAL_ARGUMENT,
+    ASSERT_EQ(M2H_reader_seek(&sr, -1), M2H_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(M2H_reader_seek(&sr, stringlen + 1), M2H_RESULT_ILLEGAL_ARGUMENT,
               fail);
     ASSERT_EQ(sr.base.seek(NULL, 0), M2H_RESULT_ILLEGAL_ARGUMENT, fail);
-    ASSERT_EQ(sr.base.seek(NULL, -1), M2H_RESULT_ILLEGAL_ARGUMENT, fail);
-    ASSERT_EQ(sr.base.seek(NULL, stringlen + 1), M2H_RESULT_ILLEGAL_ARGUMENT,
+    ASSERT_EQ(sr.base.seek((M2H_Reader *)&sr, -1), M2H_RESULT_ILLEGAL_ARGUMENT,
               fail);
+    ASSERT_EQ(sr.base.seek((M2H_Reader *)&sr, stringlen + 1),
+              M2H_RESULT_ILLEGAL_ARGUMENT, fail);
 
     ASSERT_OK(M2H_stringreader_dtor(&sr), fail);
     return TEST_RESULT_PASS;
