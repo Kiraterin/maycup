@@ -31,6 +31,9 @@
 #undef M2H_VEC_DISPT
 #undef M2H_VEC_T
 
+// mock def
+#include "mock_funcs.h"
+
 static M2H_Result advance(M2H_Parser *parser, M2H_Lexer *lexer) {
     M2H_RELAY(M2H_token_dtor(&parser->cur_token));
     M2H_RELAY(M2H_next_token(&parser->cur_token, lexer));

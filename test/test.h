@@ -99,26 +99,39 @@ typedef struct {
             printf("[FAIL] assertion failed("__FILE__                          \
                    ":" STRINGIFY(__LINE__) " (%s) == (%s)): \n",               \
                    STRINGIFY(expr), STRINGIFY(val));                           \
-            printf("\tactual:   (%s) == %lld\n", STRINGIFY(expr),                 \
+            printf("\tactual:   (%s) == %lld\n", STRINGIFY(expr),              \
                    (long long)(expr));                                         \
-            printf("\texpected: (%s) == %lld\n", STRINGIFY(val),                 \
-                   (long long)(val));                                         \
+            printf("\texpected: (%s) == %lld\n", STRINGIFY(val),               \
+                   (long long)(val));                                          \
             goto fail_label;                                                   \
         }                                                                      \
     } while (false)
 
-#define ASSERT_NEQ(expr, val, fail_label) ASSERT_EQ(!(expr), (val), fail_label)
+#define ASSERT_NEQ(expr, val, fail_label)                                      \
+    do {                                                                       \
+        if ((expr) == (val)) {                                                 \
+            printf("[FAIL] assertion failed("__FILE__                          \
+                   ":" STRINGIFY(__LINE__) " (%s) != (%s)): \n",               \
+                   STRINGIFY(expr), STRINGIFY(val));                           \
+            goto fail_label;                                                   \
+        }                                                                      \
+    } while (false)
 
 #define ASSERT_OK(expr, fail_label) ASSERT_EQ((expr), M2H_RESULT_OK, fail_label)
 
 // mock functions
+#define MOCK_ON(func) CONCAT(TEST_CTX.mock_state.m_, func) = true
+#define MOCK_OFF(func) CONCAT(TEST_CTX.mock_state.m_, func) = false
+
 typedef struct {
     bool m_malloc : 1;
     bool m_realloc : 1;
+    bool m_fopen : 1;
+    bool m_fclose : 1;
+    bool m_feof : 1;
+    bool m_ftell : 1;
+    bool m_fseek : 1;
 } TestMockState;
-
-void *malloc_mock(size_t p);
-void *realloc_mock(void *pa, size_t pb);
 
 // test context struct and macros
 typedef struct {
@@ -128,9 +141,7 @@ typedef struct {
 } TestContext;
 
 #define TEST_CTX test_ctx
-#define TEST_CTX_DEF                                                           \
-    TestContext TEST_CTX = {                                                   \
-        .mock_state = {.m_malloc = false, .m_realloc = false}}
+#define TEST_CTX_DEF TestContext TEST_CTX
 extern TestContext TEST_CTX;
 
 #endif // TEST_H

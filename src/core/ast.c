@@ -30,6 +30,9 @@ typedef ssize_t idx;
 #undef M2H_VEC_DISPT
 #undef M2H_VEC_T
 
+// mock def
+#include "mock_funcs.h"
+
 M2H_Result M2H_ast_ctor(M2H_OUT M2H_AST *self, M2H_OUT ssize_t *root) {
     if (self == NULL || root == NULL) {
         return M2H_RESULT_ILLEGAL_ARGUMENT;

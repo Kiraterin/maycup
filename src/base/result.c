@@ -26,6 +26,9 @@
 #include <stdio.h>
 #include <string.h>
 
+// mock def
+#include "mock_funcs.h"
+
 void M2H_error_printmsg(M2H_IN M2H_Result res) {
     switch (res) {
     case M2H_RESULT_OK:

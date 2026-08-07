@@ -32,6 +32,9 @@ typedef ssize_t idx;
 #undef M2H_VEC_DISPT
 #undef M2H_VEC_T
 
+// mock def
+#include "mock_funcs.h"
+
 M2H_Result M2H_renderer_ctor(M2H_OUT M2H_Renderer *self,
                              M2H_IN M2H_Writer *writer) {
     self->writer = writer;
@@ -44,7 +47,7 @@ M2H_Result M2H_renderer_dtor(M2H_OUT M2H_Renderer *self) {
 
 M2H_Result M2H_render(M2H_INOUT M2H_Renderer *renderer,
                       M2H_IN M2H_Parser *parser) {
-    renderer->writer->puts(renderer->writer, "<!DOCTYPE html>");
+    M2H_writer_puts(renderer->writer, "<!DOCTYPE html>");
     M2H_VectorIdx stack;
     M2H_RELAY(M2H_vector_idx_ctor(&stack, M2H_DEFAULT_VEC_SIZE));
     M2H_RELAY(M2H_vector_idx_pushback(&stack, parser->root_astnode));
@@ -68,18 +71,17 @@ M2H_Result M2H_render(M2H_INOUT M2H_Renderer *renderer,
             case M2H_ASTNODE_TYPE_NONE:
                 return M2H_RESULT_ILLEGAL_ARGUMENT;
             case M2H_ASTNODE_TYPE_ROOT:
-                iores = renderer->writer->puts(renderer->writer, "<body>");
+                iores = M2H_writer_puts(renderer->writer, "<body>");
                 break;
             case M2H_ASTNODE_TYPE_HEADING:
-                iores = renderer->writer->printf(renderer->writer, "<h%d>",
-                                                 cur->heading.level);
+                iores = M2H_writer_printf(renderer->writer, "<h%d>",
+                                          cur->heading.level);
                 break;
             case M2H_ASTNODE_TYPE_PARAGRAPH:
-                iores = renderer->writer->puts(renderer->writer, "<p>");
+                iores = M2H_writer_puts(renderer->writer, "<p>");
                 break;
             case M2H_ASTNODE_TYPE_TEXT:
-                iores =
-                    renderer->writer->puts(renderer->writer, cur->text.content);
+                iores = M2H_writer_puts(renderer->writer, cur->text.content);
                 break;
             }
         } else if (curidx < 0) {
@@ -87,18 +89,18 @@ M2H_Result M2H_render(M2H_INOUT M2H_Renderer *renderer,
             case M2H_ASTNODE_TYPE_NONE:
                 return M2H_RESULT_ILLEGAL_ARGUMENT;
             case M2H_ASTNODE_TYPE_ROOT:
-                iores = renderer->writer->puts(renderer->writer, "</body>");
+                iores = M2H_writer_puts(renderer->writer, "</body>");
                 break;
             case M2H_ASTNODE_TYPE_HEADING:
-                iores = renderer->writer->printf(renderer->writer, "</h%d>",
-                                                 cur->heading.level);
+                iores = M2H_writer_printf(renderer->writer, "</h%d>",
+                                          cur->heading.level);
                 break;
             case M2H_ASTNODE_TYPE_PARAGRAPH:
-                iores = renderer->writer->puts(renderer->writer, "</p>");
+                iores = M2H_writer_puts(renderer->writer, "</p>");
                 break;
             case M2H_ASTNODE_TYPE_TEXT:
                 if (cur->text.newline_tailed) {
-                    iores = renderer->writer->puts(renderer->writer, "<br>");
+                    iores = M2H_writer_puts(renderer->writer, "<br>");
                 }
                 break;
             }

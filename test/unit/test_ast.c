@@ -55,13 +55,13 @@ TEST_CASE(ast_ctor_malloc_fail) {
     M2H_AST ast;
     ssize_t root;
 
-    TEST_CTX.mock_state.m_malloc = true;
+    MOCK_ON(malloc);
     ASSERT_EQ(M2H_ast_ctor(&ast, &root), M2H_RESULT_MALLOC_FAIL, fail);
 
-    TEST_CTX.mock_state.m_malloc = false;
+    MOCK_OFF(malloc);
     return TEST_RESULT_PASS;
 fail:
-    TEST_CTX.mock_state.m_malloc = false;
+    MOCK_OFF(malloc);
     return TEST_RESULT_FAIL;
 }
 
@@ -290,7 +290,7 @@ TEST_CASE(ast_insert_realloc_fail) {
     ssize_t node_2nd[cnt_1st][cnt_2nd];
     M2H_Result res;
 
-    TEST_CTX.mock_state.m_realloc = true;
+    MOCK_ON(realloc);
 
     ASSERT_OK(M2H_ast_ctor(&ast, &root), fail);
     for (size_t i = 0; i < cnt_1st; ++i) {
@@ -310,11 +310,11 @@ TEST_CASE(ast_insert_realloc_fail) {
 
 fail:
     ASSERT_OK(M2H_ast_dtor(&ast), fail);
-    TEST_CTX.mock_state.m_realloc = false;
+    MOCK_OFF(realloc);
     return TEST_RESULT_FAIL;
 pass:
     M2H_ast_dtor(&ast);
-    TEST_CTX.mock_state.m_realloc = false;
+    MOCK_OFF(realloc);
     return TEST_RESULT_PASS;
 }
 

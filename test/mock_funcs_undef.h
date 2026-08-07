@@ -1,7 +1,7 @@
 /**
- * @file common.h
- * @brief Common header
- * @date 2026-07-08
+ * @file mock_funcs_undef.h
+ * @brief Mock function macro undefinitions
+ * @date 2026-08-02
  * @copyright GPLv3 License
  * @section LICENSE
  * md2html
@@ -21,17 +21,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef COMMON_H
-#define COMMON_H
+#ifdef TEST
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
+#undef malloc
+#undef realloc
+#undef fopen
+#undef fclose
+#undef feof
+#undef ftell
+#undef fseek
 
-// Parameter ("Read" excludes checking value)
-#define M2H_IN    // Read only
-#define M2H_OUT   // Write only
-#define M2H_INOUT // Read & Write
-#define M2H_MOVE  // Move ownership
-
-#endif // COMMON_H
+#endif // TEST

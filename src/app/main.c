@@ -21,11 +21,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#define _POSIX_C_SOURCE 200809L
 #include "md2html.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
+// mock def
+#include "mock_funcs.h"
 
 const char *usage = "Usage: md2html input_file -o output_file\n";
 

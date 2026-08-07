@@ -47,6 +47,7 @@ void run_all_test_suites() {
                 ++fail_cnt;
                 break;
             }
+            fflush(stdout);
         }
         if (pass_cnt == 0) {
             printf(COLOR_RESET);
@@ -63,23 +64,22 @@ void run_all_test_suites() {
         pass_cnt_all += pass_cnt;
         fail_cnt_all += fail_cnt;
     }
-    printf("Summary: ");
+    printf("=====================\n\n");
+    printf("Summary: \n");
     if (pass_cnt_all == 0) {
         printf(COLOR_RESET);
     } else {
         printf(COLOR_LIGHT_GREEN);
     }
-    printf("\n %zu" COLOR_RESET " Passed, ", pass_cnt_all);
+    printf("%zu" COLOR_RESET " Passed, ", pass_cnt_all);
     if (fail_cnt_all == 0) {
         printf(COLOR_RESET);
     } else {
         printf(COLOR_LIGHT_RED);
     }
-    printf("%zu" COLOR_RESET " Failed\n", fail_cnt_all);
+    printf("%zu" COLOR_RESET " Failed\n\n", fail_cnt_all);
+    printf("=====================\n\n\n");
 }
-
-#undef malloc
-#undef realloc
 
 void *malloc_mock(size_t p) {
     if (TEST_CTX.mock_state.m_malloc) {
@@ -94,5 +94,45 @@ void *realloc_mock(void *pa, size_t pb) {
         return NULL;
     } else {
         return realloc(pa, pb);
+    }
+}
+
+FILE *fopen_mock(const char *pa, const char *pb) {
+    if (TEST_CTX.mock_state.m_fopen) {
+        return NULL;
+    } else {
+        return fopen(pa, pb);
+    }
+}
+
+int fclose_mock(FILE *p) {
+    if (TEST_CTX.mock_state.m_fclose) {
+        return EOF;
+    } else {
+        return fclose(p);
+    }
+}
+
+int feof_mock(FILE *p) {
+    if (TEST_CTX.mock_state.m_feof) {
+        return false;
+    } else {
+        return feof(p);
+    }
+}
+
+long ftell_mock(FILE *p) {
+    if (TEST_CTX.mock_state.m_ftell) {
+        return -1L;
+    } else {
+        return ftell(p);
+    }
+}
+
+long fseek_mock(FILE *pa, long pb, int pc) {
+    if (TEST_CTX.mock_state.m_fseek) {
+        return -1;
+    } else {
+        return fseek(pa, pb, pc);
     }
 }
