@@ -26,10 +26,10 @@ maycup <input_file> [options]
 
 ### Options
 
-| Option        | Required | Value              | Description     |
-| ------------- | -------- | ------------------ | --------------- |
+| Option      | Required | Value            | Description     |
+| ----------- | -------- | ---------------- | --------------- |
 | `-o <file>` | Yes      | `path/to/output` | Set output path |
-| `-h`        | No       | None               | Print usage     |
+| `-h`        | No       | None             | Print usage     |
 
 ### Example
 

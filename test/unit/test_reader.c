@@ -21,12 +21,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "fixture/input/reader_str_lipsum_1.h"
-#include "fixture/input/reader_str_lipsum_2.h"
 #include "maycup/io/reader.h"
 #include "test.h"
-#include <errno.h>
 #include <string.h>
+
+#include "fixture/input/reader_str_lipsum_1.h"
+#include "fixture/input/reader_str_lipsum_2.h"
 
 TEST_CASE(filereader_ctor_normal) {
     MAYCUP_FileReader fr;

@@ -30,13 +30,26 @@
 
 typedef struct MAYCUP_Writer MAYCUP_Writer;
 
-MAYCUP_Result maycup_writer_puts(void *self, MAYCUP_IN char *str);
+/**
+ * @brief Output a string through a writer
+ * @param self The writer
+ * @param str In, the string to be written, cannot be @c NULL
+ * @return MAYCUP_Result
+ */
+MAYCUP_Result maycup_writer_puts(void *self, MAYCUP_IN const char *str);
 
+/**
+ * @brief Format output through a writer
+ * @param self The writer
+ * @param format In, the format string, cannot be @c NULL
+ * @param ... Optional, the following arguments related to @p format
+ * @return MAYCUP_Result
+ */
 MAYCUP_Result maycup_writer_printf(void *self, MAYCUP_IN const char *format,
                                    ...);
 
 struct MAYCUP_Writer {
-    MAYCUP_Result (*puts)(MAYCUP_Writer *self, MAYCUP_IN char *str);
+    MAYCUP_Result (*puts)(MAYCUP_Writer *self, MAYCUP_IN const char *str);
     MAYCUP_Result (*vprintf)(MAYCUP_Writer *self, MAYCUP_IN const char *format,
                              va_list args);
 };

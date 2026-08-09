@@ -117,7 +117,8 @@ typedef struct {
         }                                                                      \
     } while (false)
 
-#define ASSERT_OK(expr, fail_label) ASSERT_EQ((expr), MAYCUP_RESULT_OK, fail_label)
+#define ASSERT_OK(expr, fail_label)                                            \
+    ASSERT_EQ((expr), MAYCUP_RESULT_OK, fail_label)
 
 // mock functions
 #define MOCK_ON(func) CONCAT(TEST_CTX.mock_state.m_, func) = true
@@ -131,6 +132,8 @@ typedef struct {
     bool m_feof : 1;
     bool m_ftell : 1;
     bool m_fseek : 1;
+    bool m_fputs : 1;
+    bool m_vfprintf : 1;
 } TestMockState;
 
 // test context struct and macros

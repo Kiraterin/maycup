@@ -95,8 +95,10 @@ test:
 test_not_run:
 	@echo -e '\n$(C_GREEN)Current Configuration: test $(C_RESET)'
 	$(MAKE) CONFIG=test build --no-print-directory
+	@mkdir -p $(BUILD_DIR)/tmp
 
 test_run: build
+	@mkdir -p $(BUILD_DIR)/tmp
 	@echo -e '$(C_GREEN)Running test:$(C_RESET)'
 	LLVM_PROFILE_FILE="$(BUILD_DIR)/test.profraw" $(TARGET)
 	@echo -e '$(C_GREEN)Saving perfdata:$(C_RESET)'

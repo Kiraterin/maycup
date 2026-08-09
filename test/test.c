@@ -136,3 +136,19 @@ long fseek_mock(FILE *pa, long pb, int pc) {
         return fseek(pa, pb, pc);
     }
 }
+
+int fputs_mock(const char *pa, FILE *pb) {
+    if (TEST_CTX.mock_state.m_fputs) {
+        return EOF;
+    } else {
+        return fputs(pa, pb);
+    }
+}
+
+int vfprintf_mock(FILE *pa, const char *pb, va_list pc) {
+    if (TEST_CTX.mock_state.m_vfprintf) {
+        return -1;
+    } else {
+        return vfprintf(pa, pb, pc);
+    }
+}

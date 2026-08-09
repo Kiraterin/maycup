@@ -29,6 +29,7 @@ int main() {
     TEST_SUITE_REG(vector);
     TEST_SUITE_REG(ast);
     TEST_SUITE_REG(reader);
+    TEST_SUITE_REG(writer);
     // TEST_SUITE_REG(lexer);
     TEST_RUN;
     return 0;
