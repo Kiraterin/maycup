@@ -58,7 +58,7 @@ Tests will be run automatically after compilation if `<config>` is `test`.
 
 ### Generate Test Coverage Report
 
-The report page is ./bin/test/cov/index.html
+The report page is ./build/test/cov/index.html
 
 ```bash
 make cov
