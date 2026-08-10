@@ -152,3 +152,11 @@ int vfprintf_mock(FILE *pa, const char *pb, va_list pc) {
         return vfprintf(pa, pb, pc);
     }
 }
+
+int vsnprintf_mock(char *pa, size_t pb, const char *pc, va_list pd) {
+    if (TEST_CTX.mock_state.m_vsnprintf) {
+        return -1;
+    } else {
+        return vsnprintf(pa, pb, pc, pd);
+    }
+}

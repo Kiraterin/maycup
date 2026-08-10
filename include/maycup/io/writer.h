@@ -33,7 +33,7 @@ typedef struct MAYCUP_Writer MAYCUP_Writer;
 /**
  * @brief Output a string through a writer
  * @param self The writer
- * @param str In, the string to be written, cannot be @c NULL
+ * @param str In, the string to be written. Cannot be @c NULL
  * @return MAYCUP_Result
  */
 MAYCUP_Result maycup_writer_puts(void *self, MAYCUP_IN const char *str);
@@ -41,7 +41,7 @@ MAYCUP_Result maycup_writer_puts(void *self, MAYCUP_IN const char *str);
 /**
  * @brief Format output through a writer
  * @param self The writer
- * @param format In, the format string, cannot be @c NULL
+ * @param format In, the format string. Cannot be @c NULL
  * @param ... Optional, the following arguments related to @p format
  * @return MAYCUP_Result
  */
@@ -70,6 +70,7 @@ MAYCUP_Result maycup_filewriter_ctor(MAYCUP_OUT MAYCUP_FileWriter *self,
 
 /**
  * @brief Destruct a file writer
+ * @note All of the member will be set to @c NULL or @c 0
  * @param self Out, the file writer to destruct
  * @return MAYCUP_Result
  */
@@ -86,8 +87,8 @@ typedef struct {
 /**
  * @brief Construct a string writer with a given buffer
  * @param self Out, the string writer to construct
- * @param buf In, the buffer in writer
- * @param bufsz In, the length of buffer
+ * @param buf In, the buffer in writer. Cannot be @c NULL
+ * @param bufsz In, the length of buffer. Cannot be @c 0
  * @return MAYCUP_Result
  */
 MAYCUP_Result maycup_stringwriter_ctor(MAYCUP_OUT MAYCUP_StringWriter *self,
@@ -108,10 +109,12 @@ maycup_stringwriter_ctor_flexible(MAYCUP_OUT MAYCUP_StringWriter *self,
 
 /**
  * @brief Destruct a string writer
+ * @note All of the member will be set to @c NULL or @c 0
+ *       (except the member @c flexible )
  * @param self Out, the string writer to destruct
  * @param buf Out, the buffer in writer. The buffer in string writer will be
  *            freed if param @c buf is NULL (if the buffer is flexible).
- *            Remember to free it after use.
+ *            Remember to free it after use if the writer points to heap memory.
  * @return MAYCUP_Result
  */
 MAYCUP_Result maycup_stringwriter_dtor(MAYCUP_OUT MAYCUP_StringWriter *self,

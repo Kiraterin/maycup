@@ -100,7 +100,7 @@ MAYCUP_Result maycup_filewriter_dtor(MAYCUP_OUT MAYCUP_FileWriter *self) {
 
 static MAYCUP_Result string_writer_flexible_reserve(MAYCUP_StringWriter *self,
                                                     size_t cap) {
-    if (cap == 0) {
+    if (self == NULL || cap == 0) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
     if (cap <= self->cap) {
@@ -117,6 +117,9 @@ static MAYCUP_Result string_writer_flexible_reserve(MAYCUP_StringWriter *self,
 
 static MAYCUP_Result stringwriter_puts(MAYCUP_INOUT MAYCUP_StringWriter *self,
                                        MAYCUP_IN const char *str) {
+    if (self == NULL || str == NULL) {
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
+    }
     size_t dest_size = self->size + strlen(str);
     if (self->cap < dest_size) {
         if (self->flexible) {
@@ -135,6 +138,10 @@ static MAYCUP_Result stringwriter_puts(MAYCUP_INOUT MAYCUP_StringWriter *self,
 static MAYCUP_Result stringwriter_vprintf(MAYCUP_IN MAYCUP_StringWriter *self,
                                           MAYCUP_IN const char *format,
                                           va_list args) {
+    if (self == NULL || format == NULL) {
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
+    }
+
     va_list args_fmt;
     va_copy(args_fmt, args);
 
@@ -165,6 +172,9 @@ static MAYCUP_Result stringwriter_vprintf(MAYCUP_IN MAYCUP_StringWriter *self,
 MAYCUP_Result maycup_stringwriter_ctor(MAYCUP_OUT MAYCUP_StringWriter *self,
                                        MAYCUP_IN char *buf,
                                        MAYCUP_IN size_t bufsz) {
+    if (self == NULL || buf == NULL || bufsz == 0) {
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
+    }
     self->buf = buf;
     self->buf[0] = '\0';
     self->size = 1;
@@ -200,6 +210,9 @@ maycup_stringwriter_ctor_flexible(MAYCUP_OUT MAYCUP_StringWriter *self,
 
 MAYCUP_Result maycup_stringwriter_dtor(MAYCUP_OUT MAYCUP_StringWriter *self,
                                        MAYCUP_OUT char **buf) {
+    if (self == NULL || self->buf == NULL) {
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
+    }
     if (buf == NULL) {
         if (self->flexible) {
             free(self->buf);
@@ -208,6 +221,7 @@ MAYCUP_Result maycup_stringwriter_dtor(MAYCUP_OUT MAYCUP_StringWriter *self,
     } else {
         *buf = self->buf;
     }
+    self->base = (MAYCUP_Writer){};
     self->buf = NULL;
     self->cap = self->size = 0;
     return MAYCUP_RESULT_OK;

@@ -134,6 +134,7 @@ typedef struct {
     bool m_fseek : 1;
     bool m_fputs : 1;
     bool m_vfprintf : 1;
+    bool m_vsnprintf : 1;
 } TestMockState;
 
 // test context struct and macros

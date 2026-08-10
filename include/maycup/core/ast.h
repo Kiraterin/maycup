@@ -90,7 +90,7 @@ typedef struct {
  * @brief Construct an AST
  * @note The index @c 0 is reserved and the root index will never be it
  * @param self Out, the AST to construct
- * @param root Out, the root of AST, cannot be @c NULL
+ * @param root Out, the root of AST. Cannot be @c NULL
  * @return MAYCUP_Result
  */
 MAYCUP_Result maycup_ast_ctor(MAYCUP_OUT MAYCUP_AST *self,

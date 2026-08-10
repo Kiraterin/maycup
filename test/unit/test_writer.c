@@ -29,6 +29,9 @@
 
 static const char *const runtime_wfile = "./build/test/tmp/filewriter.txt";
 
+#define OUTPUT_STR_SIZE 1024
+char output_str[OUTPUT_STR_SIZE];
+
 TEST_CASE(filewriter_ctor_normal) {
     MAYCUP_FileWriter fw;
     ASSERT_OK(maycup_filewriter_ctor(&fw, runtime_wfile), fail);
@@ -138,6 +141,19 @@ TEST_CASE(filewriter_puts_normal) {
     fread(buf, sizeof(char), sz, fp);
     ASSERT_EQ(strcmp(buf, writer_str_puts_test), 0, fail);
 
+    ASSERT_OK(maycup_filewriter_ctor(&fw, runtime_wfile), fail);
+    ASSERT_OK(maycup_writer_puts(&fw, "123 \n"), fail);
+    ASSERT_OK(maycup_writer_puts(&fw, "456"), fail);
+    ASSERT_OK(maycup_writer_puts(&fw, "\t789"), fail);
+    ASSERT_OK(maycup_filewriter_dtor(&fw), fail);
+    fp = fopen(runtime_wfile, "r");
+    fseek(fp, 0, SEEK_END);
+    sz = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+    memset(buf, 0, 1024);
+    fread(buf, sizeof(char), sz, fp);
+    ASSERT_EQ(strcmp(buf, "123 \n456\t789"), 0, fail);
+
     return TEST_RESULT_PASS;
 fail:
     if (fw.fp != NULL) {
@@ -214,7 +230,7 @@ TEST_CASE(filewriter_printf_vfprintf_fail) {
     MOCK_ON(vfprintf);
 
     ASSERT_OK(maycup_filewriter_ctor(&fw, runtime_wfile), fail);
-    ASSERT_EQ(maycup_writer_printf(&fw, ""), MAYCUP_RESULT_ERRNO,fail);
+    ASSERT_EQ(maycup_writer_printf(&fw, ""), MAYCUP_RESULT_ERRNO, fail);
 
     MOCK_OFF(vfprintf);
     ASSERT_OK(maycup_filewriter_dtor(&fw), fail);
@@ -229,12 +245,11 @@ TEST_CASE(filewriter_printf_illegal_arg) {
     MAYCUP_FileWriter fw;
 
     ASSERT_OK(maycup_filewriter_ctor(&fw, runtime_wfile), fail);
-    ASSERT_EQ(maycup_writer_printf(NULL, ""),
-              MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_writer_printf(NULL, ""), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+              fail);
     ASSERT_EQ(maycup_writer_printf(&fw, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
               fail);
-    ASSERT_EQ(fw.base.puts(NULL, ""),
-              MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(fw.base.puts(NULL, ""), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
     ASSERT_EQ(fw.base.puts((MAYCUP_Writer *)&fw, NULL),
               MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
 
@@ -242,6 +257,226 @@ TEST_CASE(filewriter_printf_illegal_arg) {
     return TEST_RESULT_PASS;
 fail:
     maycup_filewriter_dtor(&fw);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(stringwriter_ctor_normal) {
+    MAYCUP_StringWriter sw;
+    ASSERT_OK(maycup_stringwriter_ctor(&sw, output_str, OUTPUT_STR_SIZE), fail);
+    ASSERT_NEQ(sw.base.puts, NULL, fail);
+    ASSERT_NEQ(sw.base.vprintf, NULL, fail);
+    ASSERT_EQ(sw.flexible, false, fail);
+    ASSERT_EQ(sw.buf, output_str, fail);
+    ASSERT_EQ(sw.cap, OUTPUT_STR_SIZE, fail);
+    ASSERT_EQ(sw.size, 1, fail);
+
+    ASSERT_OK(maycup_stringwriter_dtor(&sw, NULL), fail);
+    return TEST_RESULT_PASS;
+fail:
+    maycup_stringwriter_dtor(&sw, NULL);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(stringwriter_ctor_illegal_arg) {
+    MAYCUP_StringWriter sw;
+
+    ASSERT_EQ(maycup_stringwriter_ctor(NULL, output_str, OUTPUT_STR_SIZE),
+              MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_stringwriter_ctor(&sw, NULL, OUTPUT_STR_SIZE),
+              MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_stringwriter_ctor(&sw, output_str, 0),
+              MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+
+    return TEST_RESULT_PASS;
+fail:
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(stringwriter_dtor_normal_nores) {
+    MAYCUP_StringWriter sw;
+
+    ASSERT_OK(maycup_stringwriter_ctor(&sw, output_str, OUTPUT_STR_SIZE), fail);
+    ASSERT_OK(maycup_stringwriter_dtor(&sw, NULL), fail);
+    ASSERT_EQ(sw.base.puts, NULL, fail);
+    ASSERT_EQ(sw.base.vprintf, NULL, fail);
+    ASSERT_EQ(sw.buf, NULL, fail);
+    ASSERT_EQ(sw.cap, 0, fail);
+    ASSERT_EQ(sw.size, 0, fail);
+
+    return TEST_RESULT_PASS;
+fail:
+    maycup_stringwriter_dtor(&sw, NULL);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(stringwriter_dtor_normal_res) {
+    MAYCUP_StringWriter sw;
+
+    ASSERT_OK(maycup_stringwriter_ctor(&sw, output_str, OUTPUT_STR_SIZE), fail);
+    char *res;
+    ASSERT_OK(maycup_stringwriter_dtor(&sw, &res), fail);
+    ASSERT_EQ(sw.base.puts, NULL, fail);
+    ASSERT_EQ(sw.base.vprintf, NULL, fail);
+    ASSERT_EQ(sw.buf, NULL, fail);
+    ASSERT_EQ(sw.cap, 0, fail);
+    ASSERT_EQ(sw.size, 0, fail);
+    ASSERT_EQ(res, output_str, fail);
+
+    return TEST_RESULT_PASS;
+fail:
+    maycup_stringwriter_dtor(&sw, NULL);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(stringwriter_dtor_double) {
+    MAYCUP_StringWriter sw;
+    ASSERT_OK(maycup_stringwriter_ctor(&sw, output_str, OUTPUT_STR_SIZE), fail);
+    ASSERT_OK(maycup_stringwriter_dtor(&sw, NULL), fail);
+    ASSERT_EQ(maycup_stringwriter_dtor(&sw, NULL),
+              MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    return TEST_RESULT_PASS;
+fail:
+    if (sw.buf != NULL) {
+        maycup_stringwriter_dtor(&sw, NULL);
+    }
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(stringwriter_dtor_illegal_arg) {
+    MAYCUP_StringWriter sw;
+
+    ASSERT_OK(maycup_stringwriter_ctor(&sw, output_str, OUTPUT_STR_SIZE), fail);
+    ASSERT_EQ(maycup_stringwriter_dtor(NULL, NULL),
+              MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+
+    ASSERT_OK(maycup_stringwriter_dtor(&sw, NULL), fail);
+    return TEST_RESULT_PASS;
+fail:
+    maycup_stringwriter_dtor(&sw, NULL);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(stringwriter_puts_normal) {
+    MAYCUP_StringWriter sw;
+
+    ASSERT_OK(maycup_stringwriter_ctor(&sw, output_str, OUTPUT_STR_SIZE), fail);
+    ASSERT_OK(maycup_writer_puts(&sw, writer_str_puts_test), fail);
+    ASSERT_OK(maycup_stringwriter_dtor(&sw, NULL), fail);
+    ASSERT_EQ(strcmp(output_str, writer_str_puts_test), 0, fail);
+
+    ASSERT_OK(maycup_stringwriter_ctor(&sw, output_str, OUTPUT_STR_SIZE), fail);
+    ASSERT_OK(maycup_writer_puts(&sw, "123 \n"), fail);
+    ASSERT_OK(maycup_writer_puts(&sw, "456"), fail);
+    ASSERT_OK(maycup_writer_puts(&sw, "\t789"), fail);
+    ASSERT_OK(maycup_stringwriter_dtor(&sw, NULL), fail);
+    ASSERT_EQ(strcmp(output_str, "123 \n456\t789"), 0, fail);
+
+    return TEST_RESULT_PASS;
+fail:
+    maycup_stringwriter_dtor(&sw, NULL);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(stringwriter_puts_short) {
+    MAYCUP_StringWriter sw;
+
+    ASSERT_OK(maycup_stringwriter_ctor(&sw, output_str, 1), fail);
+    ASSERT_EQ(maycup_writer_puts(&sw, "123"), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+              fail);
+    ASSERT_EQ(maycup_writer_puts(&sw, "1"), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+              fail);
+
+    return TEST_RESULT_PASS;
+fail:
+    maycup_stringwriter_dtor(&sw, NULL);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(stringwriter_puts_length_exceeded) {
+    MAYCUP_StringWriter sw;
+
+    ASSERT_OK(maycup_stringwriter_ctor(&sw, output_str, 1), fail);
+    while (sw.size < sw.cap) {
+        ASSERT_OK(maycup_writer_puts(&sw, "1"), fail);
+    }
+    ASSERT_EQ(maycup_writer_puts(&sw, "1"), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+              fail);
+
+    return TEST_RESULT_PASS;
+fail:
+    maycup_stringwriter_dtor(&sw, NULL);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(stringwriter_puts_illegal_arg) {
+    MAYCUP_StringWriter sw;
+
+    ASSERT_OK(maycup_stringwriter_ctor(&sw, output_str, OUTPUT_STR_SIZE), fail);
+    ASSERT_EQ(maycup_writer_puts(NULL, writer_str_puts_test),
+              MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_writer_puts(&sw, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+              fail);
+    ASSERT_EQ(sw.base.puts(NULL, writer_str_puts_test),
+              MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(sw.base.puts((MAYCUP_Writer *)&sw, NULL),
+              MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+
+    ASSERT_OK(maycup_stringwriter_dtor(&sw, NULL), fail);
+    return TEST_RESULT_PASS;
+fail:
+    maycup_stringwriter_dtor(&sw, NULL);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(stringwriter_printf_normal) {
+    MAYCUP_StringWriter sw;
+
+    ASSERT_OK(maycup_stringwriter_ctor(&sw, output_str, OUTPUT_STR_SIZE), fail);
+    ASSERT_OK(maycup_writer_printf(&sw, "123 %d", 10), fail);
+    ASSERT_OK(maycup_writer_printf(&sw, "123 %s", "456"), fail);
+    ASSERT_OK(maycup_writer_printf(&sw, "%s\nabcd", "789"), fail);
+    ASSERT_OK(maycup_stringwriter_dtor(&sw, NULL), fail);
+    ASSERT_EQ(strcmp(output_str, "123 10123 456789\nabcd"), 0, fail);
+
+    return TEST_RESULT_PASS;
+fail:
+    maycup_stringwriter_dtor(&sw, NULL);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(stringwriter_printf_vsnprintf_fail) {
+    MAYCUP_StringWriter sw;
+
+    MOCK_ON(vsnprintf);
+
+    ASSERT_OK(maycup_stringwriter_ctor(&sw, output_str, OUTPUT_STR_SIZE), fail);
+    ASSERT_EQ(maycup_writer_printf(&sw, ""), MAYCUP_RESULT_ERRNO, fail);
+
+    MOCK_OFF(vsnprintf);
+    ASSERT_OK(maycup_stringwriter_dtor(&sw, NULL), fail);
+    return TEST_RESULT_PASS;
+fail:
+    MOCK_OFF(vsnprintf);
+    maycup_stringwriter_dtor(&sw, NULL);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(stringwriter_printf_illegal_arg) {
+    MAYCUP_StringWriter sw;
+
+    ASSERT_OK(maycup_stringwriter_ctor(&sw, output_str, OUTPUT_STR_SIZE), fail);
+    ASSERT_EQ(maycup_writer_printf(NULL, ""), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+              fail);
+    ASSERT_EQ(maycup_writer_printf(&sw, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+              fail);
+    ASSERT_EQ(sw.base.puts(NULL, ""), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(sw.base.puts((MAYCUP_Writer *)&sw, NULL),
+              MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+
+    ASSERT_OK(maycup_stringwriter_dtor(&sw, NULL), fail);
+    return TEST_RESULT_PASS;
+fail:
+    maycup_stringwriter_dtor(&sw, NULL);
     return TEST_RESULT_FAIL;
 }
 
@@ -263,5 +498,22 @@ TEST_CASE_ADD(filewriter_puts_illegal_arg);
 TEST_CASE_ADD(filewriter_printf_normal);
 TEST_CASE_ADD(filewriter_printf_vfprintf_fail);
 TEST_CASE_ADD(filewriter_printf_illegal_arg);
+
+TEST_CASE_ADD(stringwriter_ctor_normal);
+TEST_CASE_ADD(stringwriter_ctor_illegal_arg);
+
+TEST_CASE_ADD(stringwriter_dtor_normal_nores);
+TEST_CASE_ADD(stringwriter_dtor_normal_res);
+TEST_CASE_ADD(stringwriter_dtor_double);
+TEST_CASE_ADD(stringwriter_dtor_illegal_arg);
+
+TEST_CASE_ADD(stringwriter_puts_normal);
+TEST_CASE_ADD(stringwriter_puts_short);
+TEST_CASE_ADD(stringwriter_puts_length_exceeded);
+TEST_CASE_ADD(stringwriter_puts_illegal_arg);
+
+TEST_CASE_ADD(stringwriter_printf_normal);
+TEST_CASE_ADD(stringwriter_printf_vsnprintf_fail);
+TEST_CASE_ADD(stringwriter_printf_illegal_arg);
 
 TEST_SUITE_END
