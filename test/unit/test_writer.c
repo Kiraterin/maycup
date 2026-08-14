@@ -23,13 +23,14 @@
 
 #include "maycup/io/writer.h"
 #include "test.h"
+#include <stdio.h>
 #include <string.h>
 
 #include "fixture/input/writer_str_puts_test.h"
 
 static const char *const runtime_wfile = "./build/test/tmp/filewriter.txt";
 
-#define OUTPUT_STR_SIZE 1024
+#define OUTPUT_STR_SIZE 32768
 char output_str[OUTPUT_STR_SIZE];
 
 TEST_CASE(filewriter_ctor_normal) {
@@ -444,6 +445,22 @@ fail:
     return TEST_RESULT_FAIL;
 }
 
+TEST_CASE(stringwriter_printf_length_exceeded) {
+    MAYCUP_StringWriter sw;
+
+    ASSERT_OK(maycup_stringwriter_ctor(&sw, output_str, 1), fail);
+    while (sw.size < sw.cap) {
+        ASSERT_OK(maycup_writer_printf(&sw, "%c", 'a'), fail);
+    }
+    ASSERT_EQ(maycup_writer_printf(&sw, "%c", 'a'),
+              MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+
+    return TEST_RESULT_PASS;
+fail:
+    maycup_stringwriter_dtor(&sw, NULL);
+    return TEST_RESULT_FAIL;
+}
+
 TEST_CASE(stringwriter_printf_vsnprintf_fail) {
     MAYCUP_StringWriter sw;
 
@@ -472,6 +489,210 @@ TEST_CASE(stringwriter_printf_illegal_arg) {
     ASSERT_EQ(sw.base.puts(NULL, ""), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
     ASSERT_EQ(sw.base.puts((MAYCUP_Writer *)&sw, NULL),
               MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+
+    ASSERT_OK(maycup_stringwriter_dtor(&sw, NULL), fail);
+    return TEST_RESULT_PASS;
+fail:
+    maycup_stringwriter_dtor(&sw, NULL);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(stringwriter_flexible_ctor_normal) {
+    MAYCUP_StringWriter sw;
+    const size_t bufsz = 128;
+
+    ASSERT_OK(maycup_stringwriter_ctor_flexible(&sw, bufsz), fail);
+    ASSERT_NEQ(sw.base.puts, NULL, fail);
+    ASSERT_NEQ(sw.base.vprintf, NULL, fail);
+    ASSERT_EQ(sw.flexible, true, fail);
+    ASSERT_NEQ(sw.buf, NULL, fail);
+    ASSERT_EQ(sw.cap, bufsz, fail);
+    ASSERT_EQ(sw.size, 1, fail);
+
+    ASSERT_OK(maycup_stringwriter_dtor(&sw, NULL), fail);
+    return TEST_RESULT_PASS;
+fail:
+    maycup_stringwriter_dtor(&sw, NULL);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(stringwriter_flexible_ctor_malloc_fail) {
+    MAYCUP_StringWriter sw;
+    const size_t bufsz = 128;
+
+    MOCK_ON(malloc);
+
+    ASSERT_EQ(maycup_stringwriter_ctor_flexible(&sw, bufsz),
+              MAYCUP_RESULT_MALLOC_FAIL, fail);
+
+    MOCK_OFF(malloc);
+    return TEST_RESULT_PASS;
+fail:
+    MOCK_OFF(malloc);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(stringwriter_flexible_ctor_illegal_arg) {
+    MAYCUP_StringWriter sw;
+    const size_t bufsz = 128;
+
+    ASSERT_EQ(maycup_stringwriter_ctor_flexible(NULL, bufsz),
+              MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_stringwriter_ctor_flexible(&sw, 0),
+              MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+
+    return TEST_RESULT_PASS;
+fail:
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(stringwriter_flexible_puts_normal) {
+    MAYCUP_StringWriter sw;
+    const size_t bufsz = 8;
+
+    ASSERT_OK(maycup_stringwriter_ctor_flexible(&sw, bufsz), fail);
+    for (int i = 1; i <= 3; ++i) {
+        ASSERT_OK(maycup_writer_puts(&sw, "12345678900987654321"), fail);
+    }
+
+    ASSERT_EQ(
+        strcmp(sw.buf,
+               "123456789009876543211234567890098765432112345678900987654321"),
+        0, fail);
+
+    ASSERT_OK(maycup_stringwriter_dtor(&sw, NULL), fail);
+    return TEST_RESULT_PASS;
+fail:
+    maycup_stringwriter_dtor(&sw, NULL);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(stringwriter_flexible_puts_realloc_fail) {
+    MAYCUP_StringWriter sw;
+    const size_t bufsz = 8;
+
+    MOCK_ON(realloc);
+
+    ASSERT_OK(maycup_stringwriter_ctor_flexible(&sw, bufsz), fail);
+    ASSERT_EQ(maycup_writer_puts(&sw, "12345678900987654321"),
+              MAYCUP_RESULT_MALLOC_FAIL, fail);
+
+    MOCK_OFF(realloc);
+    ASSERT_OK(maycup_stringwriter_dtor(&sw, NULL), fail);
+    return TEST_RESULT_PASS;
+fail:
+    MOCK_OFF(realloc);
+    maycup_stringwriter_dtor(&sw, NULL);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(stringwriter_flexible_printf_normal) {
+    MAYCUP_StringWriter sw;
+    const size_t bufsz = 8;
+
+    ASSERT_OK(maycup_stringwriter_ctor_flexible(&sw, bufsz), fail);
+    for (int i = 1; i <= 3; ++i) {
+        ASSERT_OK(maycup_writer_printf(&sw, "%s %d", "asdasd", 123123), fail);
+    }
+
+    ASSERT_EQ(strcmp(sw.buf, "asdasd 123123asdasd 123123asdasd 123123"), 0,
+              fail);
+
+    ASSERT_OK(maycup_stringwriter_dtor(&sw, NULL), fail);
+    return TEST_RESULT_PASS;
+fail:
+    maycup_stringwriter_dtor(&sw, NULL);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(stringwriter_flexible_printf_realloc_fail) {
+    MAYCUP_StringWriter sw;
+    const size_t bufsz = 8;
+
+    MOCK_ON(realloc);
+
+    ASSERT_OK(maycup_stringwriter_ctor_flexible(&sw, bufsz), fail);
+    ASSERT_EQ(maycup_writer_printf(&sw, "%s %d", "asdasdasdasd", 123123123123),
+              MAYCUP_RESULT_MALLOC_FAIL, fail);
+
+    MOCK_OFF(realloc);
+    ASSERT_OK(maycup_stringwriter_dtor(&sw, NULL), fail);
+    return TEST_RESULT_PASS;
+fail:
+    MOCK_OFF(realloc);
+    maycup_stringwriter_dtor(&sw, NULL);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(filewriter_module_common) {
+    MAYCUP_FileWriter fw;
+
+    ASSERT_OK(maycup_filewriter_ctor(&fw, runtime_wfile), fail);
+
+    for (size_t i = 1; i <= 20; ++i) {
+        ASSERT_OK(maycup_writer_puts(&fw, writer_str_puts_test), fail);
+    }
+    for (int i = 1; i <= 100; ++i) {
+        ASSERT_OK(maycup_writer_printf(
+                      &fw, "cur num: %d, next num: %d; %d * %d == %d.\n", i,
+                      i + 1, i, i + 1, i * (i + 1)),
+                  fail);
+    }
+
+    ASSERT_OK(maycup_filewriter_dtor(&fw), fail);
+
+    ASSERT_FILE_EQ_FILE(runtime_wfile,
+                        "test/unit/fixture/expected/writer_module.txt", fail);
+    return TEST_RESULT_PASS;
+fail:
+    maycup_filewriter_dtor(&fw);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(stringwriter_module_common) {
+    MAYCUP_StringWriter sw;
+
+    ASSERT_OK(maycup_stringwriter_ctor(&sw, output_str, OUTPUT_STR_SIZE), fail);
+
+    for (size_t i = 1; i <= 20; ++i) {
+        ASSERT_OK(maycup_writer_puts(&sw, writer_str_puts_test), fail);
+    }
+    for (int i = 1; i <= 100; ++i) {
+        ASSERT_OK(maycup_writer_printf(
+                      &sw, "cur num: %d, next num: %d; %d * %d == %d.\n", i,
+                      i + 1, i, i + 1, i * (i + 1)),
+                  fail);
+    }
+
+    ASSERT_STR_EQ_FILE(sw.buf, "test/unit/fixture/expected/writer_module.txt",
+                       fail);
+
+    ASSERT_OK(maycup_stringwriter_dtor(&sw, NULL), fail);
+    return TEST_RESULT_PASS;
+fail:
+    maycup_stringwriter_dtor(&sw, NULL);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(stringwriter_flexible_module_common) {
+    MAYCUP_StringWriter sw;
+
+    ASSERT_OK(maycup_stringwriter_ctor_flexible(
+                  &sw, MAYCUP_DEFAULT_STRWRITER_FLEXBUF_SIZE),
+              fail);
+
+    for (size_t i = 1; i <= 20; ++i) {
+        ASSERT_OK(maycup_writer_puts(&sw, writer_str_puts_test), fail);
+    }
+    for (int i = 1; i <= 100; ++i) {
+        ASSERT_OK(maycup_writer_printf(
+                      &sw, "cur num: %d, next num: %d; %d * %d == %d.\n", i,
+                      i + 1, i, i + 1, i * (i + 1)),
+                  fail);
+    }
+
+    ASSERT_STR_EQ_FILE(sw.buf, "test/unit/fixture/expected/writer_module.txt",
+                       fail);
 
     ASSERT_OK(maycup_stringwriter_dtor(&sw, NULL), fail);
     return TEST_RESULT_PASS;
@@ -513,7 +734,22 @@ TEST_CASE_ADD(stringwriter_puts_length_exceeded);
 TEST_CASE_ADD(stringwriter_puts_illegal_arg);
 
 TEST_CASE_ADD(stringwriter_printf_normal);
+TEST_CASE_ADD(stringwriter_printf_length_exceeded);
 TEST_CASE_ADD(stringwriter_printf_vsnprintf_fail);
 TEST_CASE_ADD(stringwriter_printf_illegal_arg);
+
+TEST_CASE_ADD(stringwriter_flexible_ctor_normal);
+TEST_CASE_ADD(stringwriter_flexible_ctor_malloc_fail);
+TEST_CASE_ADD(stringwriter_flexible_ctor_illegal_arg);
+
+TEST_CASE_ADD(stringwriter_flexible_puts_normal);
+TEST_CASE_ADD(stringwriter_flexible_puts_realloc_fail);
+
+TEST_CASE_ADD(stringwriter_flexible_printf_normal);
+TEST_CASE_ADD(stringwriter_flexible_printf_realloc_fail);
+
+TEST_CASE_ADD(filewriter_module_common);
+TEST_CASE_ADD(stringwriter_module_common);
+TEST_CASE_ADD(stringwriter_flexible_module_common);
 
 TEST_SUITE_END

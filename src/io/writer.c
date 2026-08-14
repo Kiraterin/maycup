@@ -190,7 +190,7 @@ MAYCUP_Result maycup_stringwriter_ctor(MAYCUP_OUT MAYCUP_StringWriter *self,
 MAYCUP_Result
 maycup_stringwriter_ctor_flexible(MAYCUP_OUT MAYCUP_StringWriter *self,
                                   MAYCUP_IN size_t bufsz) {
-    if (bufsz == 0) {
+    if (self == NULL || bufsz == 0) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
     self->size = 1;

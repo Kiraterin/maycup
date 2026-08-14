@@ -100,7 +100,7 @@ MAYCUP_Result maycup_stringwriter_ctor(MAYCUP_OUT MAYCUP_StringWriter *self,
 /**
  * @brief Construct a string writer with an independent flexible buffer
  * @param self Out, the string writer to construct
- * @param bufsz In, the original length of buffer
+ * @param bufsz In, the original length of buffer. Cannot be @c 0
  * @return MAYCUP_Result
  */
 MAYCUP_Result

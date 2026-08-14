@@ -24,7 +24,6 @@
 #ifndef TEST_H
 #define TEST_H
 
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -119,6 +118,29 @@ typedef struct {
 
 #define ASSERT_OK(expr, fail_label)                                            \
     ASSERT_EQ((expr), MAYCUP_RESULT_OK, fail_label)
+
+bool assert_file_eq_file(const char *file_a, const char *file_b);
+bool assert_str_eq_file(const char *str, const char *file);
+
+#define ASSERT_FILE_EQ_FILE(f1, f2, fail_label)                                \
+    do {                                                                       \
+        if (!assert_file_eq_file((f1), (f2))) {                                     \
+            printf("[FAIL] file assertion failed("__FILE__                     \
+                   ":" STRINGIFY(__LINE__) " (%s) == (%s)): \n",               \
+                   STRINGIFY(f1), STRINGIFY(f2));                           \
+            goto fail_label;                                                   \
+        }                                                                      \
+    } while (false)
+
+#define ASSERT_STR_EQ_FILE(str, file, fail_label)                              \
+    do {                                                                       \
+        if (!assert_str_eq_file((str), (file))) {                                     \
+            printf("[FAIL] str & file assertion failed("__FILE__                     \
+                   ":" STRINGIFY(__LINE__) " (%s) == (%s)): \n",               \
+                   STRINGIFY(str), STRINGIFY(file));                           \
+            goto fail_label;                                                   \
+        }                                                                      \
+    } while (false)
 
 // mock functions
 #define MOCK_ON(func) CONCAT(TEST_CTX.mock_state.m_, func) = true
