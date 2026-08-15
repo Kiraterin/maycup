@@ -30,5 +30,8 @@
 #undef feof
 #undef ftell
 #undef fseek
+#undef fputs
+#undef vfprintf
+#undef vsnprintf
 
 #endif // TEST

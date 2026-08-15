@@ -22,6 +22,7 @@
  */
 
 #include "test.h"
+#include "maycup/core/lexer.h"
 
 TEST_SUITE_BEGIN(lexer)
 

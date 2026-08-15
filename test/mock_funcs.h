@@ -32,6 +32,9 @@
 #define feof feof_mock
 #define ftell ftell_mock
 #define fseek fseek_mock
+#define fputs fputs_mock
+#define vfprintf vfprintf_mock
+#define vsnprintf vsnprintf_mock
 
 void *malloc_mock(size_t p);
 void *realloc_mock(void *pa, size_t pb);
@@ -40,5 +43,8 @@ int fclose_mock(FILE *p);
 int feof_mock(FILE *p);
 long ftell_mock(FILE *p);
 long fseek_mock(FILE *pa, long pb, int pc);
+int fputs_mock(const char *pa, FILE *pb);
+int vfprintf_mock(FILE *pa, const char *pb, va_list pc);
+int vsnprintf(char *pa, size_t pb, const char *pc, va_list pd);
 
 #endif // TEST

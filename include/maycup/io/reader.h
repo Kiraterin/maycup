@@ -39,7 +39,7 @@ MAYCUP_Result maycup_reader_get_char(void *self, MAYCUP_OUT int *res);
 /**
  * @brief Get the cursor of a reader
  * @param self Pointer to the reader
- * @param res Out, the offset from beginning got, cannot be @c NULL
+ * @param res Out, the offset from beginning got. Cannot be @c NULL
  */
 MAYCUP_Result maycup_reader_tell(void *self, MAYCUP_OUT long *res);
 
@@ -66,7 +66,7 @@ typedef struct {
 /**
  * @brief Construct a file reader
  * @param self Out, the file reader to construct
- * @param path In, the path that the file reader will read, cannot be @c NULL
+ * @param path In, the path that the file reader will read. Cannot be @c NULL
  * @return MAYCUP_Result
  */
 MAYCUP_Result maycup_filereader_ctor(MAYCUP_OUT MAYCUP_FileReader *self,
@@ -74,6 +74,7 @@ MAYCUP_Result maycup_filereader_ctor(MAYCUP_OUT MAYCUP_FileReader *self,
 
 /**
  * @brief Destruct a file reader
+ * @note All of the member will be set to @c NULL or @c 0
  * @param self Out, the file reader to destruct
  * @return MAYCUP_Result
  */
@@ -99,6 +100,7 @@ MAYCUP_Result maycup_stringreader_ctor(MAYCUP_OUT MAYCUP_StringReader *self,
 
 /**
  * @brief Destruct a string reader
+ * @note All of the member will be set to @c NULL or @c 0
  * @param self Out, the string reader to destruct
  * @return MAYCUP_Result
  */

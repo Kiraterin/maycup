@@ -22,7 +22,6 @@
  */
 
 #include "maycup/io/reader.h"
-#include <string.h>
 
 // mock def
 #include "mock_funcs.h"
@@ -161,7 +160,7 @@ static MAYCUP_Result string_reader_seek(MAYCUP_OUT MAYCUP_StringReader *self,
 MAYCUP_Result maycup_stringreader_ctor(MAYCUP_OUT MAYCUP_StringReader *self,
                                        MAYCUP_IN const char *str,
                                        MAYCUP_IN const size_t len) {
-    if (self == NULL || str == NULL || strlen(str) < len) {
+    if (self == NULL || str == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
     self->begin = self->cur = str;

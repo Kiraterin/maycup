@@ -21,12 +21,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "fixture/input/reader_str_lipsum_1.h"
-#include "fixture/input/reader_str_lipsum_2.h"
 #include "maycup/io/reader.h"
 #include "test.h"
-#include <errno.h>
 #include <string.h>
+
+#include "fixture/input/reader_str_lipsum_1.h"
+#include "fixture/input/reader_str_lipsum_2.h"
 
 TEST_CASE(filereader_ctor_normal) {
     MAYCUP_FileReader fr;
@@ -64,8 +64,8 @@ fail:
 TEST_CASE(filereader_ctor_illegal_arg) {
     MAYCUP_FileReader fr;
     const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
-    ASSERT_EQ(maycup_filereader_ctor(NULL, filename), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
-              fail);
+    ASSERT_EQ(maycup_filereader_ctor(NULL, filename),
+              MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
     ASSERT_EQ(maycup_filereader_ctor(&fr, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
               fail);
 
@@ -97,7 +97,8 @@ TEST_CASE(filereader_dtor_double) {
 
     ASSERT_OK(maycup_filereader_ctor(&fr, filename), fail);
     ASSERT_OK(maycup_filereader_dtor(&fr), fail);
-    ASSERT_EQ(maycup_filereader_dtor(&fr), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_filereader_dtor(&fr), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+              fail);
 
     return TEST_RESULT_PASS;
 fail:
@@ -124,7 +125,8 @@ fail:
 }
 
 TEST_CASE(filereader_dtor_illegal_arg) {
-    ASSERT_EQ(maycup_filereader_dtor(NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_filereader_dtor(NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+              fail);
     return TEST_RESULT_PASS;
 fail:
     return TEST_RESULT_FAIL;
@@ -233,9 +235,10 @@ TEST_CASE(filereader_get_char_illegal_arg) {
     const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
 
     ASSERT_OK(maycup_filereader_ctor(&fr, filename), fail);
-    ASSERT_EQ(maycup_reader_get_char(NULL, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+    ASSERT_EQ(maycup_reader_get_char(NULL, NULL),
+              MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(fr.base.get_char(NULL, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
               fail);
-    ASSERT_EQ(fr.base.get_char(NULL, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
 
     ASSERT_OK(maycup_filereader_dtor(&fr), fail);
     return TEST_RESULT_PASS;
@@ -293,8 +296,10 @@ TEST_CASE(filereader_tell_illegal_arg) {
     long cur;
 
     ASSERT_OK(maycup_filereader_ctor(&fr, filename), fail);
-    ASSERT_EQ(maycup_reader_tell(NULL, &cur), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
-    ASSERT_EQ(maycup_reader_tell(&fr, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_reader_tell(NULL, &cur), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+              fail);
+    ASSERT_EQ(maycup_reader_tell(&fr, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+              fail);
     ASSERT_EQ(fr.base.tell(NULL, &cur), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
     ASSERT_EQ(fr.base.tell((MAYCUP_Reader *)&fr, NULL),
               MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
@@ -349,7 +354,8 @@ TEST_CASE(filereader_seek_illegal_arg) {
     const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
 
     ASSERT_OK(maycup_filereader_ctor(&fr, filename), fail);
-    ASSERT_EQ(maycup_reader_seek(NULL, 0), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_reader_seek(NULL, 0), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+              fail);
     ASSERT_EQ(fr.base.seek(NULL, 0), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
 
     ASSERT_OK(maycup_filereader_dtor(&fr), fail);
@@ -388,8 +394,6 @@ TEST_CASE(stringreader_ctor_illegal_arg) {
               MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
     ASSERT_EQ(maycup_stringreader_ctor(&sr, NULL, stringlen),
               MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
-    ASSERT_EQ(maycup_stringreader_ctor(&sr, stringname, stringlen + 1),
-              MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
 
     return TEST_RESULT_PASS;
 fail:
@@ -423,7 +427,8 @@ TEST_CASE(stringreader_dtor_double) {
 
     ASSERT_OK(maycup_stringreader_ctor(&sr, stringname, stringlen), fail);
     ASSERT_OK(maycup_stringreader_dtor(&sr), fail);
-    ASSERT_EQ(maycup_stringreader_dtor(&sr), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_stringreader_dtor(&sr), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+              fail);
 
     return TEST_RESULT_PASS;
 fail:
@@ -432,7 +437,8 @@ fail:
 }
 
 TEST_CASE(stringreader_dtor_illegal_arg) {
-    ASSERT_EQ(maycup_stringreader_dtor(NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_stringreader_dtor(NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+              fail);
     return TEST_RESULT_PASS;
 fail:
     return TEST_RESULT_FAIL;
@@ -538,9 +544,10 @@ TEST_CASE(stringreader_get_char_illegal_arg) {
     const size_t stringlen = reader_str_lipsum_1_len;
 
     ASSERT_OK(maycup_stringreader_ctor(&sr, stringname, stringlen), fail);
-    ASSERT_EQ(maycup_reader_get_char(NULL, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+    ASSERT_EQ(maycup_reader_get_char(NULL, NULL),
+              MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(sr.base.get_char(NULL, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
               fail);
-    ASSERT_EQ(sr.base.get_char(NULL, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
 
     ASSERT_OK(maycup_stringreader_dtor(&sr), fail);
     return TEST_RESULT_PASS;
@@ -581,8 +588,10 @@ TEST_CASE(stringreader_tell_illegal_arg) {
     long cur;
 
     ASSERT_OK(maycup_stringreader_ctor(&sr, stringname, stringlen), fail);
-    ASSERT_EQ(maycup_reader_tell(NULL, &cur), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
-    ASSERT_EQ(maycup_reader_tell(&sr, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_reader_tell(NULL, &cur), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+              fail);
+    ASSERT_EQ(maycup_reader_tell(&sr, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+              fail);
     ASSERT_EQ(sr.base.tell(NULL, &cur), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
     ASSERT_EQ(sr.base.tell((MAYCUP_Reader *)&sr, NULL),
               MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
@@ -621,15 +630,108 @@ TEST_CASE(stringreader_seek_illegal_arg) {
     const size_t stringlen = reader_str_lipsum_1_len;
 
     ASSERT_OK(maycup_stringreader_ctor(&sr, stringname, stringlen), fail);
-    ASSERT_EQ(maycup_reader_seek(NULL, 0), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
-    ASSERT_EQ(maycup_reader_seek(&sr, -1), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
-    ASSERT_EQ(maycup_reader_seek(&sr, stringlen + 1), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+    ASSERT_EQ(maycup_reader_seek(NULL, 0), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
               fail);
+    ASSERT_EQ(maycup_reader_seek(&sr, -1), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+              fail);
+    ASSERT_EQ(maycup_reader_seek(&sr, stringlen + 1),
+              MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
     ASSERT_EQ(sr.base.seek(NULL, 0), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
-    ASSERT_EQ(sr.base.seek((MAYCUP_Reader *)&sr, -1), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
-              fail);
+    ASSERT_EQ(sr.base.seek((MAYCUP_Reader *)&sr, -1),
+              MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
     ASSERT_EQ(sr.base.seek((MAYCUP_Reader *)&sr, stringlen + 1),
               MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+
+    ASSERT_OK(maycup_stringreader_dtor(&sr), fail);
+    return TEST_RESULT_PASS;
+fail:
+    maycup_stringreader_dtor(&sr);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(filereader_module_common) {
+    MAYCUP_FileReader fr;
+    FILE *fp;
+    const char *input_filename =
+        "./test/unit/fixture/input/reader_lipsum_1.txt";
+    const char *expected_filename =
+        "./test/unit/fixture/expected/reader_lipsum_1.txt";
+    const size_t threshold = 5;
+    size_t accumulate = 0;
+    long input_cp = 0;
+    long expected_cp = 0;
+    int input_cur;
+    int expected_cur;
+
+    ASSERT_OK(maycup_filereader_ctor(&fr, input_filename), fail);
+    fp = fopen(expected_filename, "r");
+
+    while (true) {
+        if (accumulate == threshold) {
+            accumulate = 0;
+            ASSERT_OK(maycup_reader_seek(&fr, input_cp), fail);
+            fseek(fp, expected_cp, SEEK_SET);
+        }
+        ASSERT_OK(maycup_reader_get_char(&fr, &input_cur), fail);
+        expected_cur = getc(fp);
+        ASSERT_EQ(input_cur, expected_cur, fail);
+
+        ASSERT_OK(maycup_reader_tell(&fr, &input_cp), fail);
+        expected_cp = ftell(fp);
+        ASSERT_EQ(input_cp, expected_cp, fail);
+
+        if (expected_cur == EOF && feof(fp)) {
+            break;
+        }
+
+        ++accumulate;
+    }
+
+    ASSERT_OK(maycup_filereader_dtor(&fr), fail);
+    return TEST_RESULT_PASS;
+fail:
+    maycup_filereader_dtor(&fr);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(stringreader_module_common) {
+    MAYCUP_StringReader sr;
+    FILE *fp;
+    const char *input_stringname = reader_str_lipsum_1;
+    const size_t input_stringlen = reader_str_lipsum_1_len;
+    const char *expected_filename =
+        "./test/unit/fixture/expected/reader_lipsum_1.txt";
+    const size_t threshold = 5;
+    size_t accumulate = 0;
+    long input_cp = 0;
+    long expected_cp = 0;
+    int input_cur;
+    int expected_cur;
+
+    ASSERT_OK(maycup_stringreader_ctor(&sr, input_stringname, input_stringlen),
+              fail);
+    fp = fopen(expected_filename, "r");
+
+    while (true) {
+        if (accumulate == threshold) {
+            accumulate = 0;
+            ASSERT_OK(maycup_reader_seek(&sr, input_cp), fail);
+            fseek(fp, expected_cp, SEEK_SET);
+        }
+        ASSERT_OK(maycup_reader_get_char(&sr, &input_cur), fail);
+        expected_cur = getc(fp);
+        ASSERT_EQ(input_cur, expected_cur, fail);
+
+        ASSERT_OK(maycup_reader_tell(&sr, &input_cp), fail);
+        expected_cp = ftell(fp);
+        ASSERT_EQ(input_cp, expected_cp, fail);
+
+        if (expected_cur == EOF && feof(fp)) {
+            break;
+        }
+
+        ++accumulate;
+    }
 
     ASSERT_OK(maycup_stringreader_dtor(&sr), fail);
     return TEST_RESULT_PASS;
@@ -679,5 +781,8 @@ TEST_CASE_ADD(stringreader_tell_illegal_arg);
 
 TEST_CASE_ADD(stringreader_seek_normal);
 TEST_CASE_ADD(stringreader_seek_illegal_arg);
+
+TEST_CASE_ADD(filereader_module_common);
+TEST_CASE_ADD(stringreader_module_common);
 
 TEST_SUITE_END

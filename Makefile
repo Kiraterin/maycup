@@ -95,29 +95,31 @@ test:
 test_not_run:
 	@echo -e '\n$(C_GREEN)Current Configuration: test $(C_RESET)'
 	$(MAKE) CONFIG=test build --no-print-directory
+	@mkdir -p $(BUILD_DIR)/tmp
 
 test_run: build
+	@mkdir -p $(BUILD_DIR)/tmp
 	@echo -e '$(C_GREEN)Running test:$(C_RESET)'
-	LLVM_PROFILE_FILE="$(BIN_DIR)/test.profraw" $(TARGET)
+	LLVM_PROFILE_FILE="$(BUILD_DIR)/test.profraw" $(TARGET)
 	@echo -e '$(C_GREEN)Saving perfdata:$(C_RESET)'
-	llvm-profdata merge -sparse $(BIN_DIR)/test.profraw -o $(BIN_DIR)/test.profdata
+	llvm-profdata merge -sparse $(BUILD_DIR)/test.profraw -o $(BUILD_DIR)/test.profdata
 
 cov:
 	$(MAKE) CONFIG=test cov_inner --no-print-directory
 
 cov_inner:
-	@if [ ! -f "$(BIN_DIR)/test.profdata" ]; then \
+	@if [ ! -f "$(BUILD_DIR)/test.profdata" ]; then \
 		$(MAKE) CONFIG=test test_run --no-print-directory; \
 	fi
 	@echo -e '$(C_GREEN)Test coverage:$(C_RESET)'
-	llvm-cov report $(TARGET) -instr-profile=$(BIN_DIR)/test.profdata \
+	llvm-cov report $(TARGET) -instr-profile=$(BUILD_DIR)/test.profdata \
 		-show-region-summary=false \
 		-show-branch-summary=false \
 		-ignore-filename-regex='(^|/)test/.*|(^|/)src/debug/.*'
-	llvm-cov show $(TARGET) -instr-profile=$(BIN_DIR)/test.profdata \
+	llvm-cov show $(TARGET) -instr-profile=$(BUILD_DIR)/test.profdata \
 		-ignore-filename-regex='(^|/)test/.*|(^|/)src/debug/.*' \
-		-format=html -output-dir=$(BIN_DIR)/cov
-	@echo -e '$(C_GREEN)Coverage report: $(BIN_DIR)/cov/index.html$(C_RESET)'
+		-format=html -output-dir=$(BUILD_DIR)/cov
+	@echo -e '$(C_GREEN)Coverage report: $(BUILD_DIR)/cov/index.html$(C_RESET)'
 
 $(TARGET): $(OBJ)
 	@mkdir -p $(dir $@)

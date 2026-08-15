@@ -22,7 +22,9 @@
  */
 
 #include "test.h"
+#include <stddef.h>
 #include <stdio.h>
+#include <string.h>
 
 void run_all_test_suites() {
     size_t pass_cnt_all = 0;
@@ -81,6 +83,56 @@ void run_all_test_suites() {
     printf("=====================\n\n\n");
 }
 
+bool assert_file_eq_file(const char *file_a, const char *file_b) {
+    FILE *fpa, *fpb;
+    fpa = fopen(file_a, "r");
+    fpb = fopen(file_b, "r");
+    if (fpa == NULL || fpb == NULL) {
+        return false;
+    }
+
+    long sza, szb;
+    fseek(fpa, 0, SEEK_END);
+    fseek(fpb, 0, SEEK_END);
+    sza = ftell(fpa);
+    szb = ftell(fpb);
+    if (sza != szb) {
+        return false;
+    }
+    char *fa_content, *fb_content;
+    fa_content = (char *)malloc(sza * sizeof(char) + 1);
+    fb_content = (char *)malloc(szb * sizeof(char) + 1);
+    fa_content[sza] = '\0';
+    fb_content[szb] = '\0';
+    rewind(fpa);
+    rewind(fpb);
+    fread(fa_content, sizeof(char), sza, fpa);
+    fread(fb_content, sizeof(char), szb, fpb);
+
+    bool res = strcmp(fa_content, fb_content) == 0;
+    free(fa_content);
+    free(fb_content);
+    return res;
+}
+
+bool assert_str_eq_file(const char *str, const char *file) {
+    FILE *fp = fopen(file, "r");
+    if (fp == NULL) {
+        return false;
+    }
+
+    fseek(fp, 0, SEEK_END);
+    long sz = ftell(fp);
+    char *content = (char *)malloc(sz * sizeof(char) + 1);
+    content[sz] = '\0';
+    rewind(fp);
+    fread(content, sizeof(char), sz, fp);
+
+    bool res = strcmp(str, content) == 0;
+    free(content);
+    return res;
+}
+
 void *malloc_mock(size_t p) {
     if (TEST_CTX.mock_state.m_malloc) {
         return NULL;
@@ -134,5 +186,29 @@ long fseek_mock(FILE *pa, long pb, int pc) {
         return -1;
     } else {
         return fseek(pa, pb, pc);
+    }
+}
+
+int fputs_mock(const char *pa, FILE *pb) {
+    if (TEST_CTX.mock_state.m_fputs) {
+        return EOF;
+    } else {
+        return fputs(pa, pb);
+    }
+}
+
+int vfprintf_mock(FILE *pa, const char *pb, va_list pc) {
+    if (TEST_CTX.mock_state.m_vfprintf) {
+        return -1;
+    } else {
+        return vfprintf(pa, pb, pc);
+    }
+}
+
+int vsnprintf_mock(char *pa, size_t pb, const char *pc, va_list pd) {
+    if (TEST_CTX.mock_state.m_vsnprintf) {
+        return -1;
+    } else {
+        return vsnprintf(pa, pb, pc, pd);
     }
 }
