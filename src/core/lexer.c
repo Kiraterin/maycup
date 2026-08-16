@@ -175,6 +175,9 @@ MAYCUP_Result maycup_next_token(MAYCUP_OUT MAYCUP_Token *token,
 }
 
 MAYCUP_Result maycup_lexer_checkpoint(MAYCUP_OUT MAYCUP_Lexer *self) {
+    if (self == NULL) {
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
+    }
     long current;
     MAYCUP_RELAY(maycup_reader_tell(self->reader, &current));
     if (current == -1L) {
@@ -185,6 +188,9 @@ MAYCUP_Result maycup_lexer_checkpoint(MAYCUP_OUT MAYCUP_Lexer *self) {
 }
 
 MAYCUP_Result maycup_lexer_restore(MAYCUP_INOUT MAYCUP_Lexer *self) {
+    if (self == NULL || self->checkpoint.len < 1) {
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
+    }
     long top;
     MAYCUP_RELAY(maycup_vector_long_top(&self->checkpoint, &top));
     MAYCUP_RELAY(maycup_reader_seek(self->reader, top));
@@ -192,6 +198,9 @@ MAYCUP_Result maycup_lexer_restore(MAYCUP_INOUT MAYCUP_Lexer *self) {
 }
 
 MAYCUP_Result maycup_lexer_drop_checkpoint(MAYCUP_OUT MAYCUP_Lexer *self) {
+    if (self == NULL || self->checkpoint.len < 1) {
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
+    }
     MAYCUP_RELAY(maycup_vector_long_popback(&self->checkpoint));
     return MAYCUP_RESULT_OK;
 }

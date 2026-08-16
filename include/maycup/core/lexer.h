@@ -118,7 +118,8 @@ MAYCUP_Result maycup_next_token(MAYCUP_OUT MAYCUP_Token *token,
 MAYCUP_Result maycup_lexer_checkpoint(MAYCUP_OUT MAYCUP_Lexer *self);
 
 /**
- * @brief Return to the checkpoint and won't pop it out
+ * @brief Return to the checkpoint but won't pop it out
+ * @note The checkpoint stack cannot be empty
  * @param self In & out, the lexer
  * @return MAYCUP_Result
  */
@@ -126,6 +127,7 @@ MAYCUP_Result maycup_lexer_restore(MAYCUP_INOUT MAYCUP_Lexer *self);
 
 /**
  * @brief Drop the top checkpoint
+ * @note The checkpoint stack cannot be empty
  * @param self Out, the lexer
  * @return MAYCUP_Result
  */

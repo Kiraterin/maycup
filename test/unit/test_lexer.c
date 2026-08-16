@@ -27,6 +27,7 @@
 #include "maycup/io/reader.h"
 #include "maycup/io/writer.h"
 #include "test.h"
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -305,6 +306,261 @@ fail:
     return TEST_RESULT_FAIL;
 }
 
+TEST_CASE(lexer_checkpoint_normal) {
+    MAYCUP_FileReader fr;
+    MAYCUP_Lexer lexer;
+
+    ASSERT_OK(
+        maycup_filereader_ctor(&fr, UTEST_FIXTURE_PATH_INPUT "lexer_1.md"),
+        fail);
+    ASSERT_OK(maycup_lexer_ctor(&lexer, (MAYCUP_Reader *)&fr), fail);
+
+    ASSERT_OK(maycup_lexer_checkpoint(&lexer), fail);
+    ASSERT_OK(maycup_lexer_checkpoint(&lexer), fail);
+    ASSERT_OK(maycup_lexer_checkpoint(&lexer), fail);
+    ASSERT_EQ(lexer.checkpoint.len, 3, fail);
+
+    ASSERT_OK(maycup_lexer_dtor(&lexer), fail);
+    ASSERT_OK(maycup_filereader_dtor(&fr), fail);
+    return TEST_RESULT_PASS;
+fail:
+    maycup_lexer_dtor(&lexer);
+    maycup_filereader_dtor(&fr);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(lexer_checkpoint_illegal_arg) {
+    MAYCUP_FileReader fr;
+    MAYCUP_Lexer lexer;
+
+    ASSERT_OK(
+        maycup_filereader_ctor(&fr, UTEST_FIXTURE_PATH_INPUT "lexer_1.md"),
+        fail);
+    ASSERT_OK(maycup_lexer_ctor(&lexer, (MAYCUP_Reader *)&fr), fail);
+
+    ASSERT_EQ(maycup_lexer_checkpoint(NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+              fail);
+
+    ASSERT_OK(maycup_lexer_dtor(&lexer), fail);
+    ASSERT_OK(maycup_filereader_dtor(&fr), fail);
+    return TEST_RESULT_PASS;
+fail:
+    maycup_lexer_dtor(&lexer);
+    maycup_filereader_dtor(&fr);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(lexer_restore_normal) {
+    MAYCUP_FileReader fr;
+    MAYCUP_Lexer lexer;
+    const size_t TOKENS_SIZE = 10;
+    MAYCUP_Token tokens[TOKENS_SIZE];
+
+    ASSERT_OK(
+        maycup_filereader_ctor(&fr, UTEST_FIXTURE_PATH_INPUT "lexer_1.md"),
+        fail);
+    ASSERT_OK(maycup_lexer_ctor(&lexer, (MAYCUP_Reader *)&fr), fail);
+
+    ASSERT_OK(maycup_lexer_checkpoint(&lexer), fail);
+    for (size_t i = 0; i < TOKENS_SIZE; ++i) {
+        ASSERT_OK(maycup_next_token(&tokens[i], &lexer), fail);
+    }
+    ASSERT_OK(maycup_lexer_restore(&lexer), fail);
+    for (size_t i = 0; i < TOKENS_SIZE; ++i) {
+        MAYCUP_Token cur;
+        ASSERT_OK(maycup_next_token(&cur, &lexer), fail);
+        ASSERT_EQ(cur.type, tokens[i].type, fail);
+        if (cur.type == MAYCUP_TOKENTYPE_TEXT) {
+            ASSERT_EQ(strcmp(cur.text, tokens[i].text), 0, fail);
+        } else if (cur.type == MAYCUP_TOKENTYPE_LITERAL) {
+            ASSERT_EQ(cur.literal, tokens[i].literal, fail);
+        }
+        ASSERT_OK(maycup_token_dtor(&tokens[i]), fail);
+        ASSERT_OK(maycup_token_dtor(&cur), fail);
+    }
+
+    ASSERT_OK(maycup_lexer_dtor(&lexer), fail);
+    ASSERT_OK(maycup_filereader_dtor(&fr), fail);
+    return TEST_RESULT_PASS;
+fail:
+    maycup_lexer_dtor(&lexer);
+    maycup_filereader_dtor(&fr);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(lexer_restore_illegal_arg) {
+    MAYCUP_FileReader fr;
+    MAYCUP_Lexer lexer;
+
+    ASSERT_OK(
+        maycup_filereader_ctor(&fr, UTEST_FIXTURE_PATH_INPUT "lexer_1.md"),
+        fail);
+    ASSERT_OK(maycup_lexer_ctor(&lexer, (MAYCUP_Reader *)&fr), fail);
+
+    ASSERT_EQ(maycup_lexer_restore(NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_lexer_restore(&lexer), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+              fail);
+
+    ASSERT_OK(maycup_lexer_dtor(&lexer), fail);
+    ASSERT_OK(maycup_filereader_dtor(&fr), fail);
+    return TEST_RESULT_PASS;
+fail:
+    maycup_lexer_dtor(&lexer);
+    maycup_filereader_dtor(&fr);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(lexer_drop_checkpoint_normal) {
+    MAYCUP_FileReader fr;
+    MAYCUP_Lexer lexer;
+    const size_t TOKENS_SIZE = 10;
+    MAYCUP_Token tokens[TOKENS_SIZE];
+
+    ASSERT_OK(
+        maycup_filereader_ctor(&fr, UTEST_FIXTURE_PATH_INPUT "lexer_1.md"),
+        fail);
+    ASSERT_OK(maycup_lexer_ctor(&lexer, (MAYCUP_Reader *)&fr), fail);
+
+    for (size_t i = 1; i <= TOKENS_SIZE; ++i) {
+        ASSERT_OK(maycup_lexer_checkpoint(&lexer), fail);
+        for (size_t j = 0; j < i; ++j) {
+            ASSERT_OK(maycup_next_token(&tokens[j], &lexer), fail);
+        }
+        ASSERT_OK(maycup_lexer_restore(&lexer), fail);
+        ASSERT_OK(maycup_lexer_drop_checkpoint(&lexer), fail);
+        for (size_t j = 0; j < i; ++j) {
+            MAYCUP_Token cur;
+            ASSERT_OK(maycup_next_token(&cur, &lexer), fail);
+            ASSERT_EQ(cur.type, tokens[j].type, fail);
+            if (cur.type == MAYCUP_TOKENTYPE_TEXT) {
+                ASSERT_EQ(strcmp(cur.text, tokens[j].text), 0, fail);
+            } else if (cur.type == MAYCUP_TOKENTYPE_LITERAL) {
+                ASSERT_EQ(cur.literal, tokens[j].literal, fail);
+            }
+            ASSERT_OK(maycup_token_dtor(&tokens[j]), fail);
+            ASSERT_OK(maycup_token_dtor(&cur), fail);
+        }
+    }
+
+    ASSERT_OK(maycup_lexer_dtor(&lexer), fail);
+    ASSERT_OK(maycup_filereader_dtor(&fr), fail);
+    return TEST_RESULT_PASS;
+fail:
+    maycup_lexer_dtor(&lexer);
+    maycup_filereader_dtor(&fr);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(lexer_drop_checkpoint_illegal_arg) {
+    MAYCUP_FileReader fr;
+    MAYCUP_Lexer lexer;
+
+    ASSERT_OK(
+        maycup_filereader_ctor(&fr, UTEST_FIXTURE_PATH_INPUT "lexer_1.md"),
+        fail);
+    ASSERT_OK(maycup_lexer_ctor(&lexer, (MAYCUP_Reader *)&fr), fail);
+
+    ASSERT_EQ(maycup_lexer_drop_checkpoint(NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_lexer_drop_checkpoint(&lexer), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+              fail);
+
+    ASSERT_OK(maycup_lexer_dtor(&lexer), fail);
+    ASSERT_OK(maycup_filereader_dtor(&fr), fail);
+    return TEST_RESULT_PASS;
+fail:
+    maycup_lexer_dtor(&lexer);
+    maycup_filereader_dtor(&fr);
+    return TEST_RESULT_FAIL;
+}
+
+TEST_CASE(lexer_module_common) {
+    MAYCUP_FileReader fr;
+    MAYCUP_StringWriter sw;
+    MAYCUP_Lexer lexer;
+    char *str;
+    size_t token_cnt = 0;
+    size_t cp_cnt = 0;
+
+    ASSERT_OK(
+        maycup_filereader_ctor(&fr, UTEST_FIXTURE_PATH_INPUT "lexer_2.md"),
+        fail);
+    ASSERT_OK(maycup_stringwriter_ctor_flexible(
+                  &sw, MAYCUP_DEFAULT_STRWRITER_FLEXBUF_SIZE),
+              fail);
+    ASSERT_OK(maycup_lexer_ctor(&lexer, (MAYCUP_Reader *)&fr), fail);
+
+    MAYCUP_Token cur = (MAYCUP_Token){.type = MAYCUP_TOKENTYPE_NONE};
+
+    while (cur.type != MAYCUP_TOKENTYPE_EOF) {
+        ASSERT_OK(maycup_token_dtor(&cur), fail);
+        cur = (MAYCUP_Token){.type = MAYCUP_TOKENTYPE_NONE};
+        ASSERT_OK(maycup_next_token(&cur, &lexer), fail);
+        ASSERT_NEQ(cur.type, MAYCUP_TOKENTYPE_NONE, fail);
+        if (cur.type == MAYCUP_TOKENTYPE_TEXT) {
+            ASSERT_NEQ(cur.text, NULL, fail);
+        }
+        str = maycup_token_tostr(&cur);
+        maycup_writer_printf(&sw, "%s\n", str);
+        free(str);
+        str = NULL;
+        ++token_cnt;
+        if (token_cnt == 10 && cp_cnt < 10) {
+            ASSERT_OK(maycup_lexer_checkpoint(&lexer), fail);
+            ++cp_cnt;
+            token_cnt = 0;
+        }
+        if (cp_cnt == 10) {
+            break;
+        }
+    }
+
+    while (cp_cnt--) {
+        ASSERT_OK(maycup_lexer_restore(&lexer), fail);
+        ASSERT_OK(maycup_lexer_drop_checkpoint(&lexer), fail);
+        ASSERT_OK(maycup_token_dtor(&cur), fail);
+        cur = (MAYCUP_Token){.type = MAYCUP_TOKENTYPE_NONE};
+        ASSERT_OK(maycup_next_token(&cur, &lexer), fail);
+        ASSERT_NEQ(cur.type, MAYCUP_TOKENTYPE_NONE, fail);
+        if (cur.type == MAYCUP_TOKENTYPE_TEXT) {
+            ASSERT_NEQ(cur.text, NULL, fail);
+        }
+        str = maycup_token_tostr(&cur);
+        maycup_writer_printf(&sw, "%s\n", str);
+        free(str);
+        str = NULL;
+    }
+
+    ASSERT_OK(maycup_token_dtor(&cur), fail);
+    ASSERT_OK(maycup_reader_seek(&fr, 0), fail);
+
+    while (cur.type != MAYCUP_TOKENTYPE_EOF) {
+        ASSERT_OK(maycup_token_dtor(&cur), fail);
+        cur = (MAYCUP_Token){.type = MAYCUP_TOKENTYPE_NONE};
+        ASSERT_OK(maycup_next_token(&cur, &lexer), fail);
+        ASSERT_NEQ(cur.type, MAYCUP_TOKENTYPE_NONE, fail);
+        if (cur.type == MAYCUP_TOKENTYPE_TEXT) {
+            ASSERT_NEQ(cur.text, NULL, fail);
+        }
+        str = maycup_token_tostr(&cur);
+        maycup_writer_printf(&sw, "%s\n", str);
+        free(str);
+        str = NULL;
+    }
+    ASSERT_OK(maycup_token_dtor(&cur), fail);
+
+    ASSERT_STR_EQ_FILE(sw.buf, UTEST_FIXTURE_PATH_EXPECTED "lexer_2.txt", fail);
+
+    ASSERT_OK(maycup_lexer_dtor(&lexer), fail);
+    ASSERT_OK(maycup_filereader_dtor(&fr), fail);
+    ASSERT_OK(maycup_stringwriter_dtor(&sw, NULL), fail);
+    return TEST_RESULT_PASS;
+fail:
+    maycup_lexer_dtor(&lexer);
+    maycup_filereader_dtor(&fr);
+    maycup_stringwriter_dtor(&sw, NULL);
+    return TEST_RESULT_FAIL;
+}
+
 TEST_SUITE_BEGIN(lexer)
 
 TEST_CASE_ADD(token_dtor_normal);
@@ -325,7 +581,15 @@ TEST_CASE_ADD(lexer_dtor_illegal_arg);
 TEST_CASE_ADD(lexer_next_token_normal);
 TEST_CASE_ADD(lexer_next_token_illegal_arg);
 
-// TODO: test cases for specific cases during tokenization (newline text eof
-// etc.)
+TEST_CASE_ADD(lexer_checkpoint_normal);
+TEST_CASE_ADD(lexer_checkpoint_illegal_arg);
+
+TEST_CASE_ADD(lexer_restore_normal);
+TEST_CASE_ADD(lexer_restore_illegal_arg);
+
+TEST_CASE_ADD(lexer_drop_checkpoint_normal);
+TEST_CASE_ADD(lexer_drop_checkpoint_illegal_arg);
+
+TEST_CASE_ADD(lexer_module_common);
 
 TEST_SUITE_END
