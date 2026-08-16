@@ -37,6 +37,9 @@
 // constants
 #define MAX_TEST_SUITE_CNT 16
 #define MAX_TEST_CASE_EACH_CNT 128
+#define UTEST_TMP_DIR "./build/test/tmp/"
+#define UTEST_FIXTURE_PATH_INPUT "./test/unit/fixture/input/"
+#define UTEST_FIXTURE_PATH_EXPECTED "./test/unit/fixture/expected/"
 
 // structs
 typedef enum { TEST_RESULT_PASS = 0, TEST_RESULT_FAIL = 1 } TestResult;
@@ -124,18 +127,18 @@ bool assert_str_eq_file(const char *str, const char *file);
 
 #define ASSERT_FILE_EQ_FILE(f1, f2, fail_label)                                \
     do {                                                                       \
-        if (!assert_file_eq_file((f1), (f2))) {                                     \
+        if (!assert_file_eq_file((f1), (f2))) {                                \
             printf("[FAIL] file assertion failed("__FILE__                     \
                    ":" STRINGIFY(__LINE__) " (%s) == (%s)): \n",               \
-                   STRINGIFY(f1), STRINGIFY(f2));                           \
+                   STRINGIFY(f1), STRINGIFY(f2));                              \
             goto fail_label;                                                   \
         }                                                                      \
     } while (false)
 
 #define ASSERT_STR_EQ_FILE(str, file, fail_label)                              \
     do {                                                                       \
-        if (!assert_str_eq_file((str), (file))) {                                     \
-            printf("[FAIL] str & file assertion failed("__FILE__                     \
+        if (!assert_str_eq_file((str), (file))) {                              \
+            printf("[FAIL] str & file assertion failed("__FILE__               \
                    ":" STRINGIFY(__LINE__) " (%s) == (%s)): \n",               \
                    STRINGIFY(str), STRINGIFY(file));                           \
             goto fail_label;                                                   \

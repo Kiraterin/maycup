@@ -21,8 +21,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "maycup/base/result.h"
+#include <stdlib.h>
+#include <string.h>
 #ifdef DEBUG
 
+#include "maycup/base/common.h"
 #include "maycup/core/ast.h"
 #include "maycup/core/lexer.h"
 #include <stdio.h>
@@ -34,33 +38,47 @@ typedef ssize_t idx;
 #undef MAYCUP_VEC_DISPT
 #undef MAYCUP_VEC_T
 
-void maycup_print_token(MAYCUP_IN MAYCUP_Token *token) {
+char *maycup_token_tostr(MAYCUP_IN MAYCUP_Token *token) {
+    char *str;
+    if (token->type == MAYCUP_TOKENTYPE_TEXT) {
+        str = (char *)malloc((128 + strlen(token->text)) * sizeof(char));
+    } else {
+        str = (char *)malloc(128 * sizeof(char));
+    }
+
     switch (token->type) {
     case MAYCUP_TOKENTYPE_TEXT: {
-        printf("(TEXT, %s)\n", token->text);
+        sprintf(str, "(TEXT, %s)", token->text);
         break;
     }
     case MAYCUP_TOKENTYPE_LITERAL: {
-        printf("(LITERAL, %c)\n", token->literal);
+        sprintf(str, "(LITERAL, %c)", token->literal);
         break;
     }
     case MAYCUP_TOKENTYPE_EOF: {
-        printf("(EOF)\n");
+        sprintf(str, "(EOF)");
         break;
     }
     case MAYCUP_TOKENTYPE_NEWLINE: {
-        printf("(NEWLINE)\n");
+        sprintf(str, "(NEWLINE)");
         break;
     }
     case MAYCUP_TOKENTYPE_NONE: {
-        printf("(NONE)\n");
+        sprintf(str, "(NONE)");
         break;
     }
     default: {
-        printf("(UNKNOWN TOKEN)\n");
+        sprintf(str, "(UNKNOWN TOKEN)");
         break;
     }
     }
+    return str;
+}
+
+void maycup_print_token(MAYCUP_IN MAYCUP_Token *token) {
+    char *str = maycup_token_tostr(token);
+    printf("%s\n", str);
+    free(str);
 }
 
 void maycup_print_ast(MAYCUP_IN MAYCUP_AST *ast, MAYCUP_IN ssize_t root) {

@@ -28,7 +28,7 @@
 
 #include "fixture/input/writer_str_puts_test.h"
 
-static const char *const runtime_wfile = "./build/test/tmp/filewriter.txt";
+static const char *const runtime_wfile = UTEST_TMP_DIR "filewriter.txt";
 
 #define OUTPUT_STR_SIZE 32768
 char output_str[OUTPUT_STR_SIZE];
@@ -642,7 +642,7 @@ TEST_CASE(filewriter_module_common) {
     ASSERT_OK(maycup_filewriter_dtor(&fw), fail);
 
     ASSERT_FILE_EQ_FILE(runtime_wfile,
-                        "test/unit/fixture/expected/writer_module.txt", fail);
+                        UTEST_FIXTURE_PATH_EXPECTED "writer_module.txt", fail);
     return TEST_RESULT_PASS;
 fail:
     maycup_filewriter_dtor(&fw);
@@ -664,7 +664,7 @@ TEST_CASE(stringwriter_module_common) {
                   fail);
     }
 
-    ASSERT_STR_EQ_FILE(sw.buf, "test/unit/fixture/expected/writer_module.txt",
+    ASSERT_STR_EQ_FILE(sw.buf, UTEST_FIXTURE_PATH_EXPECTED "writer_module.txt",
                        fail);
 
     ASSERT_OK(maycup_stringwriter_dtor(&sw, NULL), fail);
@@ -691,7 +691,7 @@ TEST_CASE(stringwriter_flexible_module_common) {
                   fail);
     }
 
-    ASSERT_STR_EQ_FILE(sw.buf, "test/unit/fixture/expected/writer_module.txt",
+    ASSERT_STR_EQ_FILE(sw.buf, UTEST_FIXTURE_PATH_EXPECTED "writer_module.txt",
                        fail);
 
     ASSERT_OK(maycup_stringwriter_dtor(&sw, NULL), fail);

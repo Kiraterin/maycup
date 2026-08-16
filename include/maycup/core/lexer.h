@@ -47,8 +47,10 @@ typedef struct {
 
 /**
  * @brief Duplicate a token
- * @param dest Out, the destination
- * @param src In, the token to duplicate
+ * @note Function fails when the token type of @p dest is not
+ *       @c MAYCUP_TOKENTYPE_NONE
+ * @param dest Out, the destination. Cannot be @c NULL
+ * @param src In, the token to duplicate. Cannot be @c NULL
  * @return MAYCUP_Result
  */
 MAYCUP_Result maycup_token_duplicate(MAYCUP_OUT MAYCUP_Token *dest,
@@ -56,6 +58,10 @@ MAYCUP_Result maycup_token_duplicate(MAYCUP_OUT MAYCUP_Token *dest,
 
 /**
  * @brief Destruct a token
+ * @note 1. @c self->type will be changed to @c MAYCUP_TOKENTYPE_NONE
+         2. @c self->text will be freed and changed to @c NULL if @c self->type
+            is @c MAYCUP_TOKENTYPE_TEXT
+         3. Double free a token is allowed
  * @param self Out, the token to destruct
  * @return MAYCUP_Result
  */
@@ -75,7 +81,7 @@ typedef struct {
 /**
  * @brief Construct a lexer
  * @param self Out, the lexer to construct
- * @param reader In & out, the reader which lexer will use
+ * @param reader In & out, the reader which lexer will use. Cannot be @c NULL
  * @return MAYCUP_Result
  */
 MAYCUP_Result maycup_lexer_ctor(MAYCUP_OUT MAYCUP_Lexer *self,
@@ -83,6 +89,8 @@ MAYCUP_Result maycup_lexer_ctor(MAYCUP_OUT MAYCUP_Lexer *self,
 
 /**
  * @brief Destruct a lexer
+ * @note The reader won't be destructed, but the pointer value in the object
+ *       will be changed to @c NULL
  * @param self Out, the lexer to destruct
  * @return MAYCUP_Result
  */
@@ -90,8 +98,13 @@ MAYCUP_Result maycup_lexer_dtor(MAYCUP_OUT MAYCUP_Lexer *self);
 
 /**
  * @brief Construct and return the next token of the given lexer context
- * @param token Out, dest token
- * @param lexer In, the context
+ * @note 1. This function should be the only place where tokens are constructed
+ *          and it must return a constructed token with some content
+ *       2. Argument @c token->type can only be @c MAYCUP_TOKENTYPE_NONE to
+ *          ensure the token has been correctly destructed before construction
+ * @param token Out, dest token. Cannot be @c NULL
+ * @param lexer In, the context. Should be constructed by function
+ *              @c maycup_lexer_ctor
  * @return MAYCUP_Result
  */
 MAYCUP_Result maycup_next_token(MAYCUP_OUT MAYCUP_Token *token,
@@ -105,7 +118,8 @@ MAYCUP_Result maycup_next_token(MAYCUP_OUT MAYCUP_Token *token,
 MAYCUP_Result maycup_lexer_checkpoint(MAYCUP_OUT MAYCUP_Lexer *self);
 
 /**
- * @brief Return to the checkpoint and won't pop out it
+ * @brief Return to the checkpoint but won't pop it out
+ * @note The checkpoint stack cannot be empty
  * @param self In & out, the lexer
  * @return MAYCUP_Result
  */
@@ -113,6 +127,7 @@ MAYCUP_Result maycup_lexer_restore(MAYCUP_INOUT MAYCUP_Lexer *self);
 
 /**
  * @brief Drop the top checkpoint
+ * @note The checkpoint stack cannot be empty
  * @param self Out, the lexer
  * @return MAYCUP_Result
  */

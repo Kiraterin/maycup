@@ -22,8 +22,8 @@
  */
 
 #include "maycup/core/lexer.h"
+#include "maycup/base/result.h"
 #include <ctype.h>
-#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -38,7 +38,7 @@
 
 MAYCUP_Result maycup_token_duplicate(MAYCUP_OUT MAYCUP_Token *dest,
                                      MAYCUP_IN MAYCUP_Token *src) {
-    if (dest->type != MAYCUP_TOKENTYPE_NONE) {
+    if (src == NULL || dest == NULL || dest->type != MAYCUP_TOKENTYPE_NONE) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
     *dest = *src;
@@ -53,6 +53,9 @@ MAYCUP_Result maycup_token_duplicate(MAYCUP_OUT MAYCUP_Token *dest,
 }
 
 MAYCUP_Result maycup_token_dtor(MAYCUP_OUT MAYCUP_Token *self) {
+    if (self == NULL) {
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
+    }
     if (self->type == MAYCUP_TOKENTYPE_TEXT) {
         free(self->text);
         self->text = NULL;
@@ -63,6 +66,9 @@ MAYCUP_Result maycup_token_dtor(MAYCUP_OUT MAYCUP_Token *self) {
 
 MAYCUP_Result maycup_lexer_ctor(MAYCUP_OUT MAYCUP_Lexer *self,
                                 MAYCUP_INOUT MAYCUP_Reader *reader) {
+    if (self == NULL || reader == NULL) {
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
+    }
     self->reader = reader;
     MAYCUP_RELAY(
         maycup_vector_long_ctor(&self->checkpoint, MAYCUP_DEFAULT_VEC_SIZE));
@@ -70,6 +76,10 @@ MAYCUP_Result maycup_lexer_ctor(MAYCUP_OUT MAYCUP_Lexer *self,
 }
 
 MAYCUP_Result maycup_lexer_dtor(MAYCUP_OUT MAYCUP_Lexer *self) {
+    if (self == NULL || self->reader == NULL) {
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
+    }
+    self->reader = NULL;
     MAYCUP_RELAY(maycup_vector_long_dtor(&self->checkpoint));
     return MAYCUP_RESULT_OK;
 }
@@ -104,13 +114,14 @@ static bool is_literal(int ch) {
 
 MAYCUP_Result maycup_next_token(MAYCUP_OUT MAYCUP_Token *token,
                                 MAYCUP_IN MAYCUP_Lexer *lexer) {
-    if (token->type != MAYCUP_TOKENTYPE_NONE) {
+    if (token == NULL || lexer == NULL || lexer->reader == NULL ||
+        token->type != MAYCUP_TOKENTYPE_NONE) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
 
     MAYCUP_VectorChar buf;
 
-    // Use the first char to determine token type
+    // use the first char to determine token type
     int cur;
     MAYCUP_RELAY(maycup_reader_get_char(lexer->reader, &cur));
     if (cur == EOF) {
@@ -122,7 +133,7 @@ MAYCUP_Result maycup_next_token(MAYCUP_OUT MAYCUP_Token *token,
         return MAYCUP_RESULT_OK;
     }
 
-    // If the type is text or blank, needs to process
+    // if the type is text or blank, the token will need processing
     if (cur == '\n') {
         token->type = MAYCUP_TOKENTYPE_NEWLINE;
     } else {
@@ -164,6 +175,9 @@ MAYCUP_Result maycup_next_token(MAYCUP_OUT MAYCUP_Token *token,
 }
 
 MAYCUP_Result maycup_lexer_checkpoint(MAYCUP_OUT MAYCUP_Lexer *self) {
+    if (self == NULL) {
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
+    }
     long current;
     MAYCUP_RELAY(maycup_reader_tell(self->reader, &current));
     if (current == -1L) {
@@ -174,6 +188,9 @@ MAYCUP_Result maycup_lexer_checkpoint(MAYCUP_OUT MAYCUP_Lexer *self) {
 }
 
 MAYCUP_Result maycup_lexer_restore(MAYCUP_INOUT MAYCUP_Lexer *self) {
+    if (self == NULL || self->checkpoint.len < 1) {
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
+    }
     long top;
     MAYCUP_RELAY(maycup_vector_long_top(&self->checkpoint, &top));
     MAYCUP_RELAY(maycup_reader_seek(self->reader, top));
@@ -181,6 +198,9 @@ MAYCUP_Result maycup_lexer_restore(MAYCUP_INOUT MAYCUP_Lexer *self) {
 }
 
 MAYCUP_Result maycup_lexer_drop_checkpoint(MAYCUP_OUT MAYCUP_Lexer *self) {
+    if (self == NULL || self->checkpoint.len < 1) {
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
+    }
     MAYCUP_RELAY(maycup_vector_long_popback(&self->checkpoint));
     return MAYCUP_RESULT_OK;
 }

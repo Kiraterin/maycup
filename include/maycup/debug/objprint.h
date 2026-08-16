@@ -30,6 +30,13 @@
 #include "maycup/core/lexer.h"
 
 /**
+ * @brief Convert a token to string
+ * @param token In, the dest token
+ * @return char* remember to free it 
+ */
+char *maycup_token_tostr(MAYCUP_IN MAYCUP_Token *token);
+
+/**
  * @brief Print a token
  * @param token In, the dest token
  */

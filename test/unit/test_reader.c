@@ -30,7 +30,7 @@
 
 TEST_CASE(filereader_ctor_normal) {
     MAYCUP_FileReader fr;
-    const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
+    const char *filename = UTEST_FIXTURE_PATH_INPUT "reader_lipsum_1.txt";
 
     ASSERT_OK(maycup_filereader_ctor(&fr, filename), fail);
     ASSERT_NEQ(fr.base.get_char, NULL, fail);
@@ -47,7 +47,7 @@ fail:
 
 TEST_CASE(filereader_ctor_fopen_fail) {
     MAYCUP_FileReader fr;
-    const char *filename = "./test/unit/fixture/reader_lipsum_1.txt";
+    const char *filename = UTEST_FIXTURE_PATH_INPUT "reader_lipsum_1.txt";
 
     TEST_CTX.mock_state.m_fopen = true;
 
@@ -63,7 +63,7 @@ fail:
 
 TEST_CASE(filereader_ctor_illegal_arg) {
     MAYCUP_FileReader fr;
-    const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
+    const char *filename = UTEST_FIXTURE_PATH_INPUT "reader_lipsum_1.txt";
     ASSERT_EQ(maycup_filereader_ctor(NULL, filename),
               MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
     ASSERT_EQ(maycup_filereader_ctor(&fr, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
@@ -76,7 +76,7 @@ fail:
 
 TEST_CASE(filereader_dtor_normal) {
     MAYCUP_FileReader fr;
-    const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
+    const char *filename = UTEST_FIXTURE_PATH_INPUT "reader_lipsum_1.txt";
 
     ASSERT_OK(maycup_filereader_ctor(&fr, filename), fail);
     ASSERT_OK(maycup_filereader_dtor(&fr), fail);
@@ -93,7 +93,7 @@ fail:
 
 TEST_CASE(filereader_dtor_double) {
     MAYCUP_FileReader fr;
-    const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
+    const char *filename = UTEST_FIXTURE_PATH_INPUT "reader_lipsum_1.txt";
 
     ASSERT_OK(maycup_filereader_ctor(&fr, filename), fail);
     ASSERT_OK(maycup_filereader_dtor(&fr), fail);
@@ -108,7 +108,7 @@ fail:
 
 TEST_CASE(filereader_dtor_fclose_fail) {
     MAYCUP_FileReader fr;
-    const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
+    const char *filename = UTEST_FIXTURE_PATH_INPUT "reader_lipsum_1.txt";
 
     MOCK_ON(fclose);
 
@@ -135,9 +135,9 @@ fail:
 TEST_CASE(filereader_get_char_normal) {
     MAYCUP_FileReader fr;
     const char *filename_input =
-        "./test/unit/fixture/input/reader_lipsum_1.txt";
+        UTEST_FIXTURE_PATH_INPUT "reader_lipsum_1.txt";
     const char *filename_expected =
-        "./test/unit/fixture/expected/reader_lipsum_1.txt";
+        UTEST_FIXTURE_PATH_EXPECTED "reader_lipsum_1.txt";
     FILE *fp = fopen(filename_expected, "r");
 
     int actual;
@@ -176,9 +176,9 @@ fail:
 TEST_CASE(filereader_get_char_bulk) {
     MAYCUP_FileReader fr;
     const char *filename_input =
-        "./test/unit/fixture/input/reader_lipsum_2.txt";
+        UTEST_FIXTURE_PATH_INPUT "reader_lipsum_2.txt";
     const char *filename_expected =
-        "./test/unit/fixture/expected/reader_lipsum_2.txt";
+        UTEST_FIXTURE_PATH_EXPECTED "reader_lipsum_2.txt";
     FILE *fp = fopen(filename_expected, "r");
 
     int actual;
@@ -210,7 +210,7 @@ fail:
 
 TEST_CASE(filereader_get_char_feof_fail) {
     MAYCUP_FileReader fr;
-    const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
+    const char *filename = UTEST_FIXTURE_PATH_INPUT "reader_lipsum_1.txt";
 
     MOCK_ON(feof);
 
@@ -232,7 +232,7 @@ fail:
 
 TEST_CASE(filereader_get_char_illegal_arg) {
     MAYCUP_FileReader fr;
-    const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
+    const char *filename = UTEST_FIXTURE_PATH_INPUT "reader_lipsum_1.txt";
 
     ASSERT_OK(maycup_filereader_ctor(&fr, filename), fail);
     ASSERT_EQ(maycup_reader_get_char(NULL, NULL),
@@ -249,7 +249,7 @@ fail:
 
 TEST_CASE(filereader_tell_normal) {
     MAYCUP_FileReader fr;
-    const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
+    const char *filename = UTEST_FIXTURE_PATH_INPUT "reader_lipsum_1.txt";
     long cur;
 
     ASSERT_OK(maycup_filereader_ctor(&fr, filename), fail);
@@ -273,7 +273,7 @@ fail:
 
 TEST_CASE(filereader_tell_ftell_fail) {
     MAYCUP_FileReader fr;
-    const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
+    const char *filename = UTEST_FIXTURE_PATH_INPUT "reader_lipsum_1.txt";
     long cur;
 
     MOCK_ON(ftell);
@@ -292,7 +292,7 @@ fail:
 
 TEST_CASE(filereader_tell_illegal_arg) {
     MAYCUP_FileReader fr;
-    const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
+    const char *filename = UTEST_FIXTURE_PATH_INPUT "reader_lipsum_1.txt";
     long cur;
 
     ASSERT_OK(maycup_filereader_ctor(&fr, filename), fail);
@@ -313,7 +313,7 @@ fail:
 
 TEST_CASE(filereader_seek_normal) {
     MAYCUP_FileReader fr;
-    const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
+    const char *filename = UTEST_FIXTURE_PATH_INPUT "reader_lipsum_1.txt";
     int cur;
 
     ASSERT_OK(maycup_filereader_ctor(&fr, filename), fail);
@@ -333,7 +333,7 @@ fail:
 
 TEST_CASE(filereader_seek_fseek_fail) {
     MAYCUP_FileReader fr;
-    const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
+    const char *filename = UTEST_FIXTURE_PATH_INPUT "reader_lipsum_1.txt";
 
     MOCK_ON(fseek);
 
@@ -351,7 +351,7 @@ fail:
 
 TEST_CASE(filereader_seek_illegal_arg) {
     MAYCUP_FileReader fr;
-    const char *filename = "./test/unit/fixture/input/reader_lipsum_1.txt";
+    const char *filename = UTEST_FIXTURE_PATH_INPUT "reader_lipsum_1.txt";
 
     ASSERT_OK(maycup_filereader_ctor(&fr, filename), fail);
     ASSERT_EQ(maycup_reader_seek(NULL, 0), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
@@ -653,9 +653,9 @@ TEST_CASE(filereader_module_common) {
     MAYCUP_FileReader fr;
     FILE *fp;
     const char *input_filename =
-        "./test/unit/fixture/input/reader_lipsum_1.txt";
+        UTEST_FIXTURE_PATH_INPUT "reader_lipsum_1.txt";
     const char *expected_filename =
-        "./test/unit/fixture/expected/reader_lipsum_1.txt";
+        UTEST_FIXTURE_PATH_EXPECTED "reader_lipsum_1.txt";
     const size_t threshold = 5;
     size_t accumulate = 0;
     long input_cp = 0;
@@ -700,7 +700,7 @@ TEST_CASE(stringreader_module_common) {
     const char *input_stringname = reader_str_lipsum_1;
     const size_t input_stringlen = reader_str_lipsum_1_len;
     const char *expected_filename =
-        "./test/unit/fixture/expected/reader_lipsum_1.txt";
+        UTEST_FIXTURE_PATH_EXPECTED "reader_lipsum_1.txt";
     const size_t threshold = 5;
     size_t accumulate = 0;
     long input_cp = 0;
