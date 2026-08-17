@@ -26,7 +26,6 @@
 
 #include "maycup/base/common.h"
 #include "maycup/base/result.h"
-#include "maycup/core/lexer.h"
 #include "maycup/core/parser.h"
 #include "maycup/io/writer.h"
 
@@ -37,7 +36,7 @@ typedef struct {
 /**
  * @brief Construct a renderer
  * @param self Out, the renderer to construct
- * @param writer In, the writer which the renderer will use
+ * @param writer In, the writer which the renderer will use. Cannot be @c NULL
  * @return MAYCUP_Result
  */
 MAYCUP_Result maycup_renderer_ctor(MAYCUP_OUT MAYCUP_Renderer *self,
@@ -45,6 +44,7 @@ MAYCUP_Result maycup_renderer_ctor(MAYCUP_OUT MAYCUP_Renderer *self,
 
 /**
  * @brief Destruct a renderer
+ * @note The member @c writer will be changed to @c NULL after destruction
  * @param self Out, the renderer to destruct
  * @return MAYCUP_Result
  */
@@ -52,8 +52,8 @@ MAYCUP_Result maycup_renderer_dtor(MAYCUP_OUT MAYCUP_Renderer *self);
 
 /**
  * @brief Render HTML file from AST
- * @param renderer In & out, the renderer which do render
- * @param parser In, the parser which provides AST
+ * @param renderer In & out, the renderer which do render. Cannot be @c NULL
+ * @param parser In, the parser which provides AST. Cannot be @c NULL
  * @return MAYCUP_Result
  */
 MAYCUP_Result maycup_render(MAYCUP_INOUT MAYCUP_Renderer *renderer,

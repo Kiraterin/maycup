@@ -26,7 +26,6 @@
 #include "maycup/core/parser.h"
 #include "maycup/debug/objprint.h"
 #include "maycup/io/reader.h"
-#include "maycup/io/writer.h"
 #include "test.h"
 #include <stdlib.h>
 #include <string.h>
