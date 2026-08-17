@@ -79,5 +79,5 @@ This project is licensed under the [GPL-3.0 License](LICENSE).
 - [X] Basic lexer-parser structure
 - [X] Support source file compilation in recursive folders
 - [X] Support debug/release configuration
-- [ ] Basic test cases
+- [X] Basic test cases
 - [ ] Full support of markdown features

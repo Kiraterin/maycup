@@ -21,7 +21,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "maycup.h"
 #include "test.h"
 
 TEST_CTX_DEF;
@@ -35,6 +34,7 @@ int main() {
     TEST_SUITE_REG(lexer);
     TEST_SUITE_REG(parser);
     TEST_SUITE_REG(renderer);
+    TEST_SUITE_REG(interface);
 
     // integration test
     TEST_SUITE_REG(integration);
