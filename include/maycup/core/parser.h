@@ -48,6 +48,12 @@ MAYCUP_Result maycup_parser_ctor(MAYCUP_OUT MAYCUP_Parser *self);
  */
 MAYCUP_Result maycup_parser_dtor(MAYCUP_OUT MAYCUP_Parser *self);
 
+/**
+ * @brief Parse a file using parser and lexer
+ * @param parser In & out, the parser. Cannot be @c NULL
+ * @param lexer In & out, the lexer. Cannot be @c NULL
+ * @return MAYCUP_Result
+ */
 MAYCUP_Result maycup_parse(MAYCUP_INOUT MAYCUP_Parser *parser,
                            MAYCUP_INOUT MAYCUP_Lexer *lexer);
 

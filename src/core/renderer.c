@@ -22,8 +22,8 @@
  */
 
 #include "maycup/core/renderer.h"
+#include "maycup/base/result.h"
 #include "maycup/io/writer.h"
-#include <stdio.h>
 
 typedef ssize_t idx;
 #define MAYCUP_VEC_T idx
@@ -37,16 +37,26 @@ typedef ssize_t idx;
 
 MAYCUP_Result maycup_renderer_ctor(MAYCUP_OUT MAYCUP_Renderer *self,
                                    MAYCUP_IN MAYCUP_Writer *writer) {
+    if (self == NULL || writer == NULL) {
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
+    }
     self->writer = writer;
     return MAYCUP_RESULT_OK;
 }
+
 MAYCUP_Result maycup_renderer_dtor(MAYCUP_OUT MAYCUP_Renderer *self) {
-    (void)self;
+    if (self == NULL || self->writer == NULL) {
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
+    }
+    self->writer = NULL;
     return MAYCUP_RESULT_OK;
 }
 
 MAYCUP_Result maycup_render(MAYCUP_INOUT MAYCUP_Renderer *renderer,
                             MAYCUP_IN MAYCUP_Parser *parser) {
+    if (renderer == NULL || parser == NULL) {
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
+    }
     maycup_writer_puts(renderer->writer, "<!DOCTYPE html>");
     MAYCUP_VectorIdx stack;
     MAYCUP_RELAY(maycup_vector_idx_ctor(&stack, MAYCUP_DEFAULT_VEC_SIZE));
