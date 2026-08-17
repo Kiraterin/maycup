@@ -47,6 +47,7 @@ MAYCUP_Result maycup_convert_file(MAYCUP_IN const char *input_file,
     MAYCUP_RELAY(maycup_renderer_dtor(&renderer));
     MAYCUP_RELAY(maycup_parser_dtor(&parser));
     MAYCUP_RELAY(maycup_lexer_dtor(&lexer));
+    MAYCUP_RELAY(maycup_filewriter_dtor(&fwriter));
     MAYCUP_RELAY(maycup_filereader_dtor(&freader));
     return MAYCUP_RESULT_OK;
 }

@@ -129,11 +129,8 @@ static MAYCUP_Result parse_heading_mark(MAYCUP_Parser *parser,
 
     uint8_t _level = 1;
     while (parser->cur_token.type == MAYCUP_TOKENTYPE_LITERAL &&
-           parser->cur_token.literal == '#') {
+           parser->cur_token.literal == '#' && _level < 6) {
         ++_level;
-        if (_level > 6) {
-            return MAYCUP_RESULT_PARSE_MISMATCH;
-        }
         MAYCUP_RELAY(advance(parser, lexer));
     }
 
@@ -149,18 +146,27 @@ static MAYCUP_Result parse_heading_mark_textbegin(MAYCUP_Parser *parser,
                                                   uint8_t *level) {
     MAYCUP_RELAY(parse_heading_mark(parser, lexer, level));
 
-    if (parser->cur_token.type != MAYCUP_TOKENTYPE_TEXT ||
-        parser->cur_token.text[0] == ' ') {
+    switch (parser->cur_token.type) {
+    case MAYCUP_TOKENTYPE_TEXT:
+        if (parser->cur_token.text[0] == ' ') {
+            return MAYCUP_RESULT_PARSE_MISMATCH;
+        }
+        return MAYCUP_RESULT_OK;
+    case MAYCUP_TOKENTYPE_LITERAL:
+        return MAYCUP_RESULT_OK;
+    default:
         return MAYCUP_RESULT_PARSE_MISMATCH;
     }
-
-    return MAYCUP_RESULT_OK;
 }
 
 static MAYCUP_Result parse_para_begin_char(MAYCUP_Parser *parser) {
     switch (parser->cur_token.type) {
     case MAYCUP_TOKENTYPE_TEXT:
+        return MAYCUP_RESULT_OK;
     case MAYCUP_TOKENTYPE_LITERAL:
+        if (parser->cur_token.literal == '#') {
+            return MAYCUP_RESULT_PARSE_MISMATCH;
+        }
         return MAYCUP_RESULT_OK;
     default:
         return MAYCUP_RESULT_PARSE_MISMATCH;
@@ -219,7 +225,8 @@ static MAYCUP_Result parse_paragraph_section(MAYCUP_Parser *parser,
     MAYCUP_RELAY(parse_inline_text(parser, lexer, paranode,
                                    level == 0 ? NULL : heading_marker));
 
-    if (parser->cur_token.type != MAYCUP_TOKENTYPE_NEWLINE) {
+    if (parser->cur_token.type != MAYCUP_TOKENTYPE_NEWLINE &&
+        parser->cur_token.type != MAYCUP_TOKENTYPE_EOF) {
         return MAYCUP_RESULT_PARSE_MISMATCH;
     }
     MAYCUP_RELAY(advance(parser, lexer));
@@ -300,7 +307,7 @@ static MAYCUP_Result parse_eof(MAYCUP_Parser *parser) {
 }
 
 static MAYCUP_Result parse_blocks(MAYCUP_Parser *parser, MAYCUP_Lexer *lexer) {
-    while (parser->cur_token.type != MAYCUP_TOKENTYPE_EOF) {
+    while (true) {
         MAYCUP_Token tmp = (MAYCUP_Token){.type = MAYCUP_TOKENTYPE_NONE};
 
         MAYCUP_RELAY(maycup_lexer_checkpoint(lexer));

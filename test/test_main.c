@@ -26,6 +26,7 @@
 TEST_CTX_DEF;
 
 int main() {
+    // unit tests
     TEST_SUITE_REG(vector);
     TEST_SUITE_REG(ast);
     TEST_SUITE_REG(reader);
@@ -33,6 +34,12 @@ int main() {
     TEST_SUITE_REG(lexer);
     TEST_SUITE_REG(parser);
     TEST_SUITE_REG(renderer);
+    TEST_SUITE_REG(interface);
+
+    // integration test
+    TEST_SUITE_REG(integration);
+
+    // run test suites
     TEST_RUN;
     return 0;
 }
