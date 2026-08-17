@@ -22,8 +22,11 @@
  */
 
 #include "maycup/base/result.h"
+#include "maycup/io/reader.h"
+#include "maycup/io/writer.h"
 #include <stdlib.h>
 #include <string.h>
+
 #ifdef DEBUG
 
 #include "maycup/base/common.h"
@@ -81,7 +84,11 @@ void maycup_print_token(MAYCUP_IN MAYCUP_Token *token) {
     free(str);
 }
 
-void maycup_print_ast(MAYCUP_IN MAYCUP_AST *ast, MAYCUP_IN ssize_t root) {
+char *maycup_ast_tostr(MAYCUP_IN MAYCUP_AST *ast, MAYCUP_IN ssize_t root) {
+    MAYCUP_StringWriter sw;
+    MAYCUP_UNWRAP(maycup_stringwriter_ctor_flexible(
+        &sw, MAYCUP_DEFAULT_STRWRITER_FLEXBUF_SIZE));
+
     MAYCUP_VectorIdx stack;
     MAYCUP_VectorIdx level;
     MAYCUP_UNWRAP(maycup_vector_idx_ctor(&stack, MAYCUP_DEFAULT_VEC_SIZE));
@@ -103,47 +110,59 @@ void maycup_print_ast(MAYCUP_IN MAYCUP_AST *ast, MAYCUP_IN ssize_t root) {
         }
 
         for (int i = 1; i <= lvl; ++i) {
-            printf("  ");
+            MAYCUP_UNWRAP(maycup_writer_puts(&sw, "  "));
         }
 
         switch (ast->data[cur].type) {
         case MAYCUP_ASTNODE_TYPE_ROOT:
-            printf("ROOT");
+            MAYCUP_UNWRAP(maycup_writer_puts(&sw, "ROOT"));
             break;
         case MAYCUP_ASTNODE_TYPE_NONE:
-            printf("NONE");
+            MAYCUP_UNWRAP(maycup_writer_puts(&sw, "NONE"));
             break;
         case MAYCUP_ASTNODE_TYPE_PARAGRAPH:
-            printf("PARAGRAPH");
+            MAYCUP_UNWRAP(maycup_writer_puts(&sw, "PARAGRAPH"));
             break;
         case MAYCUP_ASTNODE_TYPE_HEADING:
-            printf("HEADING level=%d", ast->data[cur].heading.level);
+            MAYCUP_UNWRAP(maycup_writer_printf(&sw, "HEADING level=%d",
+                                               ast->data[cur].heading.level));
             break;
         case MAYCUP_ASTNODE_TYPE_TEXT:
-            printf("TEXT text=\"%s\", style=", ast->data[cur].text.content);
+            MAYCUP_UNWRAP(maycup_writer_printf(
+                &sw, "TEXT text=\"%s\", style=", ast->data[cur].text.content));
             switch (ast->data[cur].text.style) {
             case MAYCUP_TEXTSTYLE_PLAIN:
-                printf("plain");
+                MAYCUP_UNWRAP(maycup_writer_puts(&sw, "plain"));
                 break;
             case MAYCUP_TEXTSTYLE_BOLD:
-                printf("bold");
+                MAYCUP_UNWRAP(maycup_writer_puts(&sw, "bold"));
                 break;
             case MAYCUP_TEXTSTYLE_ITALIC:
-                printf("italic");
+                MAYCUP_UNWRAP(maycup_writer_puts(&sw, "italic"));
                 break;
             case MAYCUP_TEXTSTYLE_BOLDITALIC:
-                printf("bold & italic");
+                MAYCUP_UNWRAP(maycup_writer_puts(&sw, "bold & italic"));
                 break;
             case MAYCUP_TEXTSTYLE_CODE:
-                printf("code");
+                MAYCUP_UNWRAP(maycup_writer_puts(&sw, "code"));
                 break;
             }
         }
-        putchar('\n');
+        MAYCUP_UNWRAP(maycup_writer_puts(&sw, "\n"));
     }
 
     MAYCUP_UNWRAP(maycup_vector_idx_dtor(&stack));
     MAYCUP_UNWRAP(maycup_vector_idx_dtor(&level));
+
+    char *res;
+    MAYCUP_UNWRAP(maycup_stringwriter_dtor(&sw, &res));
+    return res;
+}
+
+void maycup_print_ast(MAYCUP_IN MAYCUP_AST *ast, MAYCUP_IN ssize_t root) {
+    char *res = maycup_ast_tostr(ast, root);
+    printf("%s", res);
+    free(res);
 }
 
 #endif // DEBUG

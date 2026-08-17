@@ -35,6 +35,7 @@ typedef struct {
 
 /**
  * @brief Construct a parser
+ * @note The initial current token is @c MAYCUP_TOKENTYPE_NONE
  * @param self Out, the parser to construct
  * @return MAYCUP_Result
  */

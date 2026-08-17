@@ -22,7 +22,10 @@
  */
 
 #include "maycup/core/parser.h"
+#include "maycup/base/result.h"
+#include "maycup/core/lexer.h"
 #include <ctype.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define MAYCUP_VEC_T char
@@ -341,18 +344,27 @@ static MAYCUP_Result parse_blocks(MAYCUP_Parser *parser, MAYCUP_Lexer *lexer) {
 }
 
 MAYCUP_Result maycup_parser_ctor(MAYCUP_OUT MAYCUP_Parser *self) {
+    if (self == NULL) {
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
+    }
     MAYCUP_RELAY(maycup_ast_ctor(&self->ast, &self->root_astnode));
     self->cur_token = (MAYCUP_Token){.type = MAYCUP_TOKENTYPE_NONE};
     return MAYCUP_RESULT_OK;
 }
 
 MAYCUP_Result maycup_parser_dtor(MAYCUP_OUT MAYCUP_Parser *self) {
+    if (self == NULL || self->ast.data == NULL) {
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
+    }
     MAYCUP_RELAY(maycup_ast_dtor(&self->ast));
     return MAYCUP_RESULT_OK;
 }
 
 MAYCUP_Result maycup_parse(MAYCUP_INOUT MAYCUP_Parser *parser,
                            MAYCUP_INOUT MAYCUP_Lexer *lexer) {
+    if (parser == NULL || lexer == NULL) {
+        return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
+    }
     if (parser->cur_token.type == MAYCUP_TOKENTYPE_NONE) {
         MAYCUP_RELAY(advance(parser, lexer));
     }

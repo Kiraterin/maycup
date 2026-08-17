@@ -115,9 +115,9 @@ cov_inner:
 	llvm-cov report $(TARGET) -instr-profile=$(BUILD_DIR)/test.profdata \
 		-show-region-summary=false \
 		-show-branch-summary=false \
-		-ignore-filename-regex='(^|/)test/.*|(^|/)src/debug/.*'
+		-ignore-filename-regex='(^|/)test/.*|(^|/)src/debug/.*|(^|/)src/base/result.c'
 	llvm-cov show $(TARGET) -instr-profile=$(BUILD_DIR)/test.profdata \
-		-ignore-filename-regex='(^|/)test/.*|(^|/)src/debug/.*' \
+		-ignore-filename-regex='(^|/)test/.*|(^|/)src/debug/.*|(^|/)src/base/result.c' \
 		-format=html -output-dir=$(BUILD_DIR)/cov
 	@echo -e '$(C_GREEN)Coverage report: $(BUILD_DIR)/cov/index.html$(C_RESET)'
 

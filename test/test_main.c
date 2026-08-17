@@ -21,6 +21,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "maycup/core/parser.h"
+#include "maycup/debug/objprint.h"
+#include "maycup/io/writer.h"
 #include "test.h"
 
 TEST_CTX_DEF;
@@ -31,6 +34,7 @@ int main() {
     TEST_SUITE_REG(reader);
     TEST_SUITE_REG(writer);
     TEST_SUITE_REG(lexer);
+    TEST_SUITE_REG(parser);
     TEST_RUN;
     return 0;
 }
