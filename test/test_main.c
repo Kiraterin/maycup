@@ -21,11 +21,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "maycup.h"
 #include "test.h"
 
 TEST_CTX_DEF;
 
 int main() {
+    // unit tests
     TEST_SUITE_REG(vector);
     TEST_SUITE_REG(ast);
     TEST_SUITE_REG(reader);
@@ -33,6 +35,11 @@ int main() {
     TEST_SUITE_REG(lexer);
     TEST_SUITE_REG(parser);
     TEST_SUITE_REG(renderer);
+
+    // integration test
+    TEST_SUITE_REG(integration);
+
+    // run test suites
     TEST_RUN;
     return 0;
 }

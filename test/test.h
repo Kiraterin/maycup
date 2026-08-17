@@ -40,6 +40,9 @@
 #define UTEST_TMP_DIR "./build/test/tmp/"
 #define UTEST_FIXTURE_PATH_INPUT "./test/unit/fixture/input/"
 #define UTEST_FIXTURE_PATH_EXPECTED "./test/unit/fixture/expected/"
+#define ITEST_TMP_DIR "./build/test/tmp/"
+#define ITEST_FIXTURE_PATH_INPUT "./test/integration/fixture/input/"
+#define ITEST_FIXTURE_PATH_EXPECTED "./test/integration/fixture/expected/"
 
 // structs
 typedef enum { TEST_RESULT_PASS = 0, TEST_RESULT_FAIL = 1 } TestResult;
