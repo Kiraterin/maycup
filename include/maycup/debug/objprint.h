@@ -32,7 +32,7 @@
 /**
  * @brief Convert a token to string
  * @param token In, the dest token
- * @return char* remember to free it 
+ * @return char* remember to free it
  */
 char *maycup_token_tostr(MAYCUP_IN MAYCUP_Token *token);
 
@@ -41,6 +41,14 @@ char *maycup_token_tostr(MAYCUP_IN MAYCUP_Token *token);
  * @param token In, the dest token
  */
 void maycup_print_token(MAYCUP_IN MAYCUP_Token *token);
+
+/**
+ * @brief Covert an AST to string
+ * @param ast In, the dest AST
+ * @param root In, the root node
+ * @return char* remember to free it
+ */
+char *maycup_ast_tostr(MAYCUP_IN MAYCUP_AST *ast, MAYCUP_IN ssize_t root);
 
 /**
  * @brief Print an AST
