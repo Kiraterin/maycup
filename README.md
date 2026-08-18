@@ -23,7 +23,7 @@ The name "Maycup" is a wordplay on "Markdown" ("May c up" and "Mar k down") and 
 git clone https://github.com/Kiraterin/maycup.git
 cd maycup
 make release
-# Convert this file into a HTML
+# Convert this file into HTML
 ./build/release/bin/maycup README.md -o README.html
 # (Optional) Install for the current user
 PREFIX=~/.local make install
