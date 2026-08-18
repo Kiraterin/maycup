@@ -47,14 +47,14 @@ Use `make all` to build all target configurations and generate the coverage repo
 
 There are three build configurations: `release`, `debug` and `test`.
 Use `make <config>` to build with a specified configuration, e.g. `make release`.
-Build artifacts are generated in
+Build artifacts are generated in `./build/<config>/`.
 
-- `./build/<config>/`: intermediate build artifacts
-- `./bin/<config>/`: final build artifact
+For the `release` and `debug` configuration, final build artifacts are:
+- `./build/<config>/bin/maycup`: The CLI program
+- `./build/<config>/lib/libmaycup.a`: The static library
+- `./build/<config>/lib/libmaycup.so`: The shared library
 
-where `<config>` can be `release`, `debug` or `test`.
-
-Tests will be run automatically after compilation if `<config>` is `test`.
+In the `test` configuration, only `./build/test/bin/maycup_test` is generated and tests are run automatically after compilation.
 
 ### Generate Test Coverage Report
 

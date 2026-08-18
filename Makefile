@@ -1,54 +1,57 @@
-# Tools
-CC := clang
-CFLAGS += -std=c23 -Wall -Wextra -Werror -D_GNU_SOURCE
-LD_FLAGS +=
-DEPFLAGS += -MMD -MP
-RM := rm -rf
+NAME := maycup
 
 # Directories
 SRC_DIR := src
 BUILD_DIR_ROOT := build
-BIN_DIR_ROOT := bin
 INC_DIR := include test
 LIB_DIR := lib
 TEST_DIR := test
 
-# Files
-SRC := $(shell find $(SRC_DIR) -name "*.c")
-SRC_OBJ = $(patsubst %.c, $(BUILD_DIR)/%.o, $(SRC))
-
-TEST_SRC := $(shell find $(TEST_DIR) -name "*.c")
-TEST_OBJ = $(patsubst %.c, $(BUILD_DIR)/%.o, $(TEST_SRC))
-
-OBJ :=
-DEP :=
-
-TARGET :=
-
-# Libraries
-LIB :=
+# Tools
+CC := clang
+AR := ar
+CFLAGS += -std=c23 -Wall -Wextra -Werror -D_GNU_SOURCE -fPIC
+LD_FLAGS +=
+DEPFLAGS += -MMD -MP
+RM := rm -rf
 
 # Build configuration
 CONFIG :=
 BUILD_DIR = $(BUILD_DIR_ROOT)/$(CONFIG)
-BIN_DIR = $(BIN_DIR_ROOT)/$(CONFIG)
+OBJ_DIR = $(BUILD_DIR)/obj
+BIN_DIR = $(BUILD_DIR)/bin
+LIBTARGET_DIR = $(BUILD_DIR)/lib
+TARGET = $(BIN_DIR)/$(NAME)
+ALIBTARGET = $(LIBTARGET_DIR)/lib$(NAME).a
+SLIBTARGET = $(LIBTARGET_DIR)/lib$(NAME).so
+
+# Files
+SRC := $(shell find $(SRC_DIR) -name "*.c")
+SRC_OBJ = $(patsubst %.c, $(OBJ_DIR)/%.o, $(SRC))
+
+TEST_SRC := $(shell find $(TEST_DIR) -name "*.c")
+TEST_OBJ = $(patsubst %.c, $(OBJ_DIR)/%.o, $(TEST_SRC))
+
+OBJ :=
+DEP :=
+
+# Libraries
+LIB :=
 
 ifeq ($(CONFIG), release)
 	CFLAGS += -O3 -DNDEBUG -ffunction-sections -fdata-sections
 	LD_FLAGS += -s -Wl,--gc-sections
 	OBJ := $(SRC_OBJ)
-	TARGET := $(BIN_DIR)/maycup
 else ifeq ($(CONFIG), debug)
 	CFLAGS += -g -O0 -fsanitize=address -DDEBUG
 	LD_FLAGS += -fsanitize=address -fno-omit-frame-pointer
 	OBJ := $(SRC_OBJ)
-	TARGET := $(BIN_DIR)/maycup
 else ifeq ($(CONFIG), test)
 	CFLAGS += -g -O0 -fsanitize=address -fprofile-instr-generate -fcoverage-mapping -DDEBUG -DTEST
 	LD_FLAGS += -fsanitize=address -fprofile-instr-generate -fno-omit-frame-pointer
 	OBJ := $(SRC_OBJ) $(TEST_OBJ)
 	OBJ := $(filter-out %/main.o, $(OBJ))
-	TARGET := $(BIN_DIR)/maycup_test
+	TARGET := $(BIN_DIR)/$(NAME)_test
 else ifeq ($(CONFIG),)
 else
 $(error Invalid CONFIG type: $(CONFIG))
@@ -62,9 +65,10 @@ C_RESET := \033[0m
 
 # Goal control
 .DEFAULT_GOAL := all
-.PHONY: nothing all build release debug test \
+.PHONY: nothing all release debug test \
 	clean cov \
-	test_not_run test_run cov_inner
+	test_not_run test_run cov_inner \
+	build_target build_alibtarget build_slibtarget
 
 nothing:
 
@@ -74,19 +78,21 @@ all:
 	$(MAKE) test --no-print-directory
 	$(MAKE) cov --no-print-directory
 
-build: $(TARGET)
+build_target: $(TARGET)
+build_alibtarget: $(ALIBTARGET)
+build_slibtarget: $(SLIBTARGET)
 
 clean:
 	@echo -e '$(C_GREEN)Cleaning:$(C_RESET)'
-	$(RM) -- $(BUILD_DIR_ROOT) $(BIN_DIR_ROOT)
+	$(RM) -- $(BUILD_DIR_ROOT)
 
 release:
 	@echo -e '\n$(C_GREEN)Current Configuration: release $(C_RESET)'
-	$(MAKE) CONFIG=release build --no-print-directory
+	$(MAKE) CONFIG=release build_target build_alibtarget build_slibtarget --no-print-directory
 
 debug:
 	@echo -e '\n$(C_GREEN)Current Configuration: debug $(C_RESET)'
-	$(MAKE) CONFIG=debug build --no-print-directory
+	$(MAKE) CONFIG=debug build_target build_alibtarget build_slibtarget --no-print-directory
 
 test:
 	@echo -e '\n$(C_GREEN)Current Configuration: test $(C_RESET)'
@@ -94,10 +100,10 @@ test:
 
 test_not_run:
 	@echo -e '\n$(C_GREEN)Current Configuration: test $(C_RESET)'
-	$(MAKE) CONFIG=test build --no-print-directory
-	@mkdir -p $(BUILD_DIR)/tmp
+	$(MAKE) CONFIG=test build_target --no-print-directory
+	@mkdir -p $(BUILD_DIR)/test/tmp
 
-test_run: build
+test_run: build_target
 	@mkdir -p $(BUILD_DIR)/tmp
 	@echo -e '$(C_GREEN)Running test:$(C_RESET)'
 	LLVM_PROFILE_FILE="$(BUILD_DIR)/test.profraw" $(TARGET)
@@ -124,9 +130,19 @@ cov_inner:
 $(TARGET): $(OBJ)
 	@mkdir -p $(dir $@)
 	@echo -e '$(C_GREEN)Linking $@:$(C_RESET)'
-	$(CC) $^ -L$(LIB_DIR) $(addprefix -l, $(LIB)) -o $@ $(LD_FLAGS)
+	$(CC) -L$(LIB_DIR) $(addprefix -l, $(LIB)) $^ -o $@ $(LD_FLAGS)
 
-$(BUILD_DIR)/%.o: %.c
+$(ALIBTARGET): $(filter-out %/main.o, $(OBJ))
+	@mkdir -p $(dir $@)
+	@echo -e '$(C_GREEN)Archiving $@:$(C_RESET)'
+	$(AR) rcs $@ $^
+
+$(SLIBTARGET): $(filter-out %/main.o, $(OBJ))
+	@mkdir -p $(dir $@)
+	@echo -e '$(C_GREEN)Linking $@:$(C_RESET)'
+	$(CC) -shared -L$(LIB_DIR) $(addprefix -l, $(LIB)) $^ -o $@ $(LD_FLAGS)
+
+$(OBJ_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	@echo -e '$(C_GREEN)Compiling $<:$(C_RESET)'
 	$(CC) $(CFLAGS) $(DEPFLAGS) $(addprefix -I, $(INC_DIR)) -c $< -o $@
