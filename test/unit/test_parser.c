@@ -21,11 +21,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "maycup/base/result.h"
-#include "maycup/core/lexer.h"
-#include "maycup/core/parser.h"
-#include "maycup/debug/objprint.h"
-#include "maycup/io/reader.h"
+#include "debug/objprint.h"
+#include "maycup/lexer.h"
+#include "maycup/parser.h"
+#include "maycup/reader.h"
+#include "maycup/result.h"
 #include "test.h"
 #include <stdlib.h>
 #include <string.h>
@@ -127,7 +127,8 @@ TEST_CASE(parser_parse_illegal_arg) {
     ASSERT_OK(maycup_parser_ctor(&parser), fail);
 
     ASSERT_EQ(maycup_parse(NULL, &lexer), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
-    ASSERT_EQ(maycup_parse(&parser, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_parse(&parser, NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+              fail);
 
     ASSERT_OK(maycup_parser_dtor(&parser), fail);
     ASSERT_OK(maycup_lexer_dtor(&lexer), fail);

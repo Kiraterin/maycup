@@ -21,20 +21,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "maycup/core/ast.h"
+#include "maycup/ast.h"
 
 typedef ssize_t idx;
 #define MAYCUP_VEC_T idx
 #define MAYCUP_VEC_DISPT Idx
-#include "maycup/base/vector.h"
+#include "maycup/vector.h"
 #undef MAYCUP_VEC_DISPT
 #undef MAYCUP_VEC_T
 
 // mock def
 #include "mock_funcs.h"
 
-MAYCUP_Result maycup_ast_ctor(MAYCUP_OUT MAYCUP_AST *self,
-                              MAYCUP_OUT ssize_t *root) {
+MAYCUP_Result maycup_ast_ctor(MAYCUP_AST *self, ssize_t *root) {
     if (self == NULL || root == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -79,7 +78,7 @@ MAYCUP_Result maycup_ast_ctor(MAYCUP_OUT MAYCUP_AST *self,
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result maycup_ast_dtor(MAYCUP_OUT MAYCUP_AST *self) {
+MAYCUP_Result maycup_ast_dtor(MAYCUP_AST *self) {
     if (self == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -109,10 +108,8 @@ MAYCUP_Result maycup_ast_dtor(MAYCUP_OUT MAYCUP_AST *self) {
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result maycup_insert_astnode(MAYCUP_OUT ssize_t *insertee,
-                                    MAYCUP_OUT MAYCUP_AST *ast,
-                                    MAYCUP_INOUT ssize_t parent,
-                                    MAYCUP_IN MAYCUP_ASTNodeType type) {
+MAYCUP_Result maycup_insert_astnode(ssize_t *insertee, MAYCUP_AST *ast,
+                                    ssize_t parent, MAYCUP_ASTNodeType type) {
     if (ast == NULL || parent <= 0 || (size_t)parent >= ast->cap ||
         !ast->is_allocated[parent]) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
@@ -173,8 +170,7 @@ MAYCUP_Result maycup_insert_astnode(MAYCUP_OUT ssize_t *insertee,
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result maycup_delete_astnode(MAYCUP_OUT MAYCUP_AST *ast,
-                                    MAYCUP_INOUT ssize_t dest) {
+MAYCUP_Result maycup_delete_astnode(MAYCUP_AST *ast, ssize_t dest) {
     if (ast == NULL || dest <= 0 || (size_t)dest >= ast->cap ||
         !ast->is_allocated[dest]) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
@@ -224,9 +220,9 @@ MAYCUP_Result maycup_delete_astnode(MAYCUP_OUT MAYCUP_AST *ast,
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result maycup_astnode_data_text_ctor(
-    MAYCUP_OUT MAYCUP_ASTNodeDataText *self, MAYCUP_MOVE char *text,
-    MAYCUP_IN MAYCUP_TextStyle style, MAYCUP_IN bool newline_tailed) {
+MAYCUP_Result maycup_astnode_data_text_ctor(MAYCUP_ASTNodeDataText *self,
+                                            char *text, MAYCUP_TextStyle style,
+                                            bool newline_tailed) {
     if (self == NULL || text == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -236,8 +232,7 @@ MAYCUP_Result maycup_astnode_data_text_ctor(
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result
-maycup_astnode_data_text_dtor(MAYCUP_OUT MAYCUP_ASTNodeDataText *self) {
+MAYCUP_Result maycup_astnode_data_text_dtor(MAYCUP_ASTNodeDataText *self) {
     if (self == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -246,7 +241,7 @@ maycup_astnode_data_text_dtor(MAYCUP_OUT MAYCUP_ASTNodeDataText *self) {
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result maycup_astnode_dtor(MAYCUP_OUT MAYCUP_ASTNode *self) {
+MAYCUP_Result maycup_astnode_dtor(MAYCUP_ASTNode *self) {
     if (self == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }

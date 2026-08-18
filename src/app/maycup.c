@@ -22,14 +22,14 @@
  */
 
 #include "maycup.h"
-#include "maycup/core/renderer.h"
-#include "maycup/io/reader.h"
+#include "maycup/reader.h"
+#include "maycup/renderer.h"
 
 // mock def
 #include "mock_funcs.h"
 
-MAYCUP_Result maycup_convert_file(MAYCUP_IN const char *input_file,
-                                  MAYCUP_IN const char *output_file) {
+MAYCUP_Result maycup_convert_file(const char *input_file,
+                                  const char *output_file) {
     MAYCUP_FileReader freader;
     MAYCUP_RELAY(maycup_filereader_ctor(&freader, input_file));
     MAYCUP_FileWriter fwriter;
@@ -52,10 +52,9 @@ MAYCUP_Result maycup_convert_file(MAYCUP_IN const char *input_file,
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result maycup_convert_string(MAYCUP_IN const char *input_string,
-                                    MAYCUP_IN const size_t input_len,
-                                    MAYCUP_IN char *output_string,
-                                    MAYCUP_IN const size_t output_len) {
+MAYCUP_Result maycup_convert_string(const char *input_string,
+                                    const size_t input_len, char *output_string,
+                                    const size_t output_len) {
     MAYCUP_StringReader sreader;
     MAYCUP_RELAY(maycup_stringreader_ctor(&sreader, input_string, input_len));
     MAYCUP_StringWriter swriter;

@@ -21,15 +21,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "maycup/base/result.h"
-#include "maycup/core/lexer.h"
-#include "maycup/core/parser.h"
-#include "maycup/core/renderer.h"
-#include "maycup/debug/objprint.h"
-#include "maycup/io/reader.h"
-#include "maycup/io/writer.h"
+#include "debug/objprint.h"
+#include "maycup/lexer.h"
+#include "maycup/parser.h"
+#include "maycup/reader.h"
+#include "maycup/renderer.h"
+#include "maycup/result.h"
+#include "maycup/writer.h"
 #include "test.h"
-#include <stdlib.h>
 #include <string.h>
 
 TEST_CASE(renderer_ctor_normal) {
@@ -138,7 +137,8 @@ TEST_CASE(renderer_render_normal) {
 
     ASSERT_OK(maycup_parse(&parser, &lexer), fail);
     ASSERT_OK(maycup_render(&renderer, &parser), fail);
-    ASSERT_STR_EQ_FILE(sw.buf, UTEST_FIXTURE_PATH_EXPECTED "renderer_1.html", fail);
+    ASSERT_STR_EQ_FILE(sw.buf, UTEST_FIXTURE_PATH_EXPECTED "renderer_1.html",
+                       fail);
 
     ASSERT_OK(maycup_renderer_dtor(&renderer), fail);
     ASSERT_OK(maycup_stringwriter_dtor(&sw, NULL), fail);

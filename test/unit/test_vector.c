@@ -25,7 +25,7 @@
 
 #define MAYCUP_VEC_T int
 #define MAYCUP_VEC_DISPT Int
-#include "maycup/base/vector.h"
+#include "maycup/vector.h"
 #undef MAYCUP_VEC_DISPT
 #undef MAYCUP_VEC_T
 
@@ -49,7 +49,8 @@ TEST_CASE(vector_ctor_illegal_arg) {
 
     ASSERT_EQ(maycup_vector_int_ctor(NULL, MAYCUP_DEFAULT_VEC_SIZE),
               MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
-    ASSERT_EQ(maycup_vector_int_ctor(&vec, 0), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_vector_int_ctor(&vec, 0), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+              fail);
     ASSERT_EQ(maycup_vector_int_ctor(&vec, MAYCUP_MAX_VEC_CAP + 1),
               MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
     return TEST_RESULT_PASS;
@@ -90,7 +91,8 @@ TEST_CASE(vector_dtor_illegal_arg) {
     MAYCUP_VectorInt vec;
 
     ASSERT_OK(maycup_vector_int_ctor(&vec, MAYCUP_DEFAULT_VEC_SIZE), fail);
-    ASSERT_EQ(maycup_vector_int_dtor(NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_vector_int_dtor(NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+              fail);
 
     ASSERT_OK(maycup_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
@@ -161,8 +163,8 @@ TEST_CASE(vector_reserve_realloc_fail) {
     MOCK_ON(realloc);
 
     ASSERT_OK(maycup_vector_int_ctor(&vec, cap), fail);
-    ASSERT_EQ(maycup_vector_int_reserve(&vec, reserve_cap), MAYCUP_RESULT_MALLOC_FAIL,
-              fail);
+    ASSERT_EQ(maycup_vector_int_reserve(&vec, reserve_cap),
+              MAYCUP_RESULT_MALLOC_FAIL, fail);
     for (size_t i = 0; i < cap; ++i) {
         vec.ptr[i] = (int)i;
     }
@@ -221,8 +223,8 @@ fail:
 }
 
 TEST_CASE(vector_pushback_illegal_arg) {
-    ASSERT_EQ(maycup_vector_int_pushback(NULL, 0), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
-              fail);
+    ASSERT_EQ(maycup_vector_int_pushback(NULL, 0),
+              MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
     return TEST_RESULT_PASS;
 fail:
     return TEST_RESULT_FAIL;
@@ -233,8 +235,8 @@ TEST_CASE(vector_pushback_maxcap_exceeded) {
 
     ASSERT_OK(maycup_vector_int_ctor(&vec, MAYCUP_DEFAULT_VEC_SIZE), fail);
     vec.len = vec.cap = MAYCUP_MAX_VEC_CAP + 1;
-    ASSERT_EQ(maycup_vector_int_pushback(&vec, 0), MAYCUP_RESULT_MAX_CAP_EXCEEDED,
-              fail);
+    ASSERT_EQ(maycup_vector_int_pushback(&vec, 0),
+              MAYCUP_RESULT_MAX_CAP_EXCEEDED, fail);
 
     ASSERT_OK(maycup_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
@@ -318,7 +320,8 @@ fail:
 }
 
 TEST_CASE(vector_popback_illegal_arg) {
-    ASSERT_EQ(maycup_vector_int_popback(NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_vector_int_popback(NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
+              fail);
     return TEST_RESULT_PASS;
 fail:
     return TEST_RESULT_FAIL;
@@ -329,7 +332,8 @@ TEST_CASE(vector_popback_empty) {
     MAYCUP_VectorInt vec;
     ASSERT_OK(maycup_vector_int_ctor(&vec, cap), fail);
 
-    ASSERT_EQ(maycup_vector_int_popback(&vec), MAYCUP_RESULT_EMPTY_VECTOR, fail);
+    ASSERT_EQ(maycup_vector_int_popback(&vec), MAYCUP_RESULT_EMPTY_VECTOR,
+              fail);
 
     ASSERT_OK(maycup_vector_int_dtor(&vec), fail);
     return TEST_RESULT_PASS;
@@ -345,8 +349,10 @@ TEST_CASE(vector_module_common) {
     ASSERT_OK(maycup_vector_int_ctor(&vec, MAYCUP_DEFAULT_VEC_SIZE), fail);
     ASSERT_EQ(vec.cap, MAYCUP_DEFAULT_VEC_SIZE, fail);
     ASSERT_EQ(vec.len, 0, fail);
-    ASSERT_EQ(maycup_vector_int_top(&vec, &val), MAYCUP_RESULT_EMPTY_VECTOR, fail);
-    ASSERT_EQ(maycup_vector_int_popback(&vec), MAYCUP_RESULT_EMPTY_VECTOR, fail);
+    ASSERT_EQ(maycup_vector_int_top(&vec, &val), MAYCUP_RESULT_EMPTY_VECTOR,
+              fail);
+    ASSERT_EQ(maycup_vector_int_popback(&vec), MAYCUP_RESULT_EMPTY_VECTOR,
+              fail);
     ASSERT_OK(maycup_vector_int_pushback(&vec, 3), fail);
     ASSERT_EQ(vec.ptr[0], 3, fail);
     ASSERT_OK(maycup_vector_int_top(&vec, &val), fail);

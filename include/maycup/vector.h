@@ -21,7 +21,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "maycup/base/common.h"
+#include <stdint.h>
 #define MAYCUP_DEFAULT_VEC_SIZE 2
 #define MAYCUP_MAX_VEC_CAP (SIZE_MAX / 2)
 
@@ -30,7 +30,7 @@
 // mock undef
 #include "mock_funcs_undef.h"
 
-#include "maycup/base/result.h"
+#include "maycup/result.h"
 #include <stdlib.h>
 
 // mock def
@@ -55,8 +55,8 @@ typedef struct {
  * @param self Out, the vector to construct
  * @param cap In, the initial capacity of vector
  */
-[[maybe_unused]] static MAYCUP_Result
-_CONCAT(FUNC_PREF, ctor)(MAYCUP_OUT VECT *self, MAYCUP_IN size_t cap) {
+[[maybe_unused]] static MAYCUP_Result _CONCAT(FUNC_PREF, ctor)(VECT *self,
+                                                               size_t cap) {
     if (self == NULL || cap == 0 || cap > MAYCUP_MAX_VEC_CAP) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -74,8 +74,7 @@ _CONCAT(FUNC_PREF, ctor)(MAYCUP_OUT VECT *self, MAYCUP_IN size_t cap) {
  * @note After destruction, all of the member will be @c 0 or @c NULL
  * @param self Out, the vector to destruct
  */
-[[maybe_unused]] static MAYCUP_Result _CONCAT(FUNC_PREF,
-                                              dtor)(MAYCUP_OUT VECT *self) {
+[[maybe_unused]] static MAYCUP_Result _CONCAT(FUNC_PREF, dtor)(VECT *self) {
     if (self == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -94,8 +93,8 @@ _CONCAT(FUNC_PREF, ctor)(MAYCUP_OUT VECT *self, MAYCUP_IN size_t cap) {
  * @param self In & out, the vector being reserved
  * @param cap In, the capacity that the function reserves
  */
-[[maybe_unused]] static MAYCUP_Result
-_CONCAT(FUNC_PREF, reserve)(MAYCUP_INOUT VECT *self, MAYCUP_IN size_t cap) {
+[[maybe_unused]] static MAYCUP_Result _CONCAT(FUNC_PREF, reserve)(VECT *self,
+                                                                  size_t cap) {
     if (self == NULL || cap == 0 || cap > MAYCUP_MAX_VEC_CAP ||
         self->ptr == NULL || cap <= self->cap) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
@@ -116,8 +115,8 @@ _CONCAT(FUNC_PREF, reserve)(MAYCUP_INOUT VECT *self, MAYCUP_IN size_t cap) {
  * @param self In & out, the vector accepting the element
  * @param elem In, the element to be pushed back
  */
-[[maybe_unused]] static MAYCUP_Result
-_CONCAT(FUNC_PREF, pushback)(MAYCUP_INOUT VECT *self, MAYCUP_IN T elem) {
+[[maybe_unused]] static MAYCUP_Result _CONCAT(FUNC_PREF, pushback)(VECT *self,
+                                                                   T elem) {
     if (self == NULL || self->ptr == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -139,8 +138,8 @@ _CONCAT(FUNC_PREF, pushback)(MAYCUP_INOUT VECT *self, MAYCUP_IN T elem) {
  * @param self In, the vector
  * @param value Out, the space where the result will be return
  */
-[[maybe_unused]] static MAYCUP_Result
-_CONCAT(FUNC_PREF, top)(MAYCUP_IN VECT *self, MAYCUP_OUT T *value) {
+[[maybe_unused]] static MAYCUP_Result _CONCAT(FUNC_PREF, top)(VECT *self,
+                                                              T *value) {
     if (self == NULL || self->ptr == NULL || value == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -157,8 +156,7 @@ _CONCAT(FUNC_PREF, top)(MAYCUP_IN VECT *self, MAYCUP_OUT T *value) {
  *       2. The capacity will not be changed
  * @param self Out, the vector
  */
-[[maybe_unused]] static MAYCUP_Result _CONCAT(FUNC_PREF,
-                                              popback)(MAYCUP_OUT VECT *self) {
+[[maybe_unused]] static MAYCUP_Result _CONCAT(FUNC_PREF, popback)(VECT *self) {
     if (self == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }

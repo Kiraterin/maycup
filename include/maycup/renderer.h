@@ -24,10 +24,9 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include "maycup/base/common.h"
-#include "maycup/base/result.h"
-#include "maycup/core/parser.h"
-#include "maycup/io/writer.h"
+#include "maycup/parser.h"
+#include "maycup/result.h"
+#include "maycup/writer.h"
 
 typedef struct {
     MAYCUP_Writer *writer;
@@ -39,8 +38,8 @@ typedef struct {
  * @param writer In, the writer which the renderer will use. Cannot be @c NULL
  * @return MAYCUP_Result
  */
-MAYCUP_Result maycup_renderer_ctor(MAYCUP_OUT MAYCUP_Renderer *self,
-                                   MAYCUP_IN MAYCUP_Writer *writer);
+MAYCUP_Result maycup_renderer_ctor(MAYCUP_Renderer *self,
+                                   MAYCUP_Writer *writer);
 
 /**
  * @brief Destruct a renderer
@@ -48,7 +47,7 @@ MAYCUP_Result maycup_renderer_ctor(MAYCUP_OUT MAYCUP_Renderer *self,
  * @param self Out, the renderer to destruct
  * @return MAYCUP_Result
  */
-MAYCUP_Result maycup_renderer_dtor(MAYCUP_OUT MAYCUP_Renderer *self);
+MAYCUP_Result maycup_renderer_dtor(MAYCUP_Renderer *self);
 
 /**
  * @brief Render HTML file from AST
@@ -56,7 +55,6 @@ MAYCUP_Result maycup_renderer_dtor(MAYCUP_OUT MAYCUP_Renderer *self);
  * @param parser In, the parser which provides AST. Cannot be @c NULL
  * @return MAYCUP_Result
  */
-MAYCUP_Result maycup_render(MAYCUP_INOUT MAYCUP_Renderer *renderer,
-                            MAYCUP_IN MAYCUP_Parser *parser);
+MAYCUP_Result maycup_render(MAYCUP_Renderer *renderer, MAYCUP_Parser *parser);
 
 #endif // RENDERER_H

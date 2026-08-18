@@ -16,6 +16,25 @@ The name "Maycup" is a wordplay on "Markdown" ("May c up" and "Mar k down") and 
 - No AI generated code, write all of the code by hand
 - Zero memory leaks under ASan
 
+## Quick Start
+
+```bash
+# Clone and build
+git clone https://github.com/Kiraterin/maycup.git
+cd maycup
+make release
+# Convert this file into a HTML
+./build/release/bin/maycup README.md -o README.html
+# (Optional) Install for the current user
+PREFIX=~/.local make install
+# (Optional) Install system-wide
+sudo make install
+```
+
+## Supported Features
+- Heading
+- Paragraph with no style
+
 ## Usage
 
 ### Synopsis
@@ -30,10 +49,11 @@ maycup <input_file> [options]
 | ----------- | -------- | ---------------- | --------------- |
 | `-o <file>` | Yes      | `path/to/output` | Set output path |
 | `-h`        | No       | None             | Print usage     |
+| `-v`        | No       | None             | Print version   |
 
 ### Example
 
-Convert markdown file to HTML file:
+Convert markdown file into HTML file:
 
 ```bash
 maycup input.md -o output.html
@@ -41,20 +61,27 @@ maycup input.md -o output.html
 
 ## Build Instructions
 
-Use `make all` to build all target configurations and generate the coverage report.
+### Installation
+
+Run `sudo make install` to install the program system-wide.
+By default, three types of files will be installed to `/usr/local/bin`, `/usr/local/lib` and `/usr/local/include`.
+Set the `PREFIX` environment variable to customize the installation path.
 
 ### Configurations
 
 There are three build configurations: `release`, `debug` and `test`.
 Use `make <config>` to build with a specified configuration, e.g. `make release`.
-Build artifacts are generated in
+Use `make all` to build all target configurations and generate the coverage report (but not to install).
+Build artifacts are generated in `./build/<config>/`.
 
-- `./build/<config>/`: intermediate build artifacts
-- `./bin/<config>/`: final build artifact
+For the `release` and `debug` configuration, final build artifacts are:
+- `./build/<config>/bin/maycup`: The CLI program
+- `./build/<config>/lib/libmaycup.a`: The static library
+- `./build/<config>/lib/libmaycup.so.<version>`: The shared library
 
-where `<config>` can be `release`, `debug` or `test`.
+e.g. `./build/release/lib/libmaycup.so.0.1.0` is the shared library under `release` configuration, and the version is `0.1.0`.
 
-Tests will be run automatically after compilation if `<config>` is `test`.
+In the `test` configuration, only `./build/test/bin/maycup_test` is generated and tests are run automatically after compilation.
 
 ### Generate Test Coverage Report
 
@@ -76,8 +103,8 @@ This project is licensed under the [GPL-3.0 License](LICENSE).
 
 ## TODO
 
-- [X] Basic lexer-parser structure
-- [X] Support source file compilation in recursive folders
-- [X] Support debug/release configuration
-- [X] Basic test cases
+- [x] Basic lexer-parser structure
+- [x] Support source file compilation in recursive folders
+- [x] Support debug/release configuration
+- [x] Basic test cases
 - [ ] Full support of markdown features

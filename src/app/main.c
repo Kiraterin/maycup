@@ -30,6 +30,14 @@
 #include "mock_funcs.h"
 
 const char *usage = "Usage: maycup input_file -o output_file\n";
+const char *brief = "Convert markdown file into HTML file\n";
+const char *version_msg = "maycup (Maycup) " MAYCUP_VERSION "\n"
+                          "Copyright (C) 2026 Kiraterin\n"
+                          "Under the GNU GPL version 3 or any later "
+                          "version <https://www.gnu.org/licenses/>\n"
+                          "This program comes with ABSOLUTELY NO WARRANTY.\n"
+                          "This is free software, and you are welcome to "
+                          "redistribute it under certain conditions.\n";
 
 int main(int argc, char *argv[]) {
     int opt;
@@ -38,10 +46,14 @@ int main(int argc, char *argv[]) {
 
     opterr = 0;
 
-    while ((opt = getopt(argc, argv, ":h::o:")) != -1) {
+    while ((opt = getopt(argc, argv, ":hvo:")) != -1) {
         switch (opt) {
         case 'h': {
-            printf("%s", usage);
+            printf("%s%s", usage, brief);
+            return EXIT_SUCCESS;
+        }
+        case 'v': {
+            printf("%s", version_msg);
             return EXIT_SUCCESS;
         }
         case 'o': {

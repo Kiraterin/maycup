@@ -21,7 +21,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "maycup/io/reader.h"
+#include "maycup/reader.h"
 #include "test.h"
 #include <string.h>
 
@@ -134,8 +134,7 @@ fail:
 
 TEST_CASE(filereader_get_char_normal) {
     MAYCUP_FileReader fr;
-    const char *filename_input =
-        UTEST_FIXTURE_PATH_INPUT "reader_lipsum_1.txt";
+    const char *filename_input = UTEST_FIXTURE_PATH_INPUT "reader_lipsum_1.txt";
     const char *filename_expected =
         UTEST_FIXTURE_PATH_EXPECTED "reader_lipsum_1.txt";
     FILE *fp = fopen(filename_expected, "r");
@@ -175,8 +174,7 @@ fail:
 
 TEST_CASE(filereader_get_char_bulk) {
     MAYCUP_FileReader fr;
-    const char *filename_input =
-        UTEST_FIXTURE_PATH_INPUT "reader_lipsum_2.txt";
+    const char *filename_input = UTEST_FIXTURE_PATH_INPUT "reader_lipsum_2.txt";
     const char *filename_expected =
         UTEST_FIXTURE_PATH_EXPECTED "reader_lipsum_2.txt";
     FILE *fp = fopen(filename_expected, "r");
@@ -652,8 +650,7 @@ fail:
 TEST_CASE(filereader_module_common) {
     MAYCUP_FileReader fr;
     FILE *fp;
-    const char *input_filename =
-        UTEST_FIXTURE_PATH_INPUT "reader_lipsum_1.txt";
+    const char *input_filename = UTEST_FIXTURE_PATH_INPUT "reader_lipsum_1.txt";
     const char *expected_filename =
         UTEST_FIXTURE_PATH_EXPECTED "reader_lipsum_1.txt";
     const size_t threshold = 5;

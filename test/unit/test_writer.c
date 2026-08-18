@@ -21,7 +21,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "maycup/io/writer.h"
+#include "maycup/writer.h"
 #include "test.h"
 #include <stdio.h>
 #include <string.h>

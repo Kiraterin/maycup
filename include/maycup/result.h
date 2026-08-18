@@ -24,8 +24,6 @@
 #ifndef RESULT_H
 #define RESULT_H
 
-#include "maycup/base/common.h"
-
 typedef enum {
     MAYCUP_RESULT_OK = 0,
     MAYCUP_RESULT_ERRNO = 1,
@@ -43,7 +41,7 @@ typedef enum {
  * @brief Print error message
  * @param _res_ In, the type of result
  */
-void maycup_error_printmsg(MAYCUP_IN MAYCUP_Result _res_);
+void maycup_error_printmsg(MAYCUP_Result _res_);
 
 /**
  * @brief Do something when @c expr is not @c MAYCUP_RESULT_OK ; The error type

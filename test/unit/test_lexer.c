@@ -21,11 +21,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "maycup/base/result.h"
-#include "maycup/core/lexer.h"
-#include "maycup/debug/objprint.h"
-#include "maycup/io/reader.h"
-#include "maycup/io/writer.h"
+#include "debug/objprint.h"
+#include "maycup/lexer.h"
+#include "maycup/reader.h"
+#include "maycup/result.h"
+#include "maycup/writer.h"
 #include "test.h"
 #include <stddef.h>
 #include <stdlib.h>
@@ -460,9 +460,10 @@ TEST_CASE(lexer_drop_checkpoint_illegal_arg) {
         fail);
     ASSERT_OK(maycup_lexer_ctor(&lexer, (MAYCUP_Reader *)&fr), fail);
 
-    ASSERT_EQ(maycup_lexer_drop_checkpoint(NULL), MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
-    ASSERT_EQ(maycup_lexer_drop_checkpoint(&lexer), MAYCUP_RESULT_ILLEGAL_ARGUMENT,
-              fail);
+    ASSERT_EQ(maycup_lexer_drop_checkpoint(NULL),
+              MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
+    ASSERT_EQ(maycup_lexer_drop_checkpoint(&lexer),
+              MAYCUP_RESULT_ILLEGAL_ARGUMENT, fail);
 
     ASSERT_OK(maycup_lexer_dtor(&lexer), fail);
     ASSERT_OK(maycup_filereader_dtor(&fr), fail);
