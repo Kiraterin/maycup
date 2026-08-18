@@ -31,9 +31,9 @@ PREFIX=~/.local make install
 sudo make install
 ```
 
-## Supported Features
-- Heading
-- Paragraph with no style
+## Features
+- Headings
+- Paragraphs with no style
 
 ## Usage
 
@@ -63,11 +63,12 @@ maycup input.md -o output.html
 
 ### Installation
 
-Run `sudo make install` to install the program system-wide.
-By default, three types of files will be installed to `/usr/local/bin`, `/usr/local/lib` and `/usr/local/include`.
-Set the `PREFIX` environment variable to customize the installation path.
+Run `make install` to install the program.
+Set the `PREFIX` environment variable to customize the installation path. (e.g. `PREFIX=~/.local make install`)
+By default, `PREFIX` is `/usr/local` and three types of files will be installed to `/usr/local/bin`, `/usr/local/lib` and `/usr/local/include`.
+Use `sudo` when installing system-wide.
 
-### Configurations
+### Build Configurations
 
 There are three build configurations: `release`, `debug` and `test`.
 Use `make <config>` to build with a specified configuration, e.g. `make release`.
