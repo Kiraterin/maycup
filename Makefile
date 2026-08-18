@@ -1,19 +1,35 @@
+# Version
+VER := $(shell cat VERSION)
+VER_MAJOR := $(word 1,$(subst ., ,$(VER)))
+VER_MINOR := $(word 2,$(subst ., ,$(VER)))
+VER_PATCH := $(word 3,$(subst ., ,$(VER)))
+SO_MAJOR := $(VER_MAJOR)
+
+# Names
 NAME := maycup
+TARGET_NAME := $(NAME)
+ALIBTARGET_NAME := lib$(NAME).a
+SLIBTARGET_NAME := lib$(NAME).so
+SLIBTARGET_FULLNAME := $(SLIBTARGET_NAME).$(VER)
+SLIBTARGET_SONAME := $(SLIBTARGET_NAME).$(SO_MAJOR)
 
 # Directories
+PREFIX ?= /usr/local
 SRC_DIR := src
-BUILD_DIR_ROOT := build
-INC_DIR := include src test
-LIB_DIR := lib
+INCLUDE_DIR := include
 TEST_DIR := test
+BUILD_DIR_ROOT := build
+INC_DIR := $(INCLUDE_DIR) $(SRC_DIR) $(TEST_DIR)
+LIB_DIR := lib
 
 # Tools
 CC := clang
 AR := ar
-CFLAGS += -std=c23 -Wall -Wextra -Werror -D_GNU_SOURCE -fPIC
+RM := rm
+LN := ln
+CFLAGS += -std=c23 -Wall -Wextra -Werror -D_GNU_SOURCE -DMAYCUP_VERSION=\"$(VER)\" -fPIC
 LD_FLAGS +=
 DEPFLAGS += -MMD -MP
-RM := rm -rf
 
 # Build configuration
 CONFIG :=
@@ -21,9 +37,9 @@ BUILD_DIR = $(BUILD_DIR_ROOT)/$(CONFIG)
 OBJ_DIR = $(BUILD_DIR)/obj
 BIN_DIR = $(BUILD_DIR)/bin
 LIBTARGET_DIR = $(BUILD_DIR)/lib
-TARGET = $(BIN_DIR)/$(NAME)
-ALIBTARGET = $(LIBTARGET_DIR)/lib$(NAME).a
-SLIBTARGET = $(LIBTARGET_DIR)/lib$(NAME).so
+TARGET = $(BIN_DIR)/$(TARGET_NAME)
+ALIBTARGET = $(LIBTARGET_DIR)/$(ALIBTARGET_NAME)
+SLIBTARGET = $(LIBTARGET_DIR)/$(SLIBTARGET_FULLNAME)
 
 # Files
 SRC := $(shell find $(SRC_DIR) -name "*.c")
@@ -40,7 +56,7 @@ LIB :=
 
 ifeq ($(CONFIG), release)
 	CFLAGS += -O3 -DNDEBUG -ffunction-sections -fdata-sections
-	LD_FLAGS += -s -Wl,--gc-sections
+	LD_FLAGS += -s -Wl,--gc-sections,-soname,$(SLIBTARGET_SONAME)
 	OBJ := $(SRC_OBJ)
 else ifeq ($(CONFIG), debug)
 	CFLAGS += -g -O0 -fsanitize=address -DDEBUG
@@ -65,10 +81,12 @@ C_RESET := \033[0m
 
 # Goal control
 .DEFAULT_GOAL := all
-.PHONY: nothing all release debug test \
+.PHONY: nothing
+	build_target build_alibtarget build_slibtarget \
+	install uninstall \
+	all release debug test \
 	clean cov \
 	test_not_run test_run cov_inner \
-	build_target build_alibtarget build_slibtarget
 
 nothing:
 
@@ -82,9 +100,32 @@ build_target: $(TARGET)
 build_alibtarget: $(ALIBTARGET)
 build_slibtarget: $(SLIBTARGET)
 
+install: CONFIG := release
+install: release
+	@echo -e '$(C_GREEN)Installing...$(C_RESET)'
+	install -Dm 755 $(TARGET) $(PREFIX)/bin/$(TARGET_NAME)
+	install -Dm 644 $(ALIBTARGET) $(PREFIX)/lib/$(ALIBTARGET_NAME)
+	install -Dm 755 $(SLIBTARGET) $(PREFIX)/lib/$(SLIBTARGET_FULLNAME)
+	install -Dm 644 $(INCLUDE_DIR)/$(NAME).h $(PREFIX)/include/$(NAME).h
+	install -d $(PREFIX)/include/$(NAME)
+	install -m 644 $(INCLUDE_DIR)/$(NAME)/*.h $(PREFIX)/include/$(NAME)/
+	$(LN) -sf $(SLIBTARGET_FULLNAME) $(PREFIX)/lib/$(SLIBTARGET_SONAME)
+	$(LN) -sf $(SLIBTARGET_FULLNAME) $(PREFIX)/lib/$(SLIBTARGET_NAME)
+	@echo -e '$(C_GREEN)Installation completed$(C_RESET)'
+
+uninstall: CONFIG := release
+uninstall:
+	@echo -e '$(C_GREEN)Uninstalling...$(C_RESET)'
+	$(RM) -r -- $(PREFIX)/bin/$(TARGET_NAME)
+	$(RM) -r -- $(PREFIX)/lib/$(ALIBTARGET_NAME)
+	$(RM) -r -- $(PREFIX)/lib/$(SLIBTARGET_NAME)
+	$(RM) -r -- $(PREFIX)/lib/$(SLIBTARGET_NAME).*
+	$(RM) -r -- $(PREFIX)/include/$(NAME).h
+	$(RM) -rf -- $(PREFIX)/include/$(NAME)
+
 clean:
-	@echo -e '$(C_GREEN)Cleaning:$(C_RESET)'
-	$(RM) -- $(BUILD_DIR_ROOT)
+	@echo -e '$(C_GREEN)Cleaning...$(C_RESET)'
+	$(RM) -rf -- $(BUILD_DIR_ROOT)
 
 release:
 	@echo -e '\n$(C_GREEN)Current Configuration: release $(C_RESET)'
