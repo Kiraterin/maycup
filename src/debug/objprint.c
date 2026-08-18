@@ -21,27 +21,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "maycup/base/result.h"
-#include "maycup/io/reader.h"
-#include "maycup/io/writer.h"
+#include "maycup/reader.h"
+#include "maycup/result.h"
+#include "maycup/writer.h"
 #include <stdlib.h>
 #include <string.h>
 
 #ifdef DEBUG
 
-#include "maycup/base/common.h"
-#include "maycup/core/ast.h"
-#include "maycup/core/lexer.h"
+#include "maycup/ast.h"
+#include "maycup/lexer.h"
 #include <stdio.h>
 
 typedef ssize_t idx;
 #define MAYCUP_VEC_T idx
 #define MAYCUP_VEC_DISPT Idx
-#include "maycup/base/vector.h"
+#include "maycup/vector.h"
 #undef MAYCUP_VEC_DISPT
 #undef MAYCUP_VEC_T
 
-char *maycup_token_tostr(MAYCUP_IN MAYCUP_Token *token) {
+char *maycup_token_tostr(MAYCUP_Token *token) {
     char *str;
     if (token->type == MAYCUP_TOKENTYPE_TEXT) {
         str = (char *)malloc((128 + strlen(token->text)) * sizeof(char));
@@ -78,13 +77,13 @@ char *maycup_token_tostr(MAYCUP_IN MAYCUP_Token *token) {
     return str;
 }
 
-void maycup_print_token(MAYCUP_IN MAYCUP_Token *token) {
+void maycup_print_token(MAYCUP_Token *token) {
     char *str = maycup_token_tostr(token);
     printf("%s\n", str);
     free(str);
 }
 
-char *maycup_ast_tostr(MAYCUP_IN MAYCUP_AST *ast, MAYCUP_IN ssize_t root) {
+char *maycup_ast_tostr(MAYCUP_AST *ast, ssize_t root) {
     MAYCUP_StringWriter sw;
     MAYCUP_UNWRAP(maycup_stringwriter_ctor_flexible(
         &sw, MAYCUP_DEFAULT_STRWRITER_FLEXBUF_SIZE));
@@ -159,7 +158,7 @@ char *maycup_ast_tostr(MAYCUP_IN MAYCUP_AST *ast, MAYCUP_IN ssize_t root) {
     return res;
 }
 
-void maycup_print_ast(MAYCUP_IN MAYCUP_AST *ast, MAYCUP_IN ssize_t root) {
+void maycup_print_ast(MAYCUP_AST *ast, ssize_t root) {
     char *res = maycup_ast_tostr(ast, root);
     printf("%s", res);
     free(res);

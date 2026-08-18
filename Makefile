@@ -3,7 +3,7 @@ NAME := maycup
 # Directories
 SRC_DIR := src
 BUILD_DIR_ROOT := build
-INC_DIR := include test
+INC_DIR := include src test
 LIB_DIR := lib
 TEST_DIR := test
 

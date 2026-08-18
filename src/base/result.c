@@ -21,7 +21,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "maycup/base/result.h"
+#include "maycup/result.h"
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
@@ -29,7 +29,7 @@
 // mock def
 #include "mock_funcs.h"
 
-void maycup_error_printmsg(MAYCUP_IN MAYCUP_Result res) {
+void maycup_error_printmsg(MAYCUP_Result res) {
     switch (res) {
     case MAYCUP_RESULT_OK:
         return;

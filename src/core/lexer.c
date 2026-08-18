@@ -21,23 +21,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "maycup/core/lexer.h"
-#include "maycup/base/result.h"
+#include "maycup/lexer.h"
+#include "maycup/result.h"
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 
 #define MAYCUP_VEC_T char
 #define MAYCUP_VEC_DISPT Char
-#include "maycup/base/vector.h"
+#include "maycup/vector.h"
 #undef MAYCUP_VEC_DISPT
 #undef MAYCUP_VEC_T
 
 // mock def
 #include "mock_funcs.h"
 
-MAYCUP_Result maycup_token_duplicate(MAYCUP_OUT MAYCUP_Token *dest,
-                                     MAYCUP_IN MAYCUP_Token *src) {
+MAYCUP_Result maycup_token_duplicate(MAYCUP_Token *dest, MAYCUP_Token *src) {
     if (src == NULL || dest == NULL || dest->type != MAYCUP_TOKENTYPE_NONE) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -52,7 +51,7 @@ MAYCUP_Result maycup_token_duplicate(MAYCUP_OUT MAYCUP_Token *dest,
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result maycup_token_dtor(MAYCUP_OUT MAYCUP_Token *self) {
+MAYCUP_Result maycup_token_dtor(MAYCUP_Token *self) {
     if (self == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -64,8 +63,7 @@ MAYCUP_Result maycup_token_dtor(MAYCUP_OUT MAYCUP_Token *self) {
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result maycup_lexer_ctor(MAYCUP_OUT MAYCUP_Lexer *self,
-                                MAYCUP_INOUT MAYCUP_Reader *reader) {
+MAYCUP_Result maycup_lexer_ctor(MAYCUP_Lexer *self, MAYCUP_Reader *reader) {
     if (self == NULL || reader == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -75,7 +73,7 @@ MAYCUP_Result maycup_lexer_ctor(MAYCUP_OUT MAYCUP_Lexer *self,
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result maycup_lexer_dtor(MAYCUP_OUT MAYCUP_Lexer *self) {
+MAYCUP_Result maycup_lexer_dtor(MAYCUP_Lexer *self) {
     if (self == NULL || self->reader == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -112,8 +110,7 @@ static bool is_literal(int ch) {
     }
 }
 
-MAYCUP_Result maycup_next_token(MAYCUP_OUT MAYCUP_Token *token,
-                                MAYCUP_IN MAYCUP_Lexer *lexer) {
+MAYCUP_Result maycup_next_token(MAYCUP_Token *token, MAYCUP_Lexer *lexer) {
     if (token == NULL || lexer == NULL || lexer->reader == NULL ||
         token->type != MAYCUP_TOKENTYPE_NONE) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
@@ -174,7 +171,7 @@ MAYCUP_Result maycup_next_token(MAYCUP_OUT MAYCUP_Token *token,
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result maycup_lexer_checkpoint(MAYCUP_OUT MAYCUP_Lexer *self) {
+MAYCUP_Result maycup_lexer_checkpoint(MAYCUP_Lexer *self) {
     if (self == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -187,7 +184,7 @@ MAYCUP_Result maycup_lexer_checkpoint(MAYCUP_OUT MAYCUP_Lexer *self) {
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result maycup_lexer_restore(MAYCUP_INOUT MAYCUP_Lexer *self) {
+MAYCUP_Result maycup_lexer_restore(MAYCUP_Lexer *self) {
     if (self == NULL || self->checkpoint.len < 1) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -197,7 +194,7 @@ MAYCUP_Result maycup_lexer_restore(MAYCUP_INOUT MAYCUP_Lexer *self) {
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result maycup_lexer_drop_checkpoint(MAYCUP_OUT MAYCUP_Lexer *self) {
+MAYCUP_Result maycup_lexer_drop_checkpoint(MAYCUP_Lexer *self) {
     if (self == NULL || self->checkpoint.len < 1) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }

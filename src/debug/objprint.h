@@ -25,22 +25,21 @@
 #define OBJPRINT_H
 #ifdef DEBUG
 
-#include "maycup/base/common.h"
-#include "maycup/core/ast.h"
-#include "maycup/core/lexer.h"
+#include "maycup/ast.h"
+#include "maycup/lexer.h"
 
 /**
  * @brief Convert a token to string
  * @param token In, the dest token
  * @return char* remember to free it
  */
-char *maycup_token_tostr(MAYCUP_IN MAYCUP_Token *token);
+char *maycup_token_tostr(MAYCUP_Token *token);
 
 /**
  * @brief Print a token
  * @param token In, the dest token
  */
-void maycup_print_token(MAYCUP_IN MAYCUP_Token *token);
+void maycup_print_token(MAYCUP_Token *token);
 
 /**
  * @brief Covert an AST to string
@@ -48,14 +47,14 @@ void maycup_print_token(MAYCUP_IN MAYCUP_Token *token);
  * @param root In, the root node
  * @return char* remember to free it
  */
-char *maycup_ast_tostr(MAYCUP_IN MAYCUP_AST *ast, MAYCUP_IN ssize_t root);
+char *maycup_ast_tostr(MAYCUP_AST *ast, ssize_t root);
 
 /**
  * @brief Print an AST
  * @param ast In, the ast to print
  * @param root In, the entry point
  */
-void maycup_print_ast(MAYCUP_IN MAYCUP_AST *ast, MAYCUP_IN ssize_t root);
+void maycup_print_ast(MAYCUP_AST *ast, ssize_t root);
 
 #endif // DEBUG
 #endif // OBJPRINT_H

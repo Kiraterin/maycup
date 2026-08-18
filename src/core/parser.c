@@ -21,16 +21,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "maycup/core/parser.h"
-#include "maycup/base/result.h"
-#include "maycup/core/lexer.h"
+#include "maycup/parser.h"
+#include "maycup/lexer.h"
+#include "maycup/result.h"
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 
 #define MAYCUP_VEC_T char
 #define MAYCUP_VEC_DISPT Char
-#include "maycup/base/vector.h"
+#include "maycup/vector.h"
 #undef MAYCUP_VEC_DISPT
 #undef MAYCUP_VEC_T
 
@@ -350,7 +350,7 @@ static MAYCUP_Result parse_blocks(MAYCUP_Parser *parser, MAYCUP_Lexer *lexer) {
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result maycup_parser_ctor(MAYCUP_OUT MAYCUP_Parser *self) {
+MAYCUP_Result maycup_parser_ctor(MAYCUP_Parser *self) {
     if (self == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -359,7 +359,7 @@ MAYCUP_Result maycup_parser_ctor(MAYCUP_OUT MAYCUP_Parser *self) {
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result maycup_parser_dtor(MAYCUP_OUT MAYCUP_Parser *self) {
+MAYCUP_Result maycup_parser_dtor(MAYCUP_Parser *self) {
     if (self == NULL || self->ast.data == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }
@@ -367,8 +367,7 @@ MAYCUP_Result maycup_parser_dtor(MAYCUP_OUT MAYCUP_Parser *self) {
     return MAYCUP_RESULT_OK;
 }
 
-MAYCUP_Result maycup_parse(MAYCUP_INOUT MAYCUP_Parser *parser,
-                           MAYCUP_INOUT MAYCUP_Lexer *lexer) {
+MAYCUP_Result maycup_parse(MAYCUP_Parser *parser, MAYCUP_Lexer *lexer) {
     if (parser == NULL || lexer == NULL) {
         return MAYCUP_RESULT_ILLEGAL_ARGUMENT;
     }

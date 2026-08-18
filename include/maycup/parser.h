@@ -24,8 +24,8 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "maycup/core/ast.h"
-#include "maycup/core/lexer.h"
+#include "maycup/ast.h"
+#include "maycup/lexer.h"
 
 typedef struct {
     MAYCUP_Token cur_token;
@@ -39,14 +39,14 @@ typedef struct {
  * @param self Out, the parser to construct
  * @return MAYCUP_Result
  */
-MAYCUP_Result maycup_parser_ctor(MAYCUP_OUT MAYCUP_Parser *self);
+MAYCUP_Result maycup_parser_ctor(MAYCUP_Parser *self);
 
 /**
  * @brief Destruct a parser
  * @param self Out, the parser to destruct
  * @return MAYCUP_Result
  */
-MAYCUP_Result maycup_parser_dtor(MAYCUP_OUT MAYCUP_Parser *self);
+MAYCUP_Result maycup_parser_dtor(MAYCUP_Parser *self);
 
 /**
  * @brief Parse a file using parser and lexer
@@ -54,7 +54,6 @@ MAYCUP_Result maycup_parser_dtor(MAYCUP_OUT MAYCUP_Parser *self);
  * @param lexer In & out, the lexer. Cannot be @c NULL
  * @return MAYCUP_Result
  */
-MAYCUP_Result maycup_parse(MAYCUP_INOUT MAYCUP_Parser *parser,
-                           MAYCUP_INOUT MAYCUP_Lexer *lexer);
+MAYCUP_Result maycup_parse(MAYCUP_Parser *parser, MAYCUP_Lexer *lexer);
 
 #endif // PARSER_H
